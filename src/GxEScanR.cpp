@@ -2,6 +2,7 @@
 
 // we only include RcppArmadillo.h which pulls Rcpp.h in for us
 #include "RcppArmadillo.h"
+#include "Subject.h"
 
 // via the depends attribute we tell Rcpp to create hooks for
 // RcppArmadillo so that the build process will know what to do
@@ -28,7 +29,8 @@
 //' @export
 // [[Rcpp::export]]
 int GxEScan() {
-  Rcpp::Rcout << "Checking subject data" << std::endl;
+//  Rcpp::Rcout << "Checking subject data" << std::endl;
+  TestSubjectData();
   Rcpp::Rcout << "Checking genetic data" << std::endl;
   Rcpp::Rcout << "Checking model selection" << std::endl;
   Rcpp::Rcout << "Fitting models" << std::endl;
