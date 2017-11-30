@@ -8,12 +8,16 @@
 #' for these one step tests along with two step tests derived from
 #' the one step tests.
 #' 
+#' @param subjectData
+#' Data frame with family and subject IDs in first two columns
+#' phenotype in third columna
+#' and covariates in remaining columns
 #' @return
 #' 0 success
 #' 1 failure
 #' @export
-GxEScan <- function() {
-    .Call('_GxEScanR_GxEScan', PACKAGE = 'GxEScanR')
+GxEScan <- function(subjectData) {
+    .Call('_GxEScanR_GxEScan', PACKAGE = 'GxEScanR', subjectData)
 }
 
 #' Function to display the results from the scans performed by GxEScan

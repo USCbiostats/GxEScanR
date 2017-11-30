@@ -4,7 +4,12 @@
 \alias{GxEScan}
 \title{Function to fit models scanning over genotypes}
 \usage{
-GxEScan()
+GxEScan(subjectData)
+}
+\arguments{
+\item{subjectData}{Data frame with family and subject IDs in first two columns
+phenotype in third columna
+and covariates in remaining columns}
 }
 \value{
 0 success

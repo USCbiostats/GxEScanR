@@ -23,14 +23,23 @@
 //' for these one step tests along with two step tests derived from
 //' the one step tests.
 //' 
+//' @param subjectData
+//' Data frame with family and subject IDs in first two columns
+//' phenotype in third columna
+//' and covariates in remaining columns
 //' @return
 //' 0 success
 //' 1 failure
 //' @export
 // [[Rcpp::export]]
-int GxEScan() {
+int GxEScan(Rcpp::DataFrame subjectData) {
 //  Rcpp::Rcout << "Checking subject data" << std::endl;
-  TestSubjectData();
+  Rcpp::Rcout << "Checking subjectData:\t";
+  if (TestSubjectData(subjectData)) {
+    Rcpp::Rcout << "Failed" << std::endl;
+    return 1;
+  }
+  Rcpp::Rcout << "Passed" << std::endl;
   Rcpp::Rcout << "Checking genetic data" << std::endl;
   Rcpp::Rcout << "Checking model selection" << std::endl;
   Rcpp::Rcout << "Fitting models" << std::endl;
