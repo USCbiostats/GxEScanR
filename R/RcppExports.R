@@ -16,8 +16,8 @@
 #' 0 success
 #' 1 failure
 #' @export
-GxEScan <- function(subjectData) {
-    .Call('_GxEScanR_GxEScan', PACKAGE = 'GxEScanR', subjectData)
+GxEScan <- function(subjectData, geneticData) {
+    .Call('_GxEScanR_GxEScan', PACKAGE = 'GxEScanR', subjectData, geneticData)
 }
 
 #' Function to display the results from the scans performed by GxEScan

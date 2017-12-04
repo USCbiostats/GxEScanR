@@ -3,6 +3,7 @@
 // we only include RcppArmadillo.h which pulls Rcpp.h in for us
 #include "RcppArmadillo.h"
 #include "Subject.h"
+#include "GeneticData.h"
 
 // via the depends attribute we tell Rcpp to create hooks for
 // RcppArmadillo so that the build process will know what to do
@@ -32,15 +33,20 @@
 //' 1 failure
 //' @export
 // [[Rcpp::export]]
-int GxEScan(Rcpp::DataFrame subjectData) {
+int GxEScan(Rcpp::DataFrame subjectData, Rcpp::List geneticData) {
 //  Rcpp::Rcout << "Checking subject data" << std::endl;
-  Rcpp::Rcout << "Checking subjectData:\t";
+  Rcpp::Rcout << "Checking subjectData:\t\t";
   if (TestSubjectData(subjectData)) {
-    Rcpp::Rcout << "Failed" << std::endl;
+    Rcpp::Rcerr << "Failed" << std::endl;
     return 1;
   }
   Rcpp::Rcout << "Passed" << std::endl;
-  Rcpp::Rcout << "Checking genetic data" << std::endl;
+  Rcpp::Rcout << "Checking genetic data:\t";
+  if (TestGeneticData(geneticData)) {
+    Rcpp::Rcerr << "Failed" << std::endl;
+    return 1;
+  }
+  Rcpp::Rcout << "Passed" << std::endl;
   Rcpp::Rcout << "Checking model selection" << std::endl;
   Rcpp::Rcout << "Fitting models" << std::endl;
   Rcpp::Rcout << "Complete" << std::endl;

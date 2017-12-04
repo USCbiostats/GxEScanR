@@ -7,13 +7,14 @@
 using namespace Rcpp;
 
 // GxEScan
-int GxEScan(Rcpp::DataFrame subjectData);
-RcppExport SEXP _GxEScanR_GxEScan(SEXP subjectDataSEXP) {
+int GxEScan(Rcpp::DataFrame subjectData, Rcpp::List geneticData);
+RcppExport SEXP _GxEScanR_GxEScan(SEXP subjectDataSEXP, SEXP geneticDataSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::DataFrame >::type subjectData(subjectDataSEXP);
-    rcpp_result_gen = Rcpp::wrap(GxEScan(subjectData));
+    Rcpp::traits::input_parameter< Rcpp::List >::type geneticData(geneticDataSEXP);
+    rcpp_result_gen = Rcpp::wrap(GxEScan(subjectData, geneticData));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -29,7 +30,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_GxEScanR_GxEScan", (DL_FUNC) &_GxEScanR_GxEScan, 1},
+    {"_GxEScanR_GxEScan", (DL_FUNC) &_GxEScanR_GxEScan, 2},
     {"_GxEScanR_GxETest", (DL_FUNC) &_GxEScanR_GxETest, 0},
     {NULL, NULL, 0}
 };
