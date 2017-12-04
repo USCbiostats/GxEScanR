@@ -2,5 +2,6 @@
 
 export(GxEScan)
 export(GxETest)
+export(PlinkBinaryInfo)
 importFrom(Rcpp,evalCpp)
 useDynLib(GxEScanR)

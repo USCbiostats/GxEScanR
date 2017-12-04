@@ -4,7 +4,7 @@
 \alias{GxEScan}
 \title{Function to fit models scanning over genotypes}
 \usage{
-GxEScan(subjectData)
+GxEScan(subjectData, geneticData)
 }
 \arguments{
 \item{subjectData}{Data frame with family and subject IDs in first two columns

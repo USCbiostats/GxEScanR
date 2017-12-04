@@ -34,3 +34,20 @@ GxETest <- function() {
     .Call('_GxEScanR_GxETest', PACKAGE = 'GxEScanR')
 }
 
+#' Function to produce summary of a plink binary genetic file used by GxEScan
+#' 
+#' Function to produce summary of a plink binary genetic file used by GxEScan
+#' 
+#' @param geneticFile
+#' Name of file with genetic data, normally ends with .bed
+#' @param mapFile
+#' Name of map file associated with genetic data file, normally ends with .bim
+#' @param familyFile
+#' Name of family file associated with genetic data file, normally ends with .fam
+#' @return
+#' List with data needed by GxEScan
+#' @export
+PlinkBinaryInfo <- function(geneticFile, mapFile, familyFile) {
+    .Call('_GxEScanR_PlinkBinaryInfo', PACKAGE = 'GxEScanR', geneticFile, mapFile, familyFile)
+}
+

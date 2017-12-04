@@ -28,10 +28,24 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// PlinkBinaryInfo
+Rcpp::List PlinkBinaryInfo(std::string& geneticFile, std::string& mapFile, std::string& familyFile);
+RcppExport SEXP _GxEScanR_PlinkBinaryInfo(SEXP geneticFileSEXP, SEXP mapFileSEXP, SEXP familyFileSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< std::string& >::type geneticFile(geneticFileSEXP);
+    Rcpp::traits::input_parameter< std::string& >::type mapFile(mapFileSEXP);
+    Rcpp::traits::input_parameter< std::string& >::type familyFile(familyFileSEXP);
+    rcpp_result_gen = Rcpp::wrap(PlinkBinaryInfo(geneticFile, mapFile, familyFile));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_GxEScanR_GxEScan", (DL_FUNC) &_GxEScanR_GxEScan, 2},
     {"_GxEScanR_GxETest", (DL_FUNC) &_GxEScanR_GxETest, 0},
+    {"_GxEScanR_PlinkBinaryInfo", (DL_FUNC) &_GxEScanR_PlinkBinaryInfo, 3},
     {NULL, NULL, 0}
 };
 
