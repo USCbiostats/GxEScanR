@@ -12,6 +12,8 @@ protected:
   std::string m_geneticFile;
   std::string m_mapFile;
   std::string m_familyFile;
+  
+  int CheckFileSize();
 public:
   CPlinkBinary(std::string &geneticFile, std::string &mapFile, std::string &familyFile);
   virtual ~CPlinkBinary() {}

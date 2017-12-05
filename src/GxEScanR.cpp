@@ -41,7 +41,7 @@ int GxEScan(Rcpp::DataFrame subjectData, Rcpp::List geneticData) {
     return 1;
   }
   Rcpp::Rcout << "Passed" << std::endl;
-  Rcpp::Rcout << "Checking genetic data:\t";
+  Rcpp::Rcout << "Checking genetic data:\t\t";
   if (TestGeneticData(geneticData)) {
     Rcpp::Rcerr << "Failed" << std::endl;
     return 1;

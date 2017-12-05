@@ -1,5 +1,6 @@
 #include <istream>
 #include <fstream>
+#include <string>
 #include <RcppArmadillo.h>
 #include "PlinkBinary.h"
 
@@ -19,16 +20,23 @@
 // [[Rcpp::export]]
 Rcpp::List PlinkBinaryInfo(std::string &geneticFile, std::string &mapFile, std::string &familyFile) {
   Rcpp::List result;
-  std::string type = "plinkBinary";
   CPlinkBinary geneticData(geneticFile, mapFile, familyFile);
   
-  result = Rcpp::List::create(Rcpp::Named("type") = type,
+  result = Rcpp::List::create(Rcpp::Named("type") = "plinkBinary",
                               Rcpp::Named("file") = geneticFile,
                               Rcpp::Named("mapFile") = mapFile,
-                              Rcpp::Named("familyFile") = familyFile);
+                              Rcpp::Named("familyFile") = familyFile,
+                              Rcpp::Named("valid") = false,
+                              Rcpp::Named("errorMessage") = "",
+                              Rcpp::Named("numSubjects") = 0,
+                              Rcpp::Named("numSNPs") = 0);
   
   if (geneticData.CheckValidity()) {
-    Rcpp::Rcout << geneticData.ErrorMessage() << std::endl;
+    result["errorMessage"] = geneticData.ErrorMessage();
+  } else {
+    result["valid"] = true;
+    result["numSubjects"] = geneticData.NumSubjects();
+    result["numSNPs"] = geneticData.NumSNPs();
   }
   
   return result;
@@ -38,6 +46,37 @@ CPlinkBinary::CPlinkBinary(std::string &_geneticFile, std::string &_mapFile, std
   m_geneticFile = _geneticFile;
   m_mapFile = _mapFile;
   m_familyFile = _familyFile;
+}
+
+int CPlinkBinary::CheckFileSize() {
+  long long expectedFileSize;
+  std::streampos actualFileSize;
+  std::ifstream infile;
+  char expectedHeader[3] = { 0x6c, 0x1b, 0x01 };
+  char header[3];
+  
+  infile.open(m_geneticFile, std::ios_base::in | std::ios_base::binary);
+  infile.read(header, 3);
+  if (!infile.good()) {
+    Rcpp::Rcout << "Error reading header" << std::endl;
+    infile.close();
+    return 1;
+  }
+  if (std::memcmp(header, expectedHeader, 3)) {
+    Rcpp::Rcout << "Genetic file is not a plink binary formatted file" << std::endl;
+    infile.close();
+    return 1;
+  }
+  infile.seekg(0, std::ios_base::end);
+  actualFileSize = infile.tellg();
+  infile.close();
+  
+  expectedFileSize = ((m_numSubjects + 3) / 4) * m_numSNPs + 3;
+  if (expectedFileSize != actualFileSize) {
+    Rcpp::Rcout << "Expected file size: " << expectedFileSize << ", does not equal actual file size: " << actualFileSize << std::endl;
+    return 1;
+  }
+  return 0;
 }
 
 int CPlinkBinary::CheckValidity() {
@@ -63,14 +102,27 @@ int CPlinkBinary::CheckValidity() {
   infile.close();
   
   Rcpp::Environment env = Rcpp::Environment::namespace_env("GxEScanR");
-  Rcpp::Function testSubjectFunction = env["FamilyFileInfo"];
-  Rcpp::NumericVector result = testSubjectFunction(m_familyFile);
-  
+  Rcpp::Function testFamFile = env["FamilyFileCheck"];
+  Rcpp::NumericVector result = testFamFile(m_familyFile);
+
   if (result[0] == 0) {
     Rcpp::Rcout << "Error reading family file" << std::endl;
     return 1;
   }
-  Rcpp::Rcout << result[0] << " subjects in family file" << std::endl;
+  m_numSubjects = result[0];
+
+  Rcpp::Function testMapFile = env["MapFileCheck"];
+  result = testMapFile(m_mapFile);
+  
+  if (result[0] == 0) {
+    Rcpp::Rcout << "Error reading map file" << std::endl;
+    return 1;
+  }
+  m_numSNPs = result[0];
+
+  if (CheckFileSize())
+    return 1;
+  
   return 0;
 }
 
