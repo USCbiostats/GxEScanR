@@ -12,12 +12,15 @@
 #' Data frame with family and subject IDs in first two columns
 #' phenotype in third columna
 #' and covariates in remaining columns
+#' @param geneticInfo
+#' List returned from one of the functions to get the required information
+#' about the source of genetic data.
 #' @return
 #' 0 success
 #' 1 failure
 #' @export
-GxEScan <- function(subjectData, geneticData) {
-    .Call('_GxEScanR_GxEScan', PACKAGE = 'GxEScanR', subjectData, geneticData)
+GxEScan <- function(subjectData, geneticInfo) {
+    .Call('_GxEScanR_GxEScan', PACKAGE = 'GxEScanR', subjectData, geneticInfo)
 }
 
 #' Function to display the results from the scans performed by GxEScan

@@ -1,14 +1,16 @@
 #include <string>
 #include <RcppArmadillo.h>
 #include "GeneticData.h"
+#include "PlinkBinary.h"
 
 const unsigned int NumGeneticDataTypes = 1;
 const std::string GeneticDataTypes[NumGeneticDataTypes] = { "plinkBinary" };
 
-int TestGeneticData(Rcpp::List &_geneticData) {
-  unsigned int ui;
+CGeneticData *TestGeneticData(Rcpp::List &_geneticData) {
+  CGeneticData *geneticData = NULL;
   Rcpp::StringVector typeVector;
   std::string type;
+  unsigned int ui;
   
   typeVector = Rcpp::as<Rcpp::StringVector>(_geneticData["type"]);
   type = Rcpp::as<std::string>(typeVector[0]);
@@ -16,11 +18,17 @@ int TestGeneticData(Rcpp::List &_geneticData) {
     if (type == GeneticDataTypes[ui])
       break;
   }
-  if (ui == NumGeneticDataTypes) {
-    Rcpp::Rcout << "Unknown genetic data type" << std::endl;
-    return 1;
+  switch(ui) {
+  case 0:
+    geneticData = new CPlinkBinary(_geneticData);
+    if (geneticData->CheckValidity()) {
+      delete geneticData;
+      geneticData = NULL;
+    }
+  default:
+    break;
   }
-  return 0;
+  return geneticData;
 }
 
 CGeneticData::CGeneticData() {

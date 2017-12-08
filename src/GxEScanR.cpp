@@ -28,13 +28,18 @@
 //' Data frame with family and subject IDs in first two columns
 //' phenotype in third columna
 //' and covariates in remaining columns
+//' @param geneticInfo
+//' List returned from one of the functions to get the required information
+//' about the source of genetic data.
 //' @return
 //' 0 success
 //' 1 failure
 //' @export
 // [[Rcpp::export]]
-int GxEScan(Rcpp::DataFrame subjectData, Rcpp::List geneticData) {
+int GxEScan(Rcpp::DataFrame subjectData, Rcpp::List geneticInfo) {
 //  Rcpp::Rcout << "Checking subject data" << std::endl;
+  CGeneticData *geneticData = NULL;
+  
   Rcpp::Rcout << "Checking subjectData:\t\t";
   if (TestSubjectData(subjectData)) {
     Rcpp::Rcerr << "Failed" << std::endl;
@@ -42,7 +47,8 @@ int GxEScan(Rcpp::DataFrame subjectData, Rcpp::List geneticData) {
   }
   Rcpp::Rcout << "Passed" << std::endl;
   Rcpp::Rcout << "Checking genetic data:\t\t";
-  if (TestGeneticData(geneticData)) {
+  geneticData = (TestGeneticData(geneticInfo));
+  if (geneticData == NULL) {
     Rcpp::Rcerr << "Failed" << std::endl;
     return 1;
   }
@@ -50,6 +56,8 @@ int GxEScan(Rcpp::DataFrame subjectData, Rcpp::List geneticData) {
   Rcpp::Rcout << "Checking model selection" << std::endl;
   Rcpp::Rcout << "Fitting models" << std::endl;
   Rcpp::Rcout << "Complete" << std::endl;
+  if (geneticData)
+    delete geneticData;
   return 0;
 }
 

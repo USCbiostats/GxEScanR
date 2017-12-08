@@ -1,7 +1,7 @@
 #ifndef PLINKBINARY_H
 #define PLINKBINARY_H 1
 
-#ifndef GENETICDATA
+#ifndef GENETICDATA_H
 #include "GeneticData.h"
 #endif
 
@@ -15,6 +15,7 @@ protected:
   
   int CheckFileSize();
 public:
+  CPlinkBinary(Rcpp::List &_geneticData);
   CPlinkBinary(std::string &geneticFile, std::string &mapFile, std::string &familyFile);
   virtual ~CPlinkBinary() {}
   virtual int CheckValidity();

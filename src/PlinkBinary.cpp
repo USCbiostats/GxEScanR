@@ -21,11 +21,14 @@
 Rcpp::List PlinkBinaryInfo(std::string &geneticFile, std::string &mapFile, std::string &familyFile) {
   Rcpp::List result;
   CPlinkBinary geneticData(geneticFile, mapFile, familyFile);
+  Rcpp::StringVector files(3);
+  
+  files[0] = geneticFile;
+  files[1] = mapFile;
+  files[2] = familyFile;
   
   result = Rcpp::List::create(Rcpp::Named("type") = "plinkBinary",
-                              Rcpp::Named("file") = geneticFile,
-                              Rcpp::Named("mapFile") = mapFile,
-                              Rcpp::Named("familyFile") = familyFile,
+                              Rcpp::Named("files") = files,
                               Rcpp::Named("valid") = false,
                               Rcpp::Named("errorMessage") = "",
                               Rcpp::Named("numSubjects") = 0,
@@ -40,6 +43,15 @@ Rcpp::List PlinkBinaryInfo(std::string &geneticFile, std::string &mapFile, std::
   }
   
   return result;
+}
+
+CPlinkBinary::CPlinkBinary(Rcpp::List &_geneticData) {
+  Rcpp::StringVector fileVector;
+
+  fileVector = Rcpp::as<Rcpp::StringVector>(_geneticData["files"]);
+  m_geneticFile = Rcpp::as<std::string>(fileVector[0]);
+  m_mapFile = Rcpp::as<std::string>(fileVector[1]);
+  m_familyFile = Rcpp::as<std::string>(fileVector[2]);
 }
 
 CPlinkBinary::CPlinkBinary(std::string &_geneticFile, std::string &_mapFile, std::string &_familyFile) : CGeneticData() {
@@ -130,3 +142,4 @@ int CPlinkBinary::CheckValidity() {
 // mfn <- "C:/GxEScan/SmallData.bim"
 // ffn <- "C:/GxEScan/SmallData.fam"
 // pbi <- PlinkBinaryInfo(gfn, mfn, ffn)
+// GxEScan(df2, pbi)

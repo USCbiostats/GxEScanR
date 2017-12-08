@@ -4,12 +4,15 @@
 \alias{GxEScan}
 \title{Function to fit models scanning over genotypes}
 \usage{
-GxEScan(subjectData, geneticData)
+GxEScan(subjectData, geneticInfo)
 }
 \arguments{
 \item{subjectData}{Data frame with family and subject IDs in first two columns
 phenotype in third columna
 and covariates in remaining columns}
+
+\item{geneticInfo}{List returned from one of the functions to get the required information
+about the source of genetic data.}
 }
 \value{
 0 success
