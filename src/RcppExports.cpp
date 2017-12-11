@@ -6,6 +6,19 @@
 
 using namespace Rcpp;
 
+// BinaryDosageInfo
+Rcpp::List BinaryDosageInfo(std::string& geneticFile, std::string& mapFile, std::string& familyFile);
+RcppExport SEXP _GxEScanR_BinaryDosageInfo(SEXP geneticFileSEXP, SEXP mapFileSEXP, SEXP familyFileSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< std::string& >::type geneticFile(geneticFileSEXP);
+    Rcpp::traits::input_parameter< std::string& >::type mapFile(mapFileSEXP);
+    Rcpp::traits::input_parameter< std::string& >::type familyFile(familyFileSEXP);
+    rcpp_result_gen = Rcpp::wrap(BinaryDosageInfo(geneticFile, mapFile, familyFile));
+    return rcpp_result_gen;
+END_RCPP
+}
 // GxEScan
 int GxEScan(Rcpp::DataFrame subjectData, Rcpp::List geneticInfo);
 RcppExport SEXP _GxEScanR_GxEScan(SEXP subjectDataSEXP, SEXP geneticInfoSEXP) {
@@ -43,6 +56,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_GxEScanR_BinaryDosageInfo", (DL_FUNC) &_GxEScanR_BinaryDosageInfo, 3},
     {"_GxEScanR_GxEScan", (DL_FUNC) &_GxEScanR_GxEScan, 2},
     {"_GxEScanR_GxETest", (DL_FUNC) &_GxEScanR_GxETest, 0},
     {"_GxEScanR_PlinkBinaryInfo", (DL_FUNC) &_GxEScanR_PlinkBinaryInfo, 3},
