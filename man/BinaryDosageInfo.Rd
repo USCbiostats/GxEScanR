@@ -2,22 +2,22 @@
 % Please edit documentation in R/RcppExports.R
 \name{BinaryDosageInfo}
 \alias{BinaryDosageInfo}
-\title{Function to produce summary of a plink binary genetic file used by GxEScan}
+\title{Function to produce summary of a binary dosage file used by GxEScan}
 \usage{
 BinaryDosageInfo(geneticFile, mapFile, familyFile)
 }
 \arguments{
 \item{geneticFile}{Name of file with genetic data, normally ends with .bdosage}
 
-\item{mapFile}{Name of map file associated with genetic data file.
+\item{mapFile}{Name of map file associated with genetic data file. Not needed for format version 4.
 The map is the exteneded plink format and normally ends with .bim}
 
-\item{familyFile}{Name of family file associated with genetic data file.
+\item{familyFile}{Name of family file associated with genetic data file. Not needed for format version 4.
 The family file is the plink family fiel format and normally ends with .fam}
 }
 \value{
 List with data needed by GxEScan
 }
 \description{
-Function to produce summary of a plink binary genetic file used by GxEScan
+Function to produce summary of a binary dosage file used by GxEScan
 }
