@@ -154,3 +154,48 @@ int GetBinaryDosageFormat(std::string &binaryDosageFile, int &format, int &versi
 // ffn <- "C:/GxEScan/Hita/chs3000.fam"
 // pbi <- BinaryDosageInfo(gfn, mfn, ffn)
 // GxEScan(df2, pbi)
+
+CBinaryDosage::CBinaryDosage() : CGeneticData() {
+  m_geneticFile = "";
+  m_version = 0;
+  m_subversion = 0;
+}
+
+CBinaryDosage::CBinaryDosage(std::string &_geneticFile) : CGeneticData() {
+  m_geneticFile = _geneticFile;
+  m_version = 0;
+  m_subversion = 0;
+}
+
+CBinaryDosageFormat1::CBinaryDosageFormat1(std::string &_geneticFile, std::string &_mapFile, std::string &_familyFile) : CBinaryDosage(_geneticFile) {
+  m_mapFile = _mapFile;
+  m_familyFile = _familyFile;
+}
+
+CBinaryDosageFormat1::CBinaryDosageFormat1(Rcpp::List &_binaryDosageInfo) : CBinaryDosage() {
+
+  Rcpp::StringVector fileVector;
+  Rcpp::IntegerVector versionVector;
+  Rcpp::IntegerVector countVector;
+
+  fileVector = Rcpp::as<Rcpp::StringVector>(_binaryDosageInfo["files"]);
+  m_geneticFile = Rcpp::as<std::string>(fileVector[0]);
+  m_mapFile = Rcpp::as<std::string>(fileVector[1]);
+  m_familyFile = Rcpp::as<std::string>(fileVector[2]);
+ 
+  versionVector = Rcpp::as<Rcpp::IntegerVector>(_binaryDosageInfo["Version"]);
+  m_version = versionVector[0];
+  m_subversion = versionVector[1];
+  
+  countVector = Rcpp::as<Rcpp::IntegerVector>(_binaryDosageInfo["Counts"]);
+  m_numSubjects = countVector[0];
+  m_numSNPs = countVector[1];
+}
+
+CBinaryDosageFormat1_1::CBinaryDosageFormat1_1(std::string &_geneticFile, std::string &_mapFile, std::string &_familyFile) :
+  CBinaryDosageFormat1(_geneticFile, _mapFile, _familyFile) {
+}
+
+CBinaryDosageFormat1_1::CBinaryDosageFormat1_1(Rcpp::List &_binaryDosageInfo) : CBinaryDosageFormat1(_binaryDosageInfo) {
+  
+}
