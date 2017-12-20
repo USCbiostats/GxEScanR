@@ -135,6 +135,7 @@ int CPlinkBinary::CheckValidity() {
   if (CheckFileSize())
     return 1;
   
+  m_valid = true;
   return 0;
 }
 

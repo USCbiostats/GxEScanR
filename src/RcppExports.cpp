@@ -7,14 +7,14 @@
 using namespace Rcpp;
 
 // BinaryDosageInfo
-Rcpp::List BinaryDosageInfo(std::string& geneticFile, std::string& mapFile, std::string& familyFile);
+Rcpp::List BinaryDosageInfo(const std::string& geneticFile, const std::string& mapFile, const std::string& familyFile);
 RcppExport SEXP _GxEScanR_BinaryDosageInfo(SEXP geneticFileSEXP, SEXP mapFileSEXP, SEXP familyFileSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< std::string& >::type geneticFile(geneticFileSEXP);
-    Rcpp::traits::input_parameter< std::string& >::type mapFile(mapFileSEXP);
-    Rcpp::traits::input_parameter< std::string& >::type familyFile(familyFileSEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type geneticFile(geneticFileSEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type mapFile(mapFileSEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type familyFile(familyFileSEXP);
     rcpp_result_gen = Rcpp::wrap(BinaryDosageInfo(geneticFile, mapFile, familyFile));
     return rcpp_result_gen;
 END_RCPP

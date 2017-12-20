@@ -20,7 +20,7 @@
 //' List with data needed by GxEScan
 //' @export
 // [[Rcpp::export]]
-Rcpp::List BinaryDosageInfo(std::string &geneticFile, std::string &mapFile, std::string &familyFile) {
+Rcpp::List BinaryDosageInfo(const std::string &geneticFile, const std::string &mapFile, const std::string &familyFile) {
   Rcpp::List result;
   std::string errorMessage = "";
   // Needed files, genetic file (always needed), map and family file (optional)
@@ -29,11 +29,6 @@ Rcpp::List BinaryDosageInfo(std::string &geneticFile, std::string &mapFile, std:
   Rcpp::IntegerVector version(2);
   // Number of subjects, SNPs, and groups
   Rcpp::IntegerVector counts(3);
-  // The expected file size - only needed for formats 1.x and 2.x.
-  long long expectedFileSize;
-  // Actual size of file
-  std::streampos actualFileSize;
-  std::ifstream infile;
   
   files[0] = geneticFile;
   files[1] = mapFile;
@@ -45,60 +40,40 @@ Rcpp::List BinaryDosageInfo(std::string &geneticFile, std::string &mapFile, std:
                               Rcpp::Named("errorMessage") = "",
                               Rcpp::Named("Version") = version,
                               Rcpp::Named("Counts") = counts);
-
+  // Make sure the genetic file is a binary dosage file and get the version number
   if (GetBinaryDosageFormat(geneticFile, version[0], version[1], errorMessage)) {
     result["errorMessage"] = errorMessage;
     return result;
   }
-
+  // Get the number of Subjects, SNPs, and groups
   if (version[0] < 4) {
-    Rcpp::Environment env = Rcpp::Environment::namespace_env("GxEScanR");
-    Rcpp::Function testFamFile = env["FamilyFileCheck"];
-    Rcpp::Function testMapFile = env["MapFileCheck"];
-    Rcpp::NumericVector checkResult = testFamFile(familyFile);
-    
-    if (checkResult[0] == 0) {
-      result["errorMessage"] = "Error reading family file";
-      return result;
-    }
-    counts[0] = checkResult[0];
-
-    checkResult = testMapFile(mapFile);
-    if (checkResult[0] == 0) {
-      result["errorMessage"] = "Error reading map file";
-      return result;
-    }
-    counts[1] = checkResult[0];
-  } else {
-    infile.open(geneticFile);
-    infile.seekg(8);
-    infile.read((char *)&counts[0], 3 * sizeof(unsigned int));
-    if (!infile.good()) {
-      infile.close();
-      result["errorMessage"] = "Error reading number of subjects, SNPs, and groups from binary dosage file";
-      return result;
-    }
-    infile.close();
-  }
-  
-  if (version[0] < 3) {
-    expectedFileSize = 2 * counts[0] * counts[1] * version[1] + 8;
-    infile.open(geneticFile);
-    infile.seekg(0, std::ios_base::end);
-    actualFileSize = infile.tellg();
-    infile.close();
-    if (actualFileSize != expectedFileSize) {
-      result["errorMessage"] = "Binary dosage file is not the correct size";
+    // For versions 1, 2, and 3, the number os subjects comes from the family file, and
+    // the number of SNPs comes from the map file, and the number of groups is 1.
+    if (GetNumberOfSubjectsAndSNPs(familyFile, mapFile, counts[0], counts[1], errorMessage)) {
+      result["errorMessage"] = errorMessage;
       return result;
     }
     counts[2] = 1;
+    // For versions 1 and 2, the file size is fixed based on the number of subjects and SNPs.
+    if (version[0] < 3) {
+      if (CheckBinaryDosageFileSize(geneticFile, version[1], counts[0], counts[1], errorMessage)) {
+        result["errorMessage"] = errorMessage;
+        return result;
+      }
+    }
+  } else {
+    // For version 4 the number of subjects, SNPs, and groups are in the binary dosage file
+    if (GetNumberOfSubjectsAndSNPsV4(geneticFile, counts[0], counts[1], counts[2], errorMessage)) {
+      result["errorMessage"] = errorMessage;
+      return result;
+    }
   }
 
   result["valid"] = true;
   return result;
 }
 
-int GetBinaryDosageFormat(std::string &binaryDosageFile, int &format, int &version, std::string &errorMessage) {
+int GetBinaryDosageFormat(const std::string &binaryDosageFile, int &format, int &version, std::string &errorMessage) {
   std::ifstream infile;
   const char magicWord[4] = { 'b', 'o', 's', 'e' };
   char readMagicWord[4];
@@ -149,6 +124,82 @@ int GetBinaryDosageFormat(std::string &binaryDosageFile, int &format, int &versi
   return 0;
 }
 
+int GetNumberOfSubjectsAndSNPs(const std::string &familyFile, const std::string &mapFile, int &numSubjects, int &numSNPs, std::string &errorMessage) {
+  Rcpp::Environment env = Rcpp::Environment::namespace_env("GxEScanR");
+  Rcpp::Function testFamFile = env["FamilyFileCheck"];
+  Rcpp::Function testMapFile = env["MapFileCheck"];
+  Rcpp::NumericVector checkResult = testFamFile(familyFile);
+  
+  if (checkResult[0] == 0) {
+    errorMessage = "Error reading family file";
+    return 1;
+  }
+  numSubjects = checkResult[0];
+  
+  checkResult = testMapFile(mapFile);
+  if (checkResult[0] == 0) {
+    errorMessage = "Error reading map file";
+    return 1;
+  }
+  numSNPs = checkResult[0];
+  return 0;
+}
+
+int GetNumberOfSubjectsAndSNPsV4(const std::string &geneticFile, int &numSubjects, int &numSNPs, int &numGroups, std::string &errorMessage) {
+  std::ifstream infile;
+  int counts[3];
+  
+  infile.open(geneticFile);
+  if (!infile.good()) {
+    infile.close();
+    errorMessage = "Unable to open binary dosage file";
+    return 1;
+  }
+  infile.seekg(8);
+  infile.read((char *)&counts[0], 3 * sizeof(unsigned int));
+  if (!infile.good()) {
+    infile.close();
+    errorMessage = "Error reading number of subjects, SNPs, and groups from binary dosage file";
+    return 1;
+  }
+  numSubjects = counts[0];
+  numSNPs = counts[1];
+  numGroups = counts[2];
+  if (numSubjects == 0) {
+    errorMessage = "Number of subjects in binary dosage file equals 0";
+    return 1;
+  }
+  if (numSNPs == 0) {
+    errorMessage = "Number of SNPs in binary dosage file equals 0";
+    return 1;
+  }
+  if (numGroups == 0) {
+    errorMessage = "Number of groups in binary dosage file equals 0";
+    return 1;
+  }
+  
+  infile.close();
+  return 0;
+}
+
+int CheckBinaryDosageFileSize(const std::string &geneticFile, int version, int numSubjects, int numSNPs, std::string &errorMessage) {
+  // The expected file size - only needed for formats 1.x and 2.x.
+  long long expectedFileSize;
+  // Actual size of file
+  std::streampos actualFileSize;
+  std::ifstream infile;
+  
+  expectedFileSize = sizeof(unsigned short) * numSubjects * numSNPs * version + 8;
+  infile.open(geneticFile);
+  infile.seekg(0, std::ios_base::end);
+  actualFileSize = infile.tellg();
+  infile.close();
+  if (actualFileSize != expectedFileSize) {
+    errorMessage = "Binary dosage file is not the correct size";
+    return 1;
+  }
+  return 0;
+}
 // gfn <- "C:/GxEScan/Hita/bchr21.bdosage"
 // mfn <- "C:/GxEScan/Hita/bchr21.bim"
 // ffn <- "C:/GxEScan/Hita/chs3000.fam"
@@ -192,10 +243,29 @@ CBinaryDosageFormat1::CBinaryDosageFormat1(Rcpp::List &_binaryDosageInfo) : CBin
   m_numSNPs = countVector[1];
 }
 
+int CBinaryDosageFormat1::CheckValidity() {
+  if (m_version == 0 && m_subversion == 0) {
+    if (GetBinaryDosageFormat(m_geneticFile, m_version, m_subversion, m_errorMessage))
+      return 1;
+  }
+  if (CheckVersion())
+    return 1;
+  
+  m_valid = true;
+  return 0;
+}
+
 CBinaryDosageFormat1_1::CBinaryDosageFormat1_1(std::string &_geneticFile, std::string &_mapFile, std::string &_familyFile) :
   CBinaryDosageFormat1(_geneticFile, _mapFile, _familyFile) {
 }
 
 CBinaryDosageFormat1_1::CBinaryDosageFormat1_1(Rcpp::List &_binaryDosageInfo) : CBinaryDosageFormat1(_binaryDosageInfo) {
-  
+}
+
+int CBinaryDosageFormat1_1::CheckVersion() {
+  if (m_version != 1 || m_subversion != 1) {
+    m_errorMessage = "Version number incorrect";
+    return 1;
+  }
+  return 0;
 }

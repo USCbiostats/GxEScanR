@@ -18,7 +18,10 @@ public:
   CPlinkBinary(Rcpp::List &_geneticData);
   CPlinkBinary(std::string &geneticFile, std::string &mapFile, std::string &familyFile);
   virtual ~CPlinkBinary() {}
+  
   virtual int CheckValidity();
+  virtual int GetFirst() { return 1; }
+  virtual int GetNext() { return 1; }
 };
 
 #endif

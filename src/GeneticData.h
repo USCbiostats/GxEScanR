@@ -10,6 +10,7 @@ protected:
   std::string m_errorMessage;
   unsigned int m_numSubjects;
   unsigned int m_numSNPs;
+  bool m_valid;
   
   CGeneticData();
 public:
@@ -21,6 +22,11 @@ public:
   
   unsigned int NumSubjects() const { return m_numSubjects; }
   unsigned int NumSNPs() const { return m_numSNPs; }
+  bool Valid() const { return m_valid; }
+  
+  virtual int GetFirst() = 0;
+  virtual int GetNext() = 0;
+  virtual int GetSNP(unsigned int n);
 };
 
 #endif
