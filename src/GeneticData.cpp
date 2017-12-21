@@ -30,19 +30,25 @@ CGeneticData *TestGeneticData(Rcpp::List &_geneticData) {
     case 1:
       switch(versionVector[1]) {
       case 1:
+        Rcpp::Rcout << "Before creating BinaryDosageFormat1_1" << std::endl;
         geneticData = new CBinaryDosageFormat1_1(_geneticData);
+        break;
       default:
         geneticData = NULL;
         break;
       }
+      break;
     default:
       geneticData = NULL;
       break;
     }
+    break;
   default:
     geneticData = NULL;
     break;
   }
+  if (geneticData == NULL)
+    return geneticData;
   if (geneticData->CheckValidity()) {
     delete geneticData;
     geneticData = NULL;

@@ -9,11 +9,11 @@ Rcpp::List BinaryDosageInfo(const std::string &geneticFile, const std::string &m
 
 int GetBinaryDosageFormat(const std::string &binaryDosageFile, int &format, int &version, std::string &errorMessage);
 
-int GetNumberOfSubjectsAndSNPs(const std::string &familyFile, const std::string &mapFile, int &numSubjects, int &numSNPs, std::string &errorMessage);
+int GetNumberOfSubjectsAndSNPs(const std::string &familyFile, const std::string &mapFile, unsigned int &numSubjects, unsigned int &numSNPs, std::string &errorMessage);
 
-int GetNumberOfSubjectsAndSNPsV4(const std::string &geneticFile, int &numSubjects, int &numSNPs, int &groups, std::string &errorMessage);
+int GetNumberOfSubjectsAndSNPsV4(const std::string &geneticFile, unsigned int &numSubjects, unsigned int &numSNPs, unsigned int &groups, std::string &errorMessage);
 
-int CheckBinaryDosageFileSize(const std::string &geneticFile, int version, int numSubjects, int numSNPs, std::string &errorMessage);
+int CheckBinaryDosageFileSize(const std::string &geneticFile, int version, unsigned int numSubjects, unsigned int numSNPs, std::string &errorMessage);
 
 class CBinaryDosage : public CGeneticData {
 protected:
@@ -23,8 +23,8 @@ protected:
   int m_subversion;
   
   CBinaryDosage();
-public:
   CBinaryDosage(std::string &_geneticFile);
+public:
   virtual ~CBinaryDosage() { m_infile.close(); }
 
   virtual int GetFirst() { return 1; }
