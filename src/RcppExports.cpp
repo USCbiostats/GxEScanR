@@ -7,15 +7,28 @@
 using namespace Rcpp;
 
 // BinaryDosageInfo
-Rcpp::List BinaryDosageInfo(const std::string& geneticFile, const std::string& mapFile, const std::string& familyFile);
-RcppExport SEXP _GxEScanR_BinaryDosageInfo(SEXP geneticFileSEXP, SEXP mapFileSEXP, SEXP familyFileSEXP) {
+Rcpp::List BinaryDosageInfo(const std::string& geneticFilename, const std::string& mapFilename, const std::string& familyFilename);
+RcppExport SEXP _GxEScanR_BinaryDosageInfo(SEXP geneticFilenameSEXP, SEXP mapFilenameSEXP, SEXP familyFilenameSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const std::string& >::type geneticFile(geneticFileSEXP);
-    Rcpp::traits::input_parameter< const std::string& >::type mapFile(mapFileSEXP);
-    Rcpp::traits::input_parameter< const std::string& >::type familyFile(familyFileSEXP);
-    rcpp_result_gen = Rcpp::wrap(BinaryDosageInfo(geneticFile, mapFile, familyFile));
+    Rcpp::traits::input_parameter< const std::string& >::type geneticFilename(geneticFilenameSEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type mapFilename(mapFilenameSEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type familyFilename(familyFilenameSEXP);
+    rcpp_result_gen = Rcpp::wrap(BinaryDosageInfo(geneticFilename, mapFilename, familyFilename));
+    return rcpp_result_gen;
+END_RCPP
+}
+// GetBinaryDosageInformation
+Rcpp::List GetBinaryDosageInformation(const std::string& binaryDosageFilename, const unsigned int nSub, const unsigned int nSNPs);
+RcppExport SEXP _GxEScanR_GetBinaryDosageInformation(SEXP binaryDosageFilenameSEXP, SEXP nSubSEXP, SEXP nSNPsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const std::string& >::type binaryDosageFilename(binaryDosageFilenameSEXP);
+    Rcpp::traits::input_parameter< const unsigned int >::type nSub(nSubSEXP);
+    Rcpp::traits::input_parameter< const unsigned int >::type nSNPs(nSNPsSEXP);
+    rcpp_result_gen = Rcpp::wrap(GetBinaryDosageInformation(binaryDosageFilename, nSub, nSNPs));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -57,6 +70,7 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_GxEScanR_BinaryDosageInfo", (DL_FUNC) &_GxEScanR_BinaryDosageInfo, 3},
+    {"_GxEScanR_GetBinaryDosageInformation", (DL_FUNC) &_GxEScanR_GetBinaryDosageInformation, 3},
     {"_GxEScanR_GxEScan", (DL_FUNC) &_GxEScanR_GxEScan, 2},
     {"_GxEScanR_GxETest", (DL_FUNC) &_GxEScanR_GxETest, 0},
     {"_GxEScanR_PlinkBinaryInfo", (DL_FUNC) &_GxEScanR_PlinkBinaryInfo, 3},

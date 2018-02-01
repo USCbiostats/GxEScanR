@@ -5,25 +5,25 @@
 #include "GeneticData.h"
 #endif
 
-Rcpp::List BinaryDosageInfo(const std::string &geneticFile, const std::string &mapFile, const std::string &familyFile);
+Rcpp::List BinaryDosageInfo(const std::string &geneticFilename, const std::string &mapFilename, const std::string &familyFilename);
 
-int GetBinaryDosageFormat(const std::string &binaryDosageFile, int &format, int &version, std::string &errorMessage);
+int GetBinaryDosageFormat(const std::string &binaryDosageFilename, int &format, int &version, std::string &errorMessage);
 
-int GetNumberOfSubjectsAndSNPs(const std::string &familyFile, const std::string &mapFile, unsigned int &numSubjects, unsigned int &numSNPs, std::string &errorMessage);
+int GetNumberOfSubjectsAndSNPs(const std::string &familyFilename, const std::string &mapFilename, unsigned int &numSubjects, unsigned int &numSNPs, std::string &errorMessage);
 
-int GetNumberOfSubjectsAndSNPsV4(const std::string &geneticFile, unsigned int &numSubjects, unsigned int &numSNPs, unsigned int &groups, std::string &errorMessage);
+int GetNumberOfSubjectsAndSNPsV4(const std::string &geneticFilename, unsigned int &numSubjects, unsigned int &numSNPs, unsigned int &groups, std::string &errorMessage);
 
-int CheckBinaryDosageFileSize(const std::string &geneticFile, int version, unsigned int numSubjects, unsigned int numSNPs, std::string &errorMessage);
+int CheckBinaryDosageFileSize(const std::string &geneticFilename, int version, unsigned int numSubjects, unsigned int numSNPs, std::string &errorMessage);
 
 class CBinaryDosage : public CGeneticData {
 protected:
   std::ifstream m_infile;
-  std::string m_geneticFile;
+  std::string m_geneticFilename;
   int m_version;
   int m_subversion;
   
   CBinaryDosage();
-  CBinaryDosage(std::string &_geneticFile);
+  CBinaryDosage(std::string &_geneticFilename);
 public:
   virtual ~CBinaryDosage() { m_infile.close(); }
 
@@ -33,10 +33,10 @@ public:
 
 class CBinaryDosageFormat1 : public CBinaryDosage {
 protected:
-  std::string m_mapFile;
-  std::string m_familyFile;
+  std::string m_mapFilename;
+  std::string m_familyFilename;
 public:
-  CBinaryDosageFormat1(std::string &_geneticFile, std::string &_mapFile, std::string &_familyFile);
+  CBinaryDosageFormat1(std::string &_geneticFilename, std::string &_mapFilename, std::string &_familyFilename);
   CBinaryDosageFormat1(Rcpp::List &_binaryDosageInfo);
   virtual ~CBinaryDosageFormat1() {}
 
@@ -46,11 +46,16 @@ public:
 
 class CBinaryDosageFormat1_1 : public CBinaryDosageFormat1 {
 public:
-  CBinaryDosageFormat1_1(std::string &_geneticFile, std::string &_mapFile, std::string &_familyFile);
+  CBinaryDosageFormat1_1(std::string &_geneticFilename, std::string &_mapFilename, std::string &_familyFilename);
   CBinaryDosageFormat1_1(Rcpp::List &_binaryDosageInfo);
   virtual ~CBinaryDosageFormat1_1() {}
   
   virtual int CheckVersion();
 };
+/*
+class CBinaryDosageFormat4_2 : public CBinaryDosage {
+protected:
+};
+*/
 
 #endif

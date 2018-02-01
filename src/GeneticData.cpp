@@ -61,6 +61,8 @@ CGeneticData::CGeneticData() {
   m_numSubjects = 0;
   m_numSNPs = 0;
   m_valid = false;
+  m_bMeasured = false;
+  m_bGeneticProbabilities = false;
 }
 
 int CGeneticData::GetSNP(unsigned int n) {

@@ -4,7 +4,7 @@
 \alias{BinaryDosageInfo}
 \title{Function to produce summary of a binary dosage file used by GxEScan}
 \usage{
-BinaryDosageInfo(geneticFile, mapFile, familyFile)
+BinaryDosageInfo(geneticFilename, mapFilename, familyFilename)
 }
 \arguments{
 \item{geneticFile}{Name of file with genetic data, normally ends with .bdosage}
