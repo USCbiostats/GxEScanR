@@ -38,26 +38,6 @@
 // [[Rcpp::export]]
 int GxEScan(Rcpp::DataFrame subjectData, Rcpp::List geneticInfo) {
 //  Rcpp::Rcout << "Checking subject data" << std::endl;
-  CGeneticData *geneticData = NULL;
-  
-  Rcpp::Rcout << "Checking subjectData:\t\t";
-  if (TestSubjectData(subjectData)) {
-    Rcpp::Rcerr << "Failed" << std::endl;
-    return 1;
-  }
-  Rcpp::Rcout << "Passed" << std::endl;
-  Rcpp::Rcout << "Checking genetic data:\t\t";
-  geneticData = (TestGeneticData(geneticInfo));
-  if (geneticData == NULL) {
-    Rcpp::Rcerr << "Failed" << std::endl;
-    return 1;
-  }
-  Rcpp::Rcout << "Passed" << std::endl;
-  Rcpp::Rcout << "Checking model selection" << std::endl;
-  Rcpp::Rcout << "Fitting models" << std::endl;
-  Rcpp::Rcout << "Complete" << std::endl;
-  if (geneticData)
-    delete geneticData;
   return 0;
 }
 

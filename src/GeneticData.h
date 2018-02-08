@@ -3,10 +3,6 @@
 
 #include <RcppArmadillo.h>
 
-class CGeneticData;
-
-CGeneticData *TestGeneticData(Rcpp::List &_geneticData);
-
 class CGeneticData {
 protected:
   std::string m_errorMessage;
@@ -18,11 +14,10 @@ protected:
   arma::Col<double> m_dosages;
   arma::Mat<double> m_probabilities;
   
-  CGeneticData();
+  CGeneticData(const int _numSubjects, const int _numSNPs, bool _measured, bool _geneticProbabilities);
+  CGeneticData() {}
 public:
   virtual ~CGeneticData() {}
-
-  virtual int CheckValidity() = 0;
 
   const std::string &ErrorMessage() { return m_errorMessage; }
   unsigned int NumSubjects() const { return m_numSubjects; }

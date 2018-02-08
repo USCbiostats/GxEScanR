@@ -45,7 +45,7 @@ Rcpp::List PlinkBinaryInfo(std::string &geneticFile, std::string &mapFile, std::
   return result;
 }
 
-CPlinkBinary::CPlinkBinary(Rcpp::List &_geneticData) {
+CPlinkBinary::CPlinkBinary(Rcpp::List &_geneticData) : CGeneticData() {
   Rcpp::StringVector fileVector;
 
   fileVector = Rcpp::as<Rcpp::StringVector>(_geneticData["files"]);

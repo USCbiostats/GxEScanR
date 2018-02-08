@@ -5,25 +5,6 @@
 #' 
 #' Function to produce summary of a binary dosage file used by GxEScan
 #' 
-#' @param geneticFile
-#' Name of file with genetic data, normally ends with .bdosage
-#' @param mapFile
-#' Name of map file associated with genetic data file. Not needed for format version 4.
-#' The map is the exteneded plink format and normally ends with .bim
-#' @param familyFile
-#' Name of family file associated with genetic data file. Not needed for format version 4.
-#' The family file is the plink family fiel format and normally ends with .fam
-#' @return
-#' List with data needed by GxEScan
-#' @export
-BinaryDosageInfo <- function(geneticFilename, mapFilename, familyFilename) {
-    .Call('_GxEScanR_BinaryDosageInfo', PACKAGE = 'GxEScanR', geneticFilename, mapFilename, familyFilename)
-}
-
-#' Function to produce summary of a binary dosage file used by GxEScan
-#' 
-#' Function to produce summary of a binary dosage file used by GxEScan
-#' 
 #' @param binaryDosageFilesname
 #' Name of file with genetic data, normally ends with .bdosage
 #' @param nSub

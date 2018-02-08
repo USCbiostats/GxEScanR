@@ -4,65 +4,16 @@
 #include "PlinkBinary.h"
 #include "BinaryDosage.h"
 
-const unsigned int NumGeneticDataTypes = 2;
-const std::string GeneticDataTypes[NumGeneticDataTypes] = { "plinkBinary", "binaryDosage" };
-
-CGeneticData *TestGeneticData(Rcpp::List &_geneticData) {
-  CGeneticData *geneticData = NULL;
-  Rcpp::StringVector typeVector;
-  Rcpp::IntegerVector versionVector;
-  std::string type;
-  unsigned int ui;
-  
-  typeVector = Rcpp::as<Rcpp::StringVector>(_geneticData["type"]);
-  type = Rcpp::as<std::string>(typeVector[0]);
-  for (ui = 0; ui < NumGeneticDataTypes; ++ui) {
-    if (type == GeneticDataTypes[ui])
-      break;
-  }
-  switch(ui) {
-  case 0:
-    geneticData = new CPlinkBinary(_geneticData);
-    break;
-  case 1:
-    versionVector = Rcpp::as<Rcpp::IntegerVector>(_geneticData["Version"]);
-    switch(versionVector[0]) {
-    case 1:
-      switch(versionVector[1]) {
-      case 1:
-        Rcpp::Rcout << "Before creating BinaryDosageFormat1_1" << std::endl;
-        geneticData = new CBinaryDosageFormat1_1(_geneticData);
-        break;
-      default:
-        geneticData = NULL;
-        break;
-      }
-      break;
-    default:
-      geneticData = NULL;
-      break;
-    }
-    break;
-  default:
-    geneticData = NULL;
-    break;
-  }
-  if (geneticData == NULL)
-    return geneticData;
-  if (geneticData->CheckValidity()) {
-    delete geneticData;
-    geneticData = NULL;
-  }
-  return geneticData;
-}
-
-CGeneticData::CGeneticData() {
+CGeneticData::CGeneticData(const int _numSubjects, const int _numSNPs, bool _measured, bool _geneticProbabilities) {
   m_errorMessage = "";
-  m_numSubjects = 0;
-  m_numSNPs = 0;
+  m_numSubjects = _numSubjects;
+  m_numSNPs = _numSNPs;
   m_valid = false;
-  m_bMeasured = false;
-  m_bGeneticProbabilities = false;
+  m_bMeasured = _measured;
+  m_bGeneticProbabilities = _geneticProbabilities;
+  m_dosages.resize(m_numSubjects);
+  if (m_bGeneticProbabilities)
+    m_probabilities.resize(m_numSubjects, 3);
 }
 
 int CGeneticData::GetSNP(unsigned int n) {
