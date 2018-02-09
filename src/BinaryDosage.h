@@ -19,13 +19,16 @@ public:
 };
 
 class CBinaryDosageFormat1_1 : public CBinaryDosage {
+protected:
+  arma::Col<unsigned short> m_readBuffer;
+  void AssignDosages();
 public:
   CBinaryDosageFormat1_1(std::string &_geneticFilename, const int numSubjects, const int numSNPs);
   virtual ~CBinaryDosageFormat1_1() {}
 
   virtual int GetFirst();
-  virtual int GetNext() { return 1; }
-  virtual int GetSNP(unsigned int n) { return 1; }
+  virtual int GetNext();
+  virtual int GetSNP(unsigned int n);
 };
 
 /*

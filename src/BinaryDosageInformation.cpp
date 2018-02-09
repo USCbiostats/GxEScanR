@@ -93,7 +93,8 @@ Rcpp::NumericMatrix ConvertToMatrix(const std::vector<double> &v, const unsigned
 bool GetBinaryDosage4Info(std::ifstream &infile, unsigned int &numSubjects, unsigned int &numSNPs, Rcpp::List &result) {
   Rcpp::List subjects;
   Rcpp::List snps;
-  Rcpp::DataFrame info;
+  Rcpp::DataFrame SNPinfo;
+  Rcpp::DataFrame subInfo;
   unsigned int numGroups;
   unsigned int subjectOptions;
   unsigned int snpOptions;
@@ -137,11 +138,17 @@ bool GetBinaryDosage4Info(std::ifstream &infile, unsigned int &numSubjects, unsi
   infile.read((char *)&familyStringSize, sizeof(unsigned int));
 //  Rcpp::Rcout << "Subject Array Size:\t" << subjectStringSize << "\tFamily Array Size:\t" << familyStringSize << std::endl;
   ReadStringArray(infile, subjectID, numSubjects, subjectStringSize);
-  if (!ignoreFamily)
+  if (!ignoreFamily) {
     ReadStringArray(infile, familyID, numSubjects, familyStringSize);
+    subInfo = Rcpp::DataFrame::create(Rcpp::Named("FID") = familyID,
+                                      Rcpp::Named("IID") = subjectID,
+                                      Rcpp::Named("stringsAsFactors") = false);
+  } else {
+    subInfo = Rcpp::DataFrame::create(Rcpp::Named("IID") = subjectID,
+                                      Rcpp::Named("stringsAsFactors") = false);
+  }
   subjects = Rcpp::List::create(Rcpp::Named("useFID") = !ignoreFamily,
-                                Rcpp::Named("FID") = familyID,
-                                Rcpp::Named("IID") = subjectID);
+                                Rcpp::Named("Info") = subInfo);
 //                                Rcpp::Named("stringsAsFactors") = false);
   result["subjects"] = subjects;
   
@@ -225,7 +232,7 @@ bool GetBinaryDosage4Info(std::ifstream &infile, unsigned int &numSubjects, unsi
     rsq2 = ConvertToMatrix(rsq, numSNPs, numGroups);
   }
   
-  info = DataFrame::create(Rcpp::Named("ID") = snpID,
+  SNPinfo = DataFrame::create(Rcpp::Named("ID") = snpID,
                            Rcpp::Named("Chromosome") = chromosomeID,
                            Rcpp::Named("bp") = bp,
                            Rcpp::Named("refAllele") = refAllele,
@@ -233,7 +240,7 @@ bool GetBinaryDosage4Info(std::ifstream &infile, unsigned int &numSubjects, unsi
                            Rcpp::Named("stringsAsFactors") = false);
 //  Rcpp::Rcout << "MAF size:\t" << maf.size() << std::endl;
 //  Rcpp::Rcout << infile.tellg() << std::endl;
-  snps = Rcpp::List::create(Rcpp::Named("Info") = info,
+  snps = Rcpp::List::create(Rcpp::Named("Info") = SNPinfo,
                             Rcpp::Named("aaf") = aaf2,
                             Rcpp::Named("maf") = maf2,
                             Rcpp::Named("avgCall") = avgCall2,

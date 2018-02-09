@@ -25,9 +25,7 @@
 //' the one step tests.
 //' 
 //' @param subjectData
-//' Data frame with family and subject IDs in first two columns
-//' phenotype in third columna
-//' and covariates in remaining columns
+//' List returned from SubsetSubjects
 //' @param geneticInfo
 //' List returned from one of the functions to get the required information
 //' about the source of genetic data.
@@ -36,7 +34,8 @@
 //' 1 failure
 //' @export
 // [[Rcpp::export]]
-int GxEScan(Rcpp::DataFrame subjectData, Rcpp::List geneticInfo) {
+int GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo) {
+  Rcpp::Rcout << (int)geneticInfo["format"] << '\t' << (int)geneticInfo["version"] << std::endl;
 //  Rcpp::Rcout << "Checking subject data" << std::endl;
   return 0;
 }

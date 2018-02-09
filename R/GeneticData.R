@@ -71,11 +71,11 @@ GetGeneticInfo <- function(geneticFile, familyFile, mapFile) {
   if (res$format == 4)
     return (res)
   res$subjects$useFID <- TRUE
-  res$subjects$FID <- famdf[,1]
-  res$subjects$IID <- famdf[,2]
-  info <- mapdf[,c(2,1,4:6)]
-  colnames(info) <- c("ID", "Chromosome", "bp", "refAllele", "altAllele")
-  snps <- list(info)
+  res$subjects$Info <- famdf[,c(1:2)]
+  colnames(res$subjects$Info) <- c("FID", "IID")
+  Info <- mapdf[,c(2,1,4:6)]
+  colnames(Info) <- c("ID", "Chromosome", "bp", "refAllele", "altAllele")
+  snps <- list(Info)
   res$SNPs <- snps;
   return (res)
 }

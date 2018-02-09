@@ -58,9 +58,9 @@ TestSubjectDataR <- function(subjectData) {
   }
   res[["success"]] = TRUE
   if (res[["hasFamilyID"]] == TRUE) {
-    res[["subjects"]] = as.matrix(subjectData[,c(1:2)])
+    res[["subjects"]] = as.data.frame(subjectData[,c(1:2)], stringsAsFactors = FALSE, col.names = c("FID", "IID"))
   } else {
-    res[["subjects"]] = as.matrix(subjectData[,1])
+    res[["subjects"]] = as.data.frame(subjectData[,1], stringsAsFactors = FALSE, col.names = c("IID"))
   }
   res[["phenotype"]] = subjectData[,phenoCol]
   res[["covariates"]] = as.matrix(subjectData[,firstCov:ncol(subjectData)])

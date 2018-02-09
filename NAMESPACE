@@ -3,6 +3,7 @@
 export(GetBinaryDosageInformation)
 export(GetGeneticInfo)
 export(GxEScan)
+export(GxEScanC)
 export(GxETest)
 export(PlinkBinaryInfo)
 importFrom(Rcpp,evalCpp)
