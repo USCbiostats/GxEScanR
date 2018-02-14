@@ -1,9 +1,12 @@
 // -*- mode: C++; c-indent-level: 4; c-basic-offset: 4; indent-tabs-mode: nil; -*-
 
 // we only include RcppArmadillo.h which pulls Rcpp.h in for us
+#include <iostream>
+#include <fstream>
 #include <Rcpp.h>
 #include "Subject.h"
 #include "GeneticData.h"
+#include "BinaryDosage.h"
 
 //' Function to fit models scanning over genotypes
 //' 
@@ -22,10 +25,37 @@
 //' 1 failure
 //' @export
 // [[Rcpp::export]]
-int GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo) {
-  Rcpp::Rcout << (int)geneticInfo["format"] << '\t' << (int)geneticInfo["version"] << std::endl;
-//  Rcpp::Rcout << "Checking subject data" << std::endl;
-  return 0;
+Rcpp::List GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo) {
+  CGeneticData *geneticData = NULL;
+  int format, subversion;
+  int numSubjects, numSNPs;
+  std::string gFilename;
+  std::vector<double> dosages;
+  Rcpp::List res;
+  
+  format = (int)geneticInfo["format"];
+  subversion = (int)geneticInfo["version"];
+  Rcpp::Rcout << "Format:\t"<< format << '.' << subversion << std::endl;
+  numSubjects = (int)geneticInfo["numSubjects"];
+  numSNPs = (int)geneticInfo["numSNPs"];
+  gFilename = Rcpp::as<std::string>(geneticInfo["geneticFile"]);
+  Rcpp::Rcout << "Filename:\t" << gFilename << std::endl;
+  Rcpp::Rcout << "Number of subjects:\t" << numSubjects << std::endl;
+  Rcpp::Rcout << "NUmber of SNPs:\t" << numSNPs << std::endl; 
+  if (format == 1 && subversion == 1) {
+    geneticData = new CBinaryDosageFormat1_1(gFilename, numSubjects, numSNPs);
+    if (geneticData->GetFirst()) {
+      Rcpp::Rcout << "GetFirst failure" << std::endl;
+      Rcpp::Rcout << geneticData->ErrorMessage() << std::endl;
+    }
+    dosages = geneticData->Dosages();
+    
+  }
+  if (geneticData)
+    delete geneticData;
+  
+  res = Rcpp::List::create(Rcpp::Named("Dosages") = dosages);
+  return res;
 }
 
 //' Function to display the results from the scans performed by GxEScan

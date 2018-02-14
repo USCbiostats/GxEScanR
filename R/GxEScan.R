@@ -26,8 +26,8 @@ GxEScan <- function(subjectData, geneticData, outputFile) {
   subjectSubset <- SubsetSubjects(subjectData, geneticData)
   if (is.list(subjectSubset) == FALSE)
     return (1)
-  GxEScanC(subjectData, geneticData)
-  return (0)
+  return (GxEScanC(subjectData, geneticData))
+#  return (0)
 }
 
 SubsetSubjects <- function(subjectData, geneticData) {

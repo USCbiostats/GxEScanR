@@ -8,19 +8,23 @@ CBinaryDosage::CBinaryDosage(const int _numSubjects, const int _numSNPs, bool _g
   : CGeneticData(_numSubjects, _numSNPs, false, _geneticProbabilities) {
   m_geneticFilename = _geneticFilename;
   m_infile.open(_geneticFilename.c_str(), std::ios_base::in | std::ios_base::binary);
+  if (!m_infile.good())
+    Rcpp::Rcout << "Unable to open file:\t" << _geneticFilename << std::endl;
 }
 
 CBinaryDosageFormat1_1::CBinaryDosageFormat1_1(std::string &_geneticFilename, const int _numSubjects, const int _numSNPs)
   : CBinaryDosage(_numSubjects, _numSNPs, false, _geneticFilename, 1, 1) {
-  const char header[8] = {'b', 'o', 's', 'e', 0x0, 0x1, 0x0, 0x1};
+  const char header[8] = {'b', 'o', 's', 'e', 0x1, 0x0, 0x1, 0x0};
   char readHeader[8];
   
   if (m_infile.good()) {
     m_infile.read(readHeader, 8);
-    if (std::memcmp(header, readHeader, 8))
+    if (std::memcmp(header, readHeader, 8)) {
       m_valid = true;
-    else
+    } else {
       m_errorMessage = "File is not a binary dosage format 1.1 file";
+      Rcpp::Rcout << m_errorMessage << std::endl;
+    }
   }
   m_readBuffer.resize(m_numSubjects);
 }
@@ -56,10 +60,12 @@ int CBinaryDosageFormat1_1::GetSNP(unsigned int n) {
   if (CGeneticData::GetSNP(n))
     return 1;
   m_infile.clear();
-  m_infile.seekg(8 + (n - 1) * m_numSNPs * sizeof(unsigned int));
+  m_infile.seekg(8 + (n - 1) * m_numSubjects * sizeof(unsigned short));
   m_infile.read((char *)&m_readBuffer[0], m_numSubjects * sizeof(unsigned short));
-  if (!m_infile.good())
+  if (!m_infile.good()) {
+    m_errorMessage = "Dosage read failure";
     return 1;
+  }
   AssignDosages();
   return 0;
 }
