@@ -1,7 +1,7 @@
 #include <istream>
 #include <fstream>
 #include <string>
-#include <RcppArmadillo.h>
+#include <Rcpp.h>
 #include "PlinkBinary.h"
 
 //' Function to produce summary of a plink binary genetic file used by GxEScan

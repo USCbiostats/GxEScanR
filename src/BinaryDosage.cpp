@@ -1,7 +1,7 @@
 #include <istream>
 #include <fstream>
 #include <string>
-#include <RcppArmadillo.h>
+#include <Rcpp.h>
 #include "BinaryDosage.h"
 
 CBinaryDosage::CBinaryDosage(const int _numSubjects, const int _numSNPs, bool _geneticProbabilities, std::string &_geneticFilename, const int _version, const int _subversion)

@@ -1,5 +1,7 @@
+#include <iostream>
+#include <fstream>
 #include <string>
-#include <RcppArmadillo.h>
+#include <Rcpp.h>
 #include "GeneticData.h"
 #include "PlinkBinary.h"
 #include "BinaryDosage.h"
@@ -12,8 +14,12 @@ CGeneticData::CGeneticData(const int _numSubjects, const int _numSNPs, bool _mea
   m_bMeasured = _measured;
   m_bGeneticProbabilities = _geneticProbabilities;
   m_dosages.resize(m_numSubjects);
-  if (m_bGeneticProbabilities)
-    m_probabilities.resize(m_numSubjects, 3);
+  if (m_bGeneticProbabilities) {
+    m_probabilities.resize(3);
+    m_probabilities[0].resize(m_numSubjects);
+    m_probabilities[1].resize(m_numSubjects);
+    m_probabilities[2].resize(m_numSubjects);
+  }
 }
 
 int CGeneticData::GetSNP(unsigned int n) {

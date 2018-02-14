@@ -11,5 +11,5 @@ Description: A program to perform Genome-Environment wide interaction scans
     Manhattan and qq plots. Tools are provided to read data that are in plink.
 License: GPL-3
 Imports: Rcpp (>= 0.12.13)
-LinkingTo: Rcpp, RcppArmadillo
+LinkingTo: Rcpp
 RoxygenNote: 6.0.1

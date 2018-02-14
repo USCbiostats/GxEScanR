@@ -20,7 +20,7 @@ public:
 
 class CBinaryDosageFormat1_1 : public CBinaryDosage {
 protected:
-  arma::Col<unsigned short> m_readBuffer;
+  std::vector<unsigned short> m_readBuffer;
   void AssignDosages();
 public:
   CBinaryDosageFormat1_1(std::string &_geneticFilename, const int numSubjects, const int numSNPs);
