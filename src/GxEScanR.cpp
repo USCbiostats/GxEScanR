@@ -31,6 +31,7 @@ Rcpp::List GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo) {
   int numSubjects, numSNPs;
   std::string gFilename;
   std::vector<double> dosages;
+  std::vector<std::vector<double> > probabilities;
   Rcpp::List res;
   
   format = (int)geneticInfo["format"];
@@ -39,22 +40,32 @@ Rcpp::List GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo) {
   numSubjects = (int)geneticInfo["numSubjects"];
   numSNPs = (int)geneticInfo["numSNPs"];
   gFilename = Rcpp::as<std::string>(geneticInfo["geneticFile"]);
-  Rcpp::Rcout << "Filename:\t" << gFilename << std::endl;
-  Rcpp::Rcout << "Number of subjects:\t" << numSubjects << std::endl;
-  Rcpp::Rcout << "NUmber of SNPs:\t" << numSNPs << std::endl; 
-  if (format == 1 && subversion == 1) {
+//  Rcpp::Rcout << "Filename:\t" << gFilename << std::endl;
+//  Rcpp::Rcout << "Number of subjects:\t" << numSubjects << std::endl;
+//  Rcpp::Rcout << "NUmber of SNPs:\t" << numSNPs << std::endl; 
+  if (format == 1 && subversion == 1)
     geneticData = new CBinaryDosageFormat1_1(gFilename, numSubjects, numSNPs);
+  if (format == 1 && subversion == 2)
+    geneticData = new CBinaryDosageFormat1_2(gFilename, numSubjects, numSNPs);
+  if (format == 2 && subversion == 1)
+    geneticData = new CBinaryDosageFormat2_1(gFilename, numSubjects, numSNPs);
+  if (format == 2 && subversion == 2)
+    geneticData = new CBinaryDosageFormat2_2(gFilename, numSubjects, numSNPs);
+  
+  if (geneticData != NULL) {
     if (geneticData->GetFirst()) {
       Rcpp::Rcout << "GetFirst failure" << std::endl;
       Rcpp::Rcout << geneticData->ErrorMessage() << std::endl;
+    } else {
+      dosages = geneticData->Dosages();
+      probabilities = geneticData->Probabilities();
     }
-    dosages = geneticData->Dosages();
-    
   }
   if (geneticData)
     delete geneticData;
   
-  res = Rcpp::List::create(Rcpp::Named("Dosages") = dosages);
+  res = Rcpp::List::create(Rcpp::Named("Dosages") = dosages,
+                           Rcpp::Named("Probabilities") = probabilities);
   return res;
 }
 

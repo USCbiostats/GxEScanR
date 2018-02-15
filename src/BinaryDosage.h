@@ -13,7 +13,7 @@ protected:
   int m_subversion;
   
   CBinaryDosage();
-  CBinaryDosage(const int _numSubjects, const int _numSNPs, bool _geneticProbabilities, std::string &_geneticFilename, const int _version, const int _subversion);
+  CBinaryDosage(const int _numSubjects, const int _numSNPs, bool _geneticProbabilities, const std::string &_geneticFilename, const int _version, const int _subversion);
 public:
   virtual ~CBinaryDosage() { m_infile.close(); }
 };
@@ -21,11 +21,50 @@ public:
 class CBinaryDosageFormat1_1 : public CBinaryDosage {
 protected:
   std::vector<unsigned short> m_readBuffer;
-  void AssignDosages();
+  virtual void AssignDosages();
 public:
-  CBinaryDosageFormat1_1(std::string &_geneticFilename, const int numSubjects, const int numSNPs);
+  CBinaryDosageFormat1_1(const std::string &_geneticFilename, const int numSubjects, const int numSNPs);
   virtual ~CBinaryDosageFormat1_1() {}
 
+  virtual int GetFirst();
+  virtual int GetNext();
+  virtual int GetSNP(unsigned int n);
+};
+
+class CBinaryDosageFormat1_2 : public CBinaryDosage {
+protected:
+  std::vector<unsigned short> m_readBuffer;
+  virtual void AssignDosages();
+public:
+  CBinaryDosageFormat1_2(const std::string &_geneticFilename, const int numSubjects, const int numSNPs);
+  virtual ~CBinaryDosageFormat1_2() {}
+  
+  virtual int GetFirst();
+  virtual int GetNext();
+  virtual int GetSNP(unsigned int n);
+};
+
+class CBinaryDosageFormat2_1 : public CBinaryDosage {
+protected:
+  std::vector<unsigned short> m_readBuffer;
+  virtual void AssignDosages();
+public:
+  CBinaryDosageFormat2_1(const std::string &_geneticFilename, const int numSubjects, const int numSNPs);
+  virtual ~CBinaryDosageFormat2_1() {}
+  
+  virtual int GetFirst();
+  virtual int GetNext();
+  virtual int GetSNP(unsigned int n);
+};
+
+class CBinaryDosageFormat2_2 : public CBinaryDosage {
+protected:
+  std::vector<unsigned short> m_readBuffer;
+  virtual void AssignDosages();
+public:
+  CBinaryDosageFormat2_2(const std::string &_geneticFilename, const int numSubjects, const int numSNPs);
+  virtual ~CBinaryDosageFormat2_2() {}
+  
   virtual int GetFirst();
   virtual int GetNext();
   virtual int GetSNP(unsigned int n);
