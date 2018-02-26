@@ -70,6 +70,32 @@ public:
   virtual int GetSNP(unsigned int n);
 };
 
+class CBinaryDosageFormat3_1 : public CBinaryDosage {
+protected:
+  std::vector<unsigned short> m_readBuffer;
+  virtual void AssignDosages();
+public:
+  CBinaryDosageFormat3_1(const std::string &_geneticFilename, const int numSubjects, const int numSNPs);
+  virtual ~CBinaryDosageFormat3_1() {}
+  
+  virtual int GetFirst();
+  virtual int GetNext();
+  virtual int GetSNP(unsigned int n);
+};
+
+class CBinaryDosageFormat3_2 : public CBinaryDosage {
+protected:
+  std::vector<unsigned short> m_readBuffer;
+  virtual void AssignDosages();
+public:
+  CBinaryDosageFormat3_2(const std::string &_geneticFilename, const int numSubjects, const int numSNPs);
+  virtual ~CBinaryDosageFormat3_2() {}
+  
+  virtual int GetFirst();
+  virtual int GetNext();
+  virtual int GetSNP(unsigned int n);
+};
+
 /*
 class CBinaryDosageFormat4_2 : public CBinaryDosage {
 protected:

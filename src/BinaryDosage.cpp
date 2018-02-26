@@ -231,7 +231,7 @@ int CBinaryDosageFormat2_1::GetSNP(unsigned int n) {
   return 0;
 }
 
-// ******************   CBinaryDosageFormat1_2   **********************/
+// ******************   CBinaryDosageFormat2_2   **********************/
 
 CBinaryDosageFormat2_2::CBinaryDosageFormat2_2(const std::string &_geneticFilename, const int _numSubjects, const int _numSNPs)
   : CBinaryDosage(_numSubjects, _numSNPs, true, _geneticFilename, 1, 2) {
@@ -269,8 +269,8 @@ void CBinaryDosageFormat2_2::AssignDosages() {
       *p1 = NA_REAL;
       *p2 = NA_REAL;
     } else {
-      *p1 = *u1 / 20000.;
-      *p2 = *u2 / 20000.;
+      *p1 = *u1 / 10000.;
+      *p2 = *u2 / 10000.;
     }
   }
   d = &m_dosages[0];
@@ -312,6 +312,182 @@ int CBinaryDosageFormat2_2::GetSNP(unsigned int n) {
   m_infile.clear();
   m_infile.seekg(8 + (n - 1) * m_numSubjects * sizeof(unsigned short));
   m_infile.read((char *)&m_readBuffer[0], 2 * m_numSubjects * sizeof(unsigned short));
+  if (!m_infile.good()) {
+    m_errorMessage = "Dosage read failure";
+    return 1;
+  }
+  AssignDosages();
+  return 0;
+}
+
+// ******************   CBinaryDosageFormat3_1   **********************/
+
+CBinaryDosageFormat3_1::CBinaryDosageFormat3_1(const std::string &_geneticFilename, const int _numSubjects, const int _numSNPs)
+  : CBinaryDosage(_numSubjects, _numSNPs, false, _geneticFilename, 1, 1) {
+  const char header[8] = {'b', 'o', 's', 'e', 0x0, 0x3, 0x0, 0x1};
+  char readHeader[8];
+  
+  //  Rcpp::Rcout << "Contructor 2.1" << std::endl;  
+  if (m_infile.good()) {
+    m_infile.read(readHeader, 8);
+    //    Rcpp::Rcout << "Header:\t" << (int)readHeader[4] << '\t'
+    //                << (int)readHeader[5] << '\t'
+    //                << (int)readHeader[6] << '\t'
+    //                << (int)readHeader[7] << std::endl;
+    if (std::memcmp(header, readHeader, 8)) {
+      m_errorMessage = "File is not a binary dosage format 1.1 file";
+    } else {
+      m_valid = true;
+      //      Rcpp::Rcout << m_errorMessage << std::endl;
+    }
+  }
+  m_readBuffer.resize(m_numSubjects);
+}
+
+void CBinaryDosageFormat3_1::AssignDosages() {
+  unsigned short *u;
+  double *d;
+  unsigned int ui;
+  
+  for (ui = 0, u = &m_readBuffer[0], d = &m_dosages[0]; ui < m_numSubjects; ++ui, ++u, ++d) {
+    if (*u > 20000)
+      *d = NA_REAL;
+    else
+      *d = *u / 10000.;
+  }
+}
+
+int CBinaryDosageFormat3_1::GetFirst() {
+  return GetSNP(1);
+}
+
+int CBinaryDosageFormat3_1::GetNext() {
+  if (!m_valid)
+    return 1;
+  m_infile.read((char *)&m_readBuffer[0], m_numSubjects * sizeof(unsigned short));
+  if (!m_infile.good())
+    return 1;
+  AssignDosages();
+  return 0;
+}
+
+int CBinaryDosageFormat3_1::GetSNP(unsigned int n) {
+  if (CGeneticData::GetSNP(n))
+    return 1;
+  m_infile.clear();
+  m_infile.seekg(12 + (n - 1) * m_numSubjects * sizeof(unsigned short));
+  m_infile.read((char *)&m_readBuffer[0], m_numSubjects * sizeof(unsigned short));
+  if (!m_infile.good()) {
+    m_errorMessage = "Dosage read failure";
+    return 1;
+  }
+  AssignDosages();
+  return 0;
+}
+
+// ******************   CBinaryDosageFormat3_2   **********************/
+
+CBinaryDosageFormat3_2::CBinaryDosageFormat3_2(const std::string &_geneticFilename, const int _numSubjects, const int _numSNPs)
+  : CBinaryDosage(_numSubjects, _numSNPs, true, _geneticFilename, 1, 2) {
+  const char header[8] = {'b', 'o', 's', 'e', 0x0, 0x3, 0x0, 0x2};
+  char readHeader[8];
+  
+  //  Rcpp::Rcout << "Contructor 1.1" << std::endl;  
+  if (m_infile.good()) {
+    m_infile.read(readHeader, 8);
+    //    Rcpp::Rcout << "Header:\t" << (int)readHeader[4] << '\t'
+    //                << (int)readHeader[5] << '\t'
+    //                << (int)readHeader[6] << '\t'
+    //                << (int)readHeader[7] << std::endl;
+    if (std::memcmp(header, readHeader, 8)) {
+      m_errorMessage = "File is not a binary dosage format 1.1 file";
+    } else {
+      m_valid = true;
+      //      Rcpp::Rcout << m_errorMessage << std::endl;
+    }
+  }
+  m_readBuffer.resize(4 * m_numSubjects);
+}
+
+void CBinaryDosageFormat3_2::AssignDosages() {
+  unsigned short *u1, *u2;
+  double *d, *p0, *p1, *p2;
+  unsigned int ui;
+  
+  u1 = &m_readBuffer[0];
+  u2 = u1 + m_numSubjects;
+  d = &m_dosages[0];
+  p0 = &m_probabilities[0][0];
+  p1 = &m_probabilities[1][0];
+  p2 = &m_probabilities[2][0];
+  for (ui = 0; ui < m_numSubjects; ++ui, ++u1, ++d, ++p0, ++p1, ++p2) {
+    *d = (*u1 & 0x7fff) / 10000.;
+    if (*d > 2.) {
+      *d = NA_REAL;
+      *p0 = NA_REAL;
+      *p1 = NA_REAL;
+      *p2 = NA_REAL;
+    } else if (*u1 & 0x8000) {
+      *p1 = (*u2 & 0x7fff) / 10000.;
+      if (*u2 & 0x8000) {
+        ++u2;
+        *p0 = *u2 / 10000.;
+        ++u2;
+        *p2 = *u2 / 10000.;
+      } else {
+        *p2 = (*d - *p1) / 2;
+        *p0 = 1 - *p2 - *p1;
+      }
+      ++u2;
+    } else {
+      if (*d > 1.) {
+        *p0 = 0;
+        *p2 = *d - 1.;
+        *p1 = 1. - *p2;
+      } else {
+        *p2 = 0;
+        *p1 = *d;
+        *p0 = 1 - *p1;
+      }
+    }
+  }
+  u1 = &m_readBuffer[0];
+  Rcpp::Rcout << u2 - u1 << std::endl;
+}
+
+int CBinaryDosageFormat3_2::GetFirst() {
+  return GetSNP(1);
+}
+
+int CBinaryDosageFormat3_2::GetNext() {
+  int snpSize;
+
+  if (!m_valid)
+    return 1;
+  m_infile.read((char *)&snpSize, sizeof(int));
+  Rcpp::Rcout << "SNP size:\t" << snpSize << std::endl;
+//  m_infile.read((char *)&m_readBuffer[0], 2 * snpSize * sizeof(unsigned short));
+//  if (!m_infile.good())
+//    return 1;
+//  AssignDosages();
+  return 0;
+}
+
+int CBinaryDosageFormat3_2::GetSNP(unsigned int n) {
+  int snpSize;
+  unsigned int ui;
+  
+  if (CGeneticData::GetSNP(n))
+    return 1;
+  m_infile.clear();
+  m_infile.seekg(12);
+  for (ui = 1; ui < n; ++ui) {
+    m_infile.read((char *)&snpSize, sizeof(int));
+    m_infile.seekg(snpSize, std::ios_base::cur);
+  }
+  m_infile.read((char *)&snpSize, sizeof(int));
+  Rcpp::Rcout << "SNP size:\t" << snpSize << std::endl;
+  m_infile.read((char *)&m_readBuffer[0], 2 * snpSize * sizeof(unsigned short));
   if (!m_infile.good()) {
     m_errorMessage = "Dosage read failure";
     return 1;

@@ -51,10 +51,21 @@ Rcpp::List GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo) {
     geneticData = new CBinaryDosageFormat2_1(gFilename, numSubjects, numSNPs);
   if (format == 2 && subversion == 2)
     geneticData = new CBinaryDosageFormat2_2(gFilename, numSubjects, numSNPs);
+  if (format == 3 && subversion == 1)
+    geneticData = new CBinaryDosageFormat3_1(gFilename, numSubjects, numSNPs);
+  if (format == 3 && subversion == 2)
+    geneticData = new CBinaryDosageFormat3_2(gFilename, numSubjects, numSNPs);
   
   if (geneticData != NULL) {
     if (geneticData->GetFirst()) {
       Rcpp::Rcout << "GetFirst failure" << std::endl;
+      Rcpp::Rcout << geneticData->ErrorMessage() << std::endl;
+    } else {
+      dosages = geneticData->Dosages();
+      probabilities = geneticData->Probabilities();
+    }
+    if (geneticData->GetNext()) {
+      Rcpp::Rcout << "GetNext failure" << std::endl;
       Rcpp::Rcout << geneticData->ErrorMessage() << std::endl;
     } else {
       dosages = geneticData->Dosages();
