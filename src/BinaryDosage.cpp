@@ -452,7 +452,6 @@ void CBinaryDosageFormat3_2::AssignDosages() {
     }
   }
   u1 = &m_readBuffer[0];
-  Rcpp::Rcout << u2 - u1 << std::endl;
 }
 
 int CBinaryDosageFormat3_2::GetFirst() {
@@ -466,10 +465,10 @@ int CBinaryDosageFormat3_2::GetNext() {
     return 1;
   m_infile.read((char *)&snpSize, sizeof(int));
   Rcpp::Rcout << "SNP size:\t" << snpSize << std::endl;
-//  m_infile.read((char *)&m_readBuffer[0], 2 * snpSize * sizeof(unsigned short));
-//  if (!m_infile.good())
-//    return 1;
-//  AssignDosages();
+  m_infile.read((char *)&m_readBuffer[0], 2 * snpSize * sizeof(unsigned short));
+  if (!m_infile.good())
+    return 1;
+  AssignDosages();
   return 0;
 }
 
@@ -486,8 +485,7 @@ int CBinaryDosageFormat3_2::GetSNP(unsigned int n) {
     m_infile.seekg(snpSize, std::ios_base::cur);
   }
   m_infile.read((char *)&snpSize, sizeof(int));
-  Rcpp::Rcout << "SNP size:\t" << snpSize << std::endl;
-  m_infile.read((char *)&m_readBuffer[0], 2 * snpSize * sizeof(unsigned short));
+  m_infile.read((char *)&m_readBuffer[0], snpSize);
   if (!m_infile.good()) {
     m_errorMessage = "Dosage read failure";
     return 1;

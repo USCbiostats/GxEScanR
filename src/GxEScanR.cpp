@@ -64,6 +64,7 @@ Rcpp::List GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo) {
       dosages = geneticData->Dosages();
       probabilities = geneticData->Probabilities();
     }
+
     if (geneticData->GetNext()) {
       Rcpp::Rcout << "GetNext failure" << std::endl;
       Rcpp::Rcout << geneticData->ErrorMessage() << std::endl;
