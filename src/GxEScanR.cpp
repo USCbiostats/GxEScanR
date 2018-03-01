@@ -36,7 +36,7 @@ Rcpp::List GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo) {
   
   format = (int)geneticInfo["format"];
   subversion = (int)geneticInfo["version"];
-  Rcpp::Rcout << "Format:\t"<< format << '.' << subversion << std::endl;
+//  Rcpp::Rcout << "Format:\t"<< format << '.' << subversion << std::endl;
   numSubjects = (int)geneticInfo["numSubjects"];
   numSNPs = (int)geneticInfo["numSNPs"];
   gFilename = Rcpp::as<std::string>(geneticInfo["geneticFile"]);
@@ -45,15 +45,15 @@ Rcpp::List GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo) {
 //  Rcpp::Rcout << "NUmber of SNPs:\t" << numSNPs << std::endl; 
   if (format == 1 && subversion == 1)
     geneticData = new CBinaryDosageFormat1_1(gFilename, numSubjects, numSNPs);
-  if (format == 1 && subversion == 2)
+  else if (format == 1 && subversion == 2)
     geneticData = new CBinaryDosageFormat1_2(gFilename, numSubjects, numSNPs);
-  if (format == 2 && subversion == 1)
+  else if (format == 2 && subversion == 1)
     geneticData = new CBinaryDosageFormat2_1(gFilename, numSubjects, numSNPs);
-  if (format == 2 && subversion == 2)
+  else if (format == 2 && subversion == 2)
     geneticData = new CBinaryDosageFormat2_2(gFilename, numSubjects, numSNPs);
-  if (format == 3 && subversion == 1)
+  else if (format == 3 && subversion == 1)
     geneticData = new CBinaryDosageFormat3_1(gFilename, numSubjects, numSNPs);
-  if (format == 3 && subversion == 2)
+  else if (format == 3 && subversion == 2)
     geneticData = new CBinaryDosageFormat3_2(gFilename, numSubjects, numSNPs);
   
   if (geneticData != NULL) {

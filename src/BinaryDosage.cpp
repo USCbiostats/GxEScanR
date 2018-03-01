@@ -9,7 +9,7 @@ CBinaryDosage::CBinaryDosage(const int _numSubjects, const int _numSNPs, bool _g
   m_geneticFilename = _geneticFilename;
   m_infile.open(_geneticFilename.c_str(), std::ios_base::in | std::ios_base::binary);
   if (!m_infile.good())
-    Rcpp::Rcout << "Unable to open file:\t" << _geneticFilename << std::endl;
+    Rcpp::Rcerr << "Unable to open file:\t" << _geneticFilename << std::endl;
 }
 
 // ******************   CBinaryDosageFormat1_1   **********************/
@@ -464,7 +464,6 @@ int CBinaryDosageFormat3_2::GetNext() {
   if (!m_valid)
     return 1;
   m_infile.read((char *)&snpSize, sizeof(int));
-  Rcpp::Rcout << "SNP size:\t" << snpSize << std::endl;
   m_infile.read((char *)&m_readBuffer[0], 2 * snpSize * sizeof(unsigned short));
   if (!m_infile.good())
     return 1;
