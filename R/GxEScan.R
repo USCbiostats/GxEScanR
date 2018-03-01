@@ -26,8 +26,8 @@ GxEScan <- function(subjectData, geneticData, outputFile) {
   subjectSubset <- SubsetSubjects(subjectData, geneticData)
   if (is.list(subjectSubset) == FALSE)
     return (1)
-  return (GxEScanC(subjectData, geneticData))
-#  return (0)
+  return (GxEScanC(subjectSubset, geneticData))
+#  return (subjectSubset)
 }
 
 SubsetSubjects <- function(subjectData, geneticData) {
@@ -44,8 +44,8 @@ SubsetSubjects <- function(subjectData, geneticData) {
     m2 <- data.frame(1:nrow(geneticData$subjects$Info), geneticData$subjects$Info)
     colnames(m2) <- c("gLoc", "FID", "IID")
     msg <- merge(m1, m2, by.x = c("FID", "IID"), by.y = c("FID", "IID"))
-    phenotypes <- subjectData[c(msg[,"subNum"]),3]
-    covariates <- as.matrix(subjectData[c(msg[,"subNum"]),c(4:ncol(subjectData))])
+    phenotypes <- as.numeric(subjectData[c(msg[,"subNum"]),3])
+    covariates <- as.matrix(as.numeric(subjectData[c(msg[,"subNum"]),c(4:ncol(subjectData))]))
   } else {
     m1 <- data.frame(1:nrow(subjectData), subjectData[,1], stringsAsFactors = FALSE)
     colnames(m1) <- c("subNum", "IID")
@@ -56,8 +56,8 @@ SubsetSubjects <- function(subjectData, geneticData) {
       colnames(m2) <- c("gLoc", "IID")
     }
     msg <- merge(m1, m2, by.x = c("IID"), by.y = c("IID"))
-    phenotypes <- subjectData[c(msg[,"subNum"]),2]
-    covariates <- as.matrix(subjectData[c(msg[,"subNum"]),c(3:ncol(subjectData))])
+    phenotypes <- as.numeric(subjectData[c(msg[,"subNum"]),2])
+    covariates <- as.matrix(as.numeric(subjectData[c(msg[,"subNum"]),c(3:ncol(subjectData))]))
   }
   gloc <- msg[,c("gLoc")]
   return (list(gLoc = gloc, phenotypes = phenotypes, covariates = covariates))

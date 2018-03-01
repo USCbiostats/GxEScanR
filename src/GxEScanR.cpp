@@ -32,8 +32,14 @@ Rcpp::List GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo) {
   std::string gFilename;
   std::vector<double> dosages;
   std::vector<std::vector<double> > probabilities;
+  std::vector<int> subjectOrder = Rcpp::as<std::vector<int> >(subjectData["gLoc"]);
+  int numSubjectsUsed;
   Rcpp::List res;
   
+  numSubjectsUsed = subjectOrder.size();
+  Rcpp::Rcout << "Number of subjects used:\t" << numSubjectsUsed << std::endl;
+  for(int i = 0; i < 10 && i < numSubjectsUsed; ++i)
+    Rcpp::Rcout << "Subject:\t" << i + 1 << "\tLocation\t" << subjectOrder[i] << std::endl;
   format = (int)geneticInfo["format"];
   subversion = (int)geneticInfo["version"];
 //  Rcpp::Rcout << "Format:\t"<< format << '.' << subversion << std::endl;
