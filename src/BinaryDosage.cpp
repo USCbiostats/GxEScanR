@@ -451,7 +451,6 @@ void CBinaryDosageFormat3_2::AssignDosages() {
       }
     }
   }
-  u1 = &m_readBuffer[0];
 }
 
 int CBinaryDosageFormat3_2::GetFirst() {
@@ -464,7 +463,7 @@ int CBinaryDosageFormat3_2::GetNext() {
   if (!m_valid)
     return 1;
   m_infile.read((char *)&snpSize, sizeof(int));
-  m_infile.read((char *)&m_readBuffer[0], 2 * snpSize * sizeof(unsigned short));
+  m_infile.read((char *)&m_readBuffer[0], snpSize);
   if (!m_infile.good())
     return 1;
   AssignDosages();
