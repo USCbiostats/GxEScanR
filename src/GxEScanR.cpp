@@ -55,6 +55,8 @@ Rcpp::List GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo) {
     geneticData = new CBinaryDosageFormat3_1(gFilename, numSubjects, numSNPs);
   else if (format == 3 && subversion == 2)
     geneticData = new CBinaryDosageFormat3_2(gFilename, numSubjects, numSNPs);
+  else if (format == 4 && subversion == 2)
+    geneticData = new CBinaryDosageFormat4_2(gFilename, numSubjects, numSNPs);
   
   if (geneticData != NULL) {
     if (geneticData->GetFirst()) {
