@@ -8,6 +8,24 @@
 #include "GeneticData.h"
 #include "BinaryDosage.h"
 
+int ConvertCovariates(const Rcpp::List &subjectData, std::vector<std::vector<double> > &covariates, const int numSubjects) {
+  std::vector<double> covariateVector = Rcpp::as<std::vector<double> >(subjectData["covariates"]);
+  int numCovariates;
+  int i, j, k;
+  
+  numCovariates = covariateVector.size() / numSubjects;
+  Rcpp::Rcout << "Calculated number of covariates\t" << numCovariates << std::endl;
+  
+  covariates.resize(numCovariates);
+  for (i = 0; i < numCovariates; ++i)
+    covariates[i].resize(numSubjects);
+  k = 0;
+  for (i = 0; i < numCovariates; ++i) {
+    for (j = 0; j < numSubjects; ++j, ++k)
+      covariates[i][j] = covariateVector[k];
+  }
+  return 0;
+}
 //' Function to fit models scanning over genotypes
 //' 
 //' Function to fit selected models over genotypes. Results from
@@ -33,13 +51,22 @@ Rcpp::List GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo) {
   std::vector<double> dosages;
   std::vector<std::vector<double> > probabilities;
   std::vector<int> subjectOrder = Rcpp::as<std::vector<int> >(subjectData["gLoc"]);
+  std::vector<double> phenotype = Rcpp::as<std::vector<double> >(subjectData["phenotypes"]);
+  Rcpp::List subList = geneticInfo["subjects"];
+  Rcpp::DataFrame subInfo = Rcpp::as<Rcpp::DataFrame>(subList["Info"]);
+  std::vector<std::string> subjectID = Rcpp::as<std::vector<std::string> >(subInfo["IID"]);
+  std::vector<double> covariates  = Rcpp::as<std::vector<double> >(subjectData["covariates"]);
   int numSubjectsUsed;
   Rcpp::List res;
   
+  Rcpp::Rcout << "Number of subjects IDs in genetic file\t" << subjectID.size() << std::endl;
   numSubjectsUsed = subjectOrder.size();
   Rcpp::Rcout << "Number of subjects used:\t" << numSubjectsUsed << std::endl;
   for(int i = 0; i < 10 && i < numSubjectsUsed; ++i)
-    Rcpp::Rcout << "Subject:\t" << i + 1 << "\tLocation\t" << subjectOrder[i] << std::endl;
+    Rcpp::Rcout << "Subject:\t" << i + 1 << "\tLocation\t" << subjectOrder[i] << "\tIID\t" << subjectID[subjectOrder[i] - 1] << std::endl;
+  Rcpp::Rcout << "Number of phenotype values\t" << phenotype.size() << std::endl;
+//  ConvertCovariates(subjectData, covariates, numSubjectsUsed);
+  Rcpp::Rcout << "Number of covariate values\t" << covariates.size() << std::endl;
   format = (int)geneticInfo["format"];
   subversion = (int)geneticInfo["version"];
 //  Rcpp::Rcout << "Format:\t"<< format << '.' << subversion << std::endl;
@@ -85,6 +112,8 @@ Rcpp::List GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo) {
     delete geneticData;
   
   res = Rcpp::List::create(Rcpp::Named("Dosages") = dosages,
+                           Rcpp::Named("Phenotypes") = phenotype,
+                           Rcpp::Named("Covariates") = covariates,
                            Rcpp::Named("Probabilities") = probabilities);
   return res;
 }

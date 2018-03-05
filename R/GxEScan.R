@@ -57,7 +57,8 @@ SubsetSubjects <- function(subjectData, geneticData) {
     }
     msg <- merge(m1, m2, by.x = c("IID"), by.y = c("IID"))
     phenotypes <- as.numeric(subjectData[c(msg[,"subNum"]),2])
-    covariates <- as.matrix(as.numeric(subjectData[c(msg[,"subNum"]),c(3:ncol(subjectData))]))
+#    covariates <- as.matrix(as.numeric(subjectData[c(msg[,"subNum"]),c(3:ncol(subjectData))]))
+    covariates <- as.matrix(subjectData[c(msg[,"subNum"]),c(3:ncol(subjectData))])
   }
   gloc <- msg[,c("gLoc")]
   return (list(gLoc = gloc, phenotypes = phenotypes, covariates = covariates))
