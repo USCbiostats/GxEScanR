@@ -35,12 +35,15 @@ Rcpp::List GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo) {
   std::vector<std::vector<double> > probabilities;
   std::vector<int> subjectOrder = Rcpp::as<std::vector<int> >(subjectData["gLoc"]);
   std::vector<double> phenotype = Rcpp::as<std::vector<double> >(subjectData["phenotypes"]);
+  std::vector<bool> missingPhenotype;
   Rcpp::List subList = geneticInfo["subjects"];
   Rcpp::DataFrame subInfo = Rcpp::as<Rcpp::DataFrame>(subList["Info"]);
   std::vector<std::string> subjectID = Rcpp::as<std::vector<std::string> >(subInfo["IID"]);
   std::vector<double> covariates  = Rcpp::as<std::vector<double> >(subjectData["covariates"]);
+  std::vector<bool> missingCov;
+  std::vector<bool> filter;
   std::vector<double> geneticValues;
-  int numSubjectsUsed;
+  int numSubjectsUsed, numCov;
   int i;
   double *d, *p0, *p1, *p2;
   Rcpp::List res;
