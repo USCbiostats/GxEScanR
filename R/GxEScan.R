@@ -39,14 +39,20 @@ SubsetSubjects <- function(subjectData, geneticData) {
   if (subjectTest$hasFamilyID == TRUE) {
     if (geneticData$subjects$useFID == FALSE)
       return (1)
+    colnames(subjectData)[3] <- "Phenotype"
+    subjectData <- subjectData[order(subjectData$Phenotype),]
     m1 <- data.frame(1:nrow(subjectData), subjectData[,c(1,2)], stringsAsFactors = FALSE)
     colnames(m1) <- c("subNum", "FID", "IID")
     m2 <- data.frame(1:nrow(geneticData$subjects$Info), geneticData$subjects$Info)
     colnames(m2) <- c("gLoc", "FID", "IID")
     msg <- merge(m1, m2, by.x = c("FID", "IID"), by.y = c("FID", "IID"))
+    msg <- msg[order(msg$subNum),]
+    #    colnames(msg)[3] <- "Phenotype"
     phenotypes <- as.numeric(subjectData[c(msg[,"subNum"]),3])
     covariates <- as.matrix(as.numeric(subjectData[c(msg[,"subNum"]),c(4:ncol(subjectData))]))
   } else {
+    colnames(subjectData)[2] <- "Phenotype"
+    subjectData <- subjectData[order(subjectData$Phenotype),]
     m1 <- data.frame(1:nrow(subjectData), subjectData[,1], stringsAsFactors = FALSE)
     colnames(m1) <- c("subNum", "IID")
     m2 <- data.frame(1:nrow(geneticData$subjects$Info), geneticData$subjects$Info)
@@ -56,6 +62,8 @@ SubsetSubjects <- function(subjectData, geneticData) {
       colnames(m2) <- c("gLoc", "IID")
     }
     msg <- merge(m1, m2, by.x = c("IID"), by.y = c("IID"))
+    msg <- msg[order(msg$subNum),]
+
     phenotypes <- as.numeric(subjectData[c(msg[,"subNum"]),2])
 #    covariates <- as.matrix(as.numeric(subjectData[c(msg[,"subNum"]),c(3:ncol(subjectData))]))
     covariates <- as.matrix(subjectData[c(msg[,"subNum"]),c(3:ncol(subjectData))])

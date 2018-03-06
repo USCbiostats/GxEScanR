@@ -8,24 +8,6 @@
 #include "GeneticData.h"
 #include "BinaryDosage.h"
 
-int ConvertCovariates(const Rcpp::List &subjectData, std::vector<std::vector<double> > &covariates, const int numSubjects) {
-  std::vector<double> covariateVector = Rcpp::as<std::vector<double> >(subjectData["covariates"]);
-  int numCovariates;
-  int i, j, k;
-  
-  numCovariates = covariateVector.size() / numSubjects;
-  Rcpp::Rcout << "Calculated number of covariates\t" << numCovariates << std::endl;
-  
-  covariates.resize(numCovariates);
-  for (i = 0; i < numCovariates; ++i)
-    covariates[i].resize(numSubjects);
-  k = 0;
-  for (i = 0; i < numCovariates; ++i) {
-    for (j = 0; j < numSubjects; ++j, ++k)
-      covariates[i][j] = covariateVector[k];
-  }
-  return 0;
-}
 //' Function to fit models scanning over genotypes
 //' 
 //' Function to fit selected models over genotypes. Results from
