@@ -7,8 +7,16 @@
 #include "Subject.h"
 #include "GeneticData.h"
 #include "BinaryDosage.h"
+#include "MatrixFunctions.h"
 #include "GxEDataset.h"
 
+void ConvertCovariates(Rcpp::List subjectData, std::vector<double> &cov, int numSubjects, int numCov) {
+  std::vector<double> covR  = Rcpp::as<std::vector<double> >(subjectData["covariates"]);
+
+  cov.resize(covR.size());
+  Rcpp::Rcout << numSubjects << '\t' << numCov << '\t' << covR.size() << std::endl;
+  Transpose(&covR[0], &cov[0], (unsigned int)numSubjects, (unsigned int)numCov);
+}
 //' Function to fit models scanning over genotypes
 //' 
 //' Function to fit selected models over genotypes. Results from
@@ -39,7 +47,7 @@ Rcpp::List GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo) {
   Rcpp::List subList = geneticInfo["subjects"];
   Rcpp::DataFrame subInfo = Rcpp::as<Rcpp::DataFrame>(subList["Info"]);
   std::vector<std::string> subjectID = Rcpp::as<std::vector<std::string> >(subInfo["IID"]);
-  std::vector<double> covariates  = Rcpp::as<std::vector<double> >(subjectData["covariates"]);
+  std::vector<double> covariates;
   std::vector<bool> missingCov;
   std::vector<bool> filter;
   std::vector<double> geneticValues;
@@ -48,27 +56,25 @@ Rcpp::List GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo) {
   double *d, *p0, *p1, *p2;
   Rcpp::List res;
   
-  Rcpp::Rcout << "Number of subjects IDs in genetic file\t" << subjectID.size() << std::endl;
   numSubjectsUsed = subjectOrder.size();
-  Rcpp::Rcout << "Number of subjects used:\t" << numSubjectsUsed << std::endl;
-  for(int i = 0; i < 10 && i < numSubjectsUsed; ++i)
-    Rcpp::Rcout << "Subject:\t" << i + 1 << "\tLocation\t" << subjectOrder[i] << "\tIID\t" << subjectID[subjectOrder[i] - 1] << std::endl;
-  Rcpp::Rcout << "Number of phenotype values\t" << phenotype.size() << std::endl;
-//  ConvertCovariates(subjectData, covariates, numSubjectsUsed);
-  Rcpp::Rcout << "Number of covariate values\t" << covariates.size() << std::endl;
+  numCov = Rcpp::as<std::vector<double> >(subjectData["covariates"]).size() / numSubjectsUsed;
+  ConvertCovariates(subjectData, covariates, numCov, numSubjectsUsed);
+  Rcpp::Rcout << "Number of covariate values\t" << numCov << std::endl;
   format = (int)geneticInfo["format"];
   subversion = (int)geneticInfo["version"];
-//  Rcpp::Rcout << "Format:\t"<< format << '.' << subversion << std::endl;
   numSubjects = (int)geneticInfo["numSubjects"];
   numSNPs = (int)geneticInfo["numSNPs"];
   gFilename = Rcpp::as<std::string>(geneticInfo["geneticFile"]);
-//  Rcpp::Rcout << "Filename:\t" << gFilename << std::endl;
-//  Rcpp::Rcout << "Number of subjects:\t" << numSubjects << std::endl;
-//  Rcpp::Rcout << "NUmber of SNPs:\t" << numSNPs << std::endl;
+
   if (subversion == 1)
     geneticValues.resize(numSubjectsUsed);
   else
     geneticValues.resize(4 * numSubjectsUsed);
+  
+  missingCov.assign(covariates.size(), false);
+  missingPhenotype.assign(phenotype.size(), false);
+  filter.assign(numSubjectsUsed, true);
+  
   if (format == 1 && subversion == 1)
     geneticData = new CBinaryDosageFormat1_1(gFilename, numSubjects, numSNPs);
   else if (format == 1 && subversion == 2)
@@ -102,7 +108,7 @@ Rcpp::List GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo) {
           *p2 = geneticData->Probabilities()[2][subjectOrder[i] - 1];
         }
       } else {
-        for (i = 0; i < numSubjectsUsed; ++i, ++d, ++p0, ++p1, ++p2)
+        for (i = 0; i < numSubjectsUsed; ++i, ++d)
           *d = geneticData->Dosages()[subjectOrder[i] - 1];
       }
       probabilities = geneticData->Probabilities();
@@ -125,7 +131,7 @@ Rcpp::List GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo) {
           *p2 = geneticData->Probabilities()[2][subjectOrder[i] - 1];
         }
       } else {
-        for (i = 0; i < numSubjectsUsed; ++i, ++d, ++p0, ++p1, ++p2)
+        for (i = 0; i < numSubjectsUsed; ++i, ++d)
           *d = geneticData->Dosages()[subjectOrder[i] - 1];
       }
       probabilities = geneticData->Probabilities();

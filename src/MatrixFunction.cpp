@@ -2,6 +2,24 @@
 #include <cstring>
 #include "MatrixFunctions.h"
 
+// An important thing to remember here is that C and C++ are row dominant
+//    n represents the number of rows
+//    m represents the number of columns
+
+void Transpose(const double *x, double *y, const unsigned int n, const unsigned int m) {
+  unsigned int ui, uj;
+  const double *x1, *x2;
+  double *y1;
+  
+  x1 = x;
+  y1 = y;
+  for (ui = 0; ui < m; ++ui, ++x1) {
+    x2 = x1;
+    for (uj = 0; uj < n; ++uj, x2 += m, ++y1)
+      *y1 = *x2;
+  }
+}
+
 void XTransposeX(const double *x, double *y, const unsigned int n, const unsigned int m) {
   unsigned int ui, uj, uk;
   const double *xp1, *xp2, *xp3, *xp4;

@@ -1,6 +1,7 @@
 #ifndef MATRIXFUNCTIONS_H
 #define MATRIXFUNCTIONS_H 1
 
+void Transpose(const double *x, double *y, const unsigned int n, const unsigned int m);
 void XTransposeX(const double *x, double *y, const unsigned int n, const unsigned int m);
 void XTransposeX(const double *x, double *y, const bool *_notMissing, const unsigned int n, const unsigned int m);
 void XTransposeX(const double *x, double *y, const bool *_notMissing, const unsigned int n, const unsigned int m, const unsigned int p);
