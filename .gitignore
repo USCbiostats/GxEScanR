@@ -7,3 +7,6 @@ src/*.so
 src/*.dll
 *.bdosage
 subset10.*
+example.*
+GxEDataset.txt
+Test.out

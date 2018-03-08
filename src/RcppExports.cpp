@@ -19,14 +19,15 @@ BEGIN_RCPP
 END_RCPP
 }
 // GxEScanC
-Rcpp::List GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo);
-RcppExport SEXP _GxEScanR_GxEScanC(SEXP subjectDataSEXP, SEXP geneticInfoSEXP) {
+Rcpp::List GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string outputFilename);
+RcppExport SEXP _GxEScanR_GxEScanC(SEXP subjectDataSEXP, SEXP geneticInfoSEXP, SEXP outputFilenameSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::List >::type subjectData(subjectDataSEXP);
     Rcpp::traits::input_parameter< Rcpp::List >::type geneticInfo(geneticInfoSEXP);
-    rcpp_result_gen = Rcpp::wrap(GxEScanC(subjectData, geneticInfo));
+    Rcpp::traits::input_parameter< std::string >::type outputFilename(outputFilenameSEXP);
+    rcpp_result_gen = Rcpp::wrap(GxEScanC(subjectData, geneticInfo, outputFilename));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -56,7 +57,7 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_GxEScanR_GetBinaryDosageInformation", (DL_FUNC) &_GxEScanR_GetBinaryDosageInformation, 3},
-    {"_GxEScanR_GxEScanC", (DL_FUNC) &_GxEScanR_GxEScanC, 2},
+    {"_GxEScanR_GxEScanC", (DL_FUNC) &_GxEScanR_GxEScanC, 3},
     {"_GxEScanR_GxETest", (DL_FUNC) &_GxEScanR_GxETest, 0},
     {"_GxEScanR_PlinkBinaryInfo", (DL_FUNC) &_GxEScanR_PlinkBinaryInfo, 3},
     {NULL, NULL, 0}

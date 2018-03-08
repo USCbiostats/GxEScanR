@@ -26,7 +26,7 @@ GxEScan <- function(subjectData, geneticData, outputFile) {
   subjectSubset <- SubsetSubjects(subjectData, geneticData)
   if (is.list(subjectSubset) == FALSE)
     return (1)
-  return (GxEScanC(subjectSubset, geneticData))
+  return (GxEScanC(subjectSubset, geneticData, outputFile))
 #  return (subjectSubset)
 }
 
@@ -49,7 +49,8 @@ SubsetSubjects <- function(subjectData, geneticData) {
     msg <- msg[order(msg$subNum),]
     #    colnames(msg)[3] <- "Phenotype"
     phenotypes <- as.numeric(subjectData[c(msg[,"subNum"]),3])
-    covariates <- as.matrix(as.numeric(subjectData[c(msg[,"subNum"]),c(4:ncol(subjectData))]))
+    # covariates <- as.matrix(as.numeric(subjectData[c(msg[,"subNum"]),c(4:ncol(subjectData))]))
+    covariates <- as.matrix(subjectData[c(msg[,"subNum"]),c(4:ncol(subjectData))])
   } else {
     colnames(subjectData)[2] <- "Phenotype"
     subjectData <- subjectData[order(subjectData$Phenotype),]

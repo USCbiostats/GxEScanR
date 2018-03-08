@@ -32,12 +32,14 @@ GetBinaryDosageInformation <- function(binaryDosageFilename, nSub, nSNPs) {
 #' @param geneticInfo
 #' List returned from one of the functions to get the required information
 #' about the source of genetic data.
+#' @param outputFilename
+#' Name of output file
 #' @return
 #' 0 success
 #' 1 failure
 #' @export
-GxEScanC <- function(subjectData, geneticInfo) {
-    .Call('_GxEScanR_GxEScanC', PACKAGE = 'GxEScanR', subjectData, geneticInfo)
+GxEScanC <- function(subjectData, geneticInfo, outputFilename) {
+    .Call('_GxEScanR_GxEScanC', PACKAGE = 'GxEScanR', subjectData, geneticInfo, outputFilename)
 }
 
 #' Function to display the results from the scans performed by GxEScan

@@ -4,13 +4,15 @@
 \alias{GxEScanC}
 \title{Function to fit models scanning over genotypes}
 \usage{
-GxEScanC(subjectData, geneticInfo)
+GxEScanC(subjectData, geneticInfo, outputFilename)
 }
 \arguments{
 \item{subjectData}{List returned from SubsetSubjects}
 
 \item{geneticInfo}{List returned from one of the functions to get the required information
 about the source of genetic data.}
+
+\item{outputFilename}{Name of output file}
 }
 \value{
 0 success

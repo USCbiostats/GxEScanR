@@ -14,8 +14,24 @@ void ConvertCovariates(Rcpp::List subjectData, std::vector<double> &cov, int num
   std::vector<double> covR  = Rcpp::as<std::vector<double> >(subjectData["covariates"]);
 
   cov.resize(covR.size());
-  Rcpp::Rcout << numSubjects << '\t' << numCov << '\t' << covR.size() << std::endl;
-  Transpose(&covR[0], &cov[0], (unsigned int)numSubjects, (unsigned int)numCov);
+  Transpose(covR.data(), cov.data(), (unsigned int)numSubjects, (unsigned int)numCov);
+}
+
+void WriteResults(std::ostream &outfile, const int maxRet, const CGxEPolytomousDataset &gxeData) {
+  int betaLoc, nCov;
+  
+  if (maxRet & 0x7FF)
+    return;
+  
+  nCov = gxeData.NumCovariates();
+  if (maxRet & 0x01) {
+    outfile << "NA\tNA";
+  } else {
+    betaLoc = nCov - 1;
+    outfile << gxeData.BetaD_GE()[betaLoc] / gxeData.Mean()[betaLoc] << '\t'
+            << gxeData.BetaD_GE()[betaLoc] * sqrt(gxeData.InverseInformationD_GE()[nCov * nCov - 1]);
+  }
+  outfile << std::endl;
 }
 //' Function to fit models scanning over genotypes
 //' 
@@ -29,12 +45,14 @@ void ConvertCovariates(Rcpp::List subjectData, std::vector<double> &cov, int num
 //' @param geneticInfo
 //' List returned from one of the functions to get the required information
 //' about the source of genetic data.
+//' @param outputFilename
+//' Name of output file
 //' @return
 //' 0 success
 //' 1 failure
 //' @export
 // [[Rcpp::export]]
-Rcpp::List GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo) {
+Rcpp::List GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string outputFilename) {
   CGeneticData *geneticData = NULL;
   int format, subversion;
   int numSubjects, numSNPs;
@@ -43,17 +61,22 @@ Rcpp::List GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo) {
   std::vector<std::vector<double> > probabilities;
   std::vector<int> subjectOrder = Rcpp::as<std::vector<int> >(subjectData["gLoc"]);
   std::vector<double> phenotype = Rcpp::as<std::vector<double> >(subjectData["phenotypes"]);
-  std::vector<bool> missingPhenotype;
+  std::vector<char> caseControl;
+  std::vector<char> missingPhenotype;
   Rcpp::List subList = geneticInfo["subjects"];
   Rcpp::DataFrame subInfo = Rcpp::as<Rcpp::DataFrame>(subList["Info"]);
   std::vector<std::string> subjectID = Rcpp::as<std::vector<std::string> >(subInfo["IID"]);
   std::vector<double> covariates;
-  std::vector<bool> missingCov;
-  std::vector<bool> filter;
+  std::vector<char> missingCov;
+  std::vector<char> missingGene;
+  std::vector<char> filter;
   std::vector<double> geneticValues;
   int numSubjectsUsed, numCov;
-  int i;
+  int i, j;
+  unsigned int ui;
+  int retVal;
   double *d, *p0, *p1, *p2;
+  std::ofstream outfile(outputFilename.c_str());
   Rcpp::List res;
   
   numSubjectsUsed = subjectOrder.size();
@@ -71,8 +94,16 @@ Rcpp::List GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo) {
   else
     geneticValues.resize(4 * numSubjectsUsed);
   
-  missingCov.assign(covariates.size(), false);
   missingPhenotype.assign(phenotype.size(), false);
+  caseControl.assign(phenotype.size(), false);
+  for (ui = 0; ui < phenotype.size(); ++ui) {
+    if (phenotype[ui] == 1)
+      caseControl[ui] = true;
+    else if (phenotype[ui] != 0)
+      missingPhenotype[ui] = true;
+  }
+  missingCov.assign(covariates.size(), false);
+  missingGene.assign(numSubjectsUsed, false);
   filter.assign(numSubjectsUsed, true);
   
   if (format == 1 && subversion == 1)
@@ -113,7 +144,7 @@ Rcpp::List GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo) {
       }
       probabilities = geneticData->Probabilities();
     }
-
+/*
     if (geneticData->GetNext()) {
       Rcpp::Rcout << "GetNext failure" << std::endl;
       Rcpp::Rcout << geneticData->ErrorMessage() << std::endl;
@@ -136,15 +167,64 @@ Rcpp::List GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo) {
       }
       probabilities = geneticData->Probabilities();
     }
+*/
   }
+  
+  CGxEPolytomousDataset gxeData(numSubjectsUsed, caseControl.data(), (bool *)missingPhenotype.data(),
+                                numCov, covariates.data(), (bool *)missingCov.data(), numCov, (bool *)filter.data());
+  if (gxeData.Initialize() == false)
+    Rcpp::Rcout << "Initialization failed - " << gxeData.ErrorString() << std::endl;
+  if (subversion == 2)
+    gxeData.AssignGene(geneticValues.data(), (bool *)missingGene.data(), true, true);
+  else
+    gxeData.AssignGene(geneticValues.data(), (bool *)missingGene.data(), true, false);
+  gxeData.UpdateGene();
+  retVal = gxeData.FitModels();
+  WriteResults(outfile, retVal, gxeData);
+  
   if (geneticData)
     delete geneticData;
-  
+
+  std::vector<double> covInt;
+  covInt.assign(numSubjectsUsed * gxeData.NumParameters(), -9);
+  if (gxeData.CompleteCovariates() != NULL) {
+    for (i = 0; i < numSubjectsUsed * gxeData.NumParameters(); ++i)
+      covInt[i] = gxeData.CompleteCovariates()[i];
+  }
+  /*
+  std::ofstream outfile("GxEDataset.txt");
+  for (i = 0; i < numSubjects; ++i) {
+    outfile << phenotype[i];
+    for (j = 0; j < gxeData.NumParameters(); ++j)
+      outfile << '\t' << covInt[i * gxeData.NumParameters() + j];
+    outfile << std::endl;
+  }
+  outfile.close();
+ */
+  Rcpp::Rcout << "Number of parameters\t" << gxeData.NumParameters() << std::endl;
+  std::vector<double> covMean;
+  covMean.resize(gxeData.NumParameters());
+  for (i = 0; i < gxeData.NumParameters(); ++i)
+    covMean[i] = gxeData.Mean()[i];
+  std::vector<double> beta;
+  beta.resize(gxeData.NumCovariates() + 2);
+  for (ui = 0; ui < gxeData.NumCovariates() + 2; ++ui)
+    beta[ui] = gxeData.BetaD_GxE()[ui];
+  std::vector<double> invInfo;
+  invInfo.resize((gxeData.NumCovariates() + 2) * (gxeData.NumCovariates() + 2));
+  for (ui = 0; ui < (gxeData.NumCovariates() + 2) * (gxeData.NumCovariates() + 2); ++ui)
+    invInfo[ui] = gxeData.InverseInformationD_GxE()[ui];
   res = Rcpp::List::create(Rcpp::Named("Dosages") = dosages,
                            Rcpp::Named("GeneValues") = geneticValues,
                            Rcpp::Named("Phenotypes") = phenotype,
                            Rcpp::Named("Covariates") = covariates,
+                           Rcpp::Named("CovInt") = covInt,
+                           Rcpp::Named("CovMean") = covMean,
+                           Rcpp::Named("MaxRet") = retVal,
+                           Rcpp::Named("Beta") = beta,
+                           Rcpp::Named("InvInfo") = invInfo,
                            Rcpp::Named("Probabilities") = probabilities);
+  outfile.close();
   return res;
 }
 

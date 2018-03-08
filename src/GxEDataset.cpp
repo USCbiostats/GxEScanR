@@ -672,9 +672,14 @@ void CGxELogisticDataset::RunTests() {
   
   memmove(m_used, m_complete, m_numSubjects * sizeof(bool));
   CalculateScoreConstants((bool *)m_outcome, m_numCovariates);
+  std::cout << "Before D|E" << std::endl;
   if (Logistic((bool *)m_outcome, m_numCovariates, m_betaD_E, m_inverseInformationD_E)) {
     m_errorString = "Unable to maximum model with no genes in model";
     m_good = false;
+    std::cout << "D|E did not converged" << std::endl;
+  } else {
+    std::cout << m_betaD_E[0] << '\t' << m_betaD_E[1] << std::endl;
+    std::cout << "D|E converged" << std::endl;
   }
 }
 
@@ -1817,7 +1822,7 @@ int CGxEPolytomousDataset::FitModels() {
   
   CalculateScoreConstants(m_gene, m_numCovariates, true);
   if (Logistic((bool *)m_outcome, m_numCovariates, m_betaCaseOnly, m_inverseInformationCaseOnly))
-    retval |= 8;
+    retval |= 0x08;
   else
     DoubleInverseInformation(m_inverseInformationCaseOnly, m_numCovariates);
   
@@ -1857,7 +1862,7 @@ int CGxEPolytomousDataset::FitModels() {
   
   CalculateScoreConstants(m_gene, m_numCovariates, false);
   if (Logistic((bool *)m_outcome, m_numCovariates, m_betaCntlOnly, m_inverseInformationCntlOnly))
-    retval |= 16;
+    retval |= 0x10;
   else
     DoubleInverseInformation(m_inverseInformationCntlOnly, m_numCovariates);
   
