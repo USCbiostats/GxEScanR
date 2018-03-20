@@ -19,17 +19,95 @@ void ConvertCovariates(Rcpp::List subjectData, std::vector<double> &cov, int num
 
 void WriteResults(std::ostream &outfile, const int maxRet, const CGxEPolytomousDataset &gxeData) {
   int betaLoc, nCov;
+  double a, b, c, x, y;
   
-  if (maxRet & 0x7FF)
+  if ((maxRet & 0x7ff) == 0x7ff)
     return;
   
   nCov = gxeData.NumCovariates();
+//  Rcpp::Rcout << "Number of Covariates:\t" << nCov << std::endl;
   if (maxRet & 0x01) {
-    outfile << "NA\tNA";
+    outfile << "NA\tNA\t";
+  } else {
+    betaLoc = nCov;
+    outfile << gxeData.BetaD_GE()[betaLoc] / gxeData.Mean()[betaLoc - 1] << '\t'
+            << gxeData.BetaD_GE()[betaLoc] / sqrt(gxeData.InverseInformationD_GE()[(betaLoc + 2) * betaLoc]) << '\t';
+  }
+  if (maxRet &0x02) {
+    outfile << "NA\tNA\tNA\t";
+  } else {
+    betaLoc = nCov + 1;
+    a = gxeData.InverseInformationD_GxE()[(betaLoc + 2) * (betaLoc - 1)];
+    b = gxeData.InverseInformationD_GxE()[(betaLoc + 2) * (betaLoc - 1) + 1];
+    c = gxeData.InverseInformationD_GxE()[(betaLoc + 2) * betaLoc];
+    x = gxeData.BetaD_GxE()[betaLoc - 1];
+    y = gxeData.BetaD_GxE()[betaLoc];
+    outfile << y / gxeData.Mean()[betaLoc - 2] << '\t'
+            << y / sqrt(c) << '\t'
+            << (c * x * x - (b + b) * x * y + a * y * y) / (a * c - b * b) << '\t';
+  }
+  if (maxRet &0x04) {
+    outfile << "NA\tNA\t";
   } else {
     betaLoc = nCov - 1;
-    outfile << gxeData.BetaD_GE()[betaLoc] / gxeData.Mean()[betaLoc] << '\t'
-            << gxeData.BetaD_GE()[betaLoc] * sqrt(gxeData.InverseInformationD_GE()[nCov * nCov - 1]);
+    outfile << gxeData.BetaG_E()[betaLoc] / gxeData.Mean()[betaLoc] << '\t'
+            << gxeData.BetaG_E()[betaLoc] / sqrt(gxeData.InverseInformationG_E()[(betaLoc + 2) * betaLoc]) << '\t';
+  }
+  if (maxRet &0x08) {
+    outfile << "NA\tNA\t";
+  } else {
+    betaLoc = nCov - 1;
+    outfile << gxeData.BetaCaseOnly()[betaLoc] / gxeData.Mean()[betaLoc] << '\t'
+            << gxeData.BetaCaseOnly()[betaLoc] / sqrt(gxeData.InverseInformationCO()[(betaLoc + 2) * betaLoc]) << '\t';
+  }
+  if (maxRet &0x10) {
+    outfile << "NA\tNA\t";
+  } else {
+    betaLoc = nCov - 1;
+    outfile << gxeData.BetaCntlOnly()[betaLoc] / gxeData.Mean()[betaLoc] << '\t'
+            << gxeData.BetaCntlOnly()[betaLoc] / sqrt(gxeData.InverseInformationCntlOnly()[(betaLoc + 2) * betaLoc]) << '\t';
+  }
+  if (maxRet &0x20) {
+    outfile << "NA\tNA\t";
+  } else {
+    betaLoc = nCov + nCov - 2;
+    outfile << gxeData.BetaPolytomousG_E()[betaLoc] / gxeData.Mean()[nCov - 1] << '\t'
+            << gxeData.BetaPolytomousG_E()[betaLoc] / sqrt(gxeData.InverseInformationPolytomousG_E()[(betaLoc + 2) * betaLoc]) << '\t';
+  }
+  if (maxRet &0x40) {
+    outfile << "NA\tNA\t";
+  } else {
+    betaLoc = nCov + nCov - 2;
+    outfile << gxeData.BetaPolytomousCaseOnly()[betaLoc] / gxeData.Mean()[nCov - 1] << '\t'
+            << gxeData.BetaPolytomousCaseOnly()[betaLoc] / sqrt(gxeData.InverseInformationPolytomousCaseOnly()[(betaLoc + 2) * betaLoc]) << '\t';
+  }
+  if (maxRet &0x80) {
+    outfile << "NA\tNA\t";
+  } else {
+    betaLoc = nCov + nCov - 2;
+    outfile << gxeData.BetaPolytomousControlOnly()[betaLoc] / gxeData.Mean()[nCov - 1] << '\t'
+            << gxeData.BetaPolytomousControlOnly()[betaLoc] / sqrt(gxeData.InverseInformationPolytomousControlOnly()[(betaLoc + 2) * betaLoc]) << '\t';
+  }
+  if (maxRet &0x100) {
+    outfile << "NA\tNA\t";
+  } else {
+    betaLoc = nCov;
+    outfile << gxeData.BetaRestrictedPolytomousG_E()[betaLoc] / gxeData.Mean()[nCov - 1] << '\t'
+            << gxeData.BetaRestrictedPolytomousG_E()[betaLoc] / sqrt(gxeData.InverseInformationRestrictedPolytomousG_E()[(betaLoc + 2) * betaLoc]) << '\t';
+  }
+  if (maxRet &0x100) {
+    outfile << "NA\tNA\t";
+  } else {
+    betaLoc = nCov;
+    outfile << gxeData.BetaRestrictedPolytomousCaseOnly()[betaLoc] / gxeData.Mean()[nCov - 1] << '\t'
+            << gxeData.BetaRestrictedPolytomousCaseOnly()[betaLoc] / sqrt(gxeData.InverseInformationRestrictedPolytomousCaseOnly()[(betaLoc + 2) * betaLoc]) << '\t';
+  }
+  if (maxRet &0x100) {
+    outfile << "NA\tNA\t";
+  } else {
+    betaLoc = nCov;
+    outfile << gxeData.BetaRestrictedPolytomousControlOnly()[betaLoc] / gxeData.Mean()[nCov - 1] << '\t'
+            << gxeData.BetaRestrictedPolytomousControlOnly()[betaLoc] / sqrt(gxeData.InverseInformationRestrictedPolytomousControlOnly()[(betaLoc + 2) * betaLoc]);
   }
   outfile << std::endl;
 }
@@ -181,6 +259,31 @@ Rcpp::List GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string 
   gxeData.UpdateGene();
   retVal = gxeData.FitModels();
   WriteResults(outfile, retVal, gxeData);
+  j = 1;
+  while(geneticData->GetNext() == 0 && j < 20000) {
+    ++j;
+    dosages = geneticData->Dosages();
+    d = &geneticValues[0];
+    if (subversion == 2) {
+      p0 = d + numSubjectsUsed;
+      p1 = p0 + numSubjectsUsed;
+      p2 = p1 + numSubjectsUsed;
+      for (i = 0; i < numSubjectsUsed; ++i, ++d, ++p0, ++p1, ++p2) {
+        *d = geneticData->Dosages()[subjectOrder[i] - 1];
+        *p0 = geneticData->Probabilities()[0][subjectOrder[i] - 1];
+        *p1 = geneticData->Probabilities()[1][subjectOrder[i] - 1];
+        *p2 = geneticData->Probabilities()[2][subjectOrder[i] - 1];
+      }
+    } else {
+      for (i = 0; i < numSubjectsUsed; ++i, ++d)
+        *d = geneticData->Dosages()[subjectOrder[i] - 1];
+    }
+    probabilities = geneticData->Probabilities();
+    gxeData.UpdateGene();
+    retVal = gxeData.FitModels();
+//    Rcpp::Rcout << "Fit Model, result:\t" << retVal << std::endl;
+    WriteResults(outfile, retVal, gxeData);
+  }
   
   if (geneticData)
     delete geneticData;
@@ -201,7 +304,7 @@ Rcpp::List GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string 
   }
   outfile.close();
  */
-  Rcpp::Rcout << "Number of parameters\t" << gxeData.NumParameters() << std::endl;
+//  Rcpp::Rcout << "Number of parameters\t" << gxeData.NumParameters() << std::endl;
   std::vector<double> covMean;
   covMean.resize(gxeData.NumParameters());
   for (i = 0; i < gxeData.NumParameters(); ++i)
