@@ -30,7 +30,7 @@ void WriteResults(std::ostream &outfile, const int maxRet, const CGxEPolytomousD
     outfile << "NA\tNA\t";
   } else {
     betaLoc = nCov;
-    outfile << gxeData.BetaD_GE()[betaLoc] / gxeData.Mean()[betaLoc - 1] << '\t'
+    outfile << gxeData.BetaD_GE()[betaLoc] << '\t'
             << gxeData.BetaD_GE()[betaLoc] / sqrt(gxeData.InverseInformationD_GE()[(betaLoc + 2) * betaLoc]) << '\t';
   }
   if (maxRet &0x02) {
@@ -95,14 +95,14 @@ void WriteResults(std::ostream &outfile, const int maxRet, const CGxEPolytomousD
     outfile << gxeData.BetaRestrictedPolytomousG_E()[betaLoc] / gxeData.Mean()[nCov - 1] << '\t'
             << gxeData.BetaRestrictedPolytomousG_E()[betaLoc] / sqrt(gxeData.InverseInformationRestrictedPolytomousG_E()[(betaLoc + 2) * betaLoc]) << '\t';
   }
-  if (maxRet &0x100) {
+  if (maxRet &0x200) {
     outfile << "NA\tNA\t";
   } else {
     betaLoc = nCov;
     outfile << gxeData.BetaRestrictedPolytomousCaseOnly()[betaLoc] / gxeData.Mean()[nCov - 1] << '\t'
             << gxeData.BetaRestrictedPolytomousCaseOnly()[betaLoc] / sqrt(gxeData.InverseInformationRestrictedPolytomousCaseOnly()[(betaLoc + 2) * betaLoc]) << '\t';
   }
-  if (maxRet &0x100) {
+  if (maxRet &0x400) {
     outfile << "NA\tNA\t";
   } else {
     betaLoc = nCov;
@@ -260,7 +260,7 @@ Rcpp::List GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string 
   retVal = gxeData.FitModels();
   WriteResults(outfile, retVal, gxeData);
   j = 1;
-  while(geneticData->GetNext() == 0 && j < 20000) {
+  while(geneticData->GetNext() == 0 && j < 5) {
     ++j;
     dosages = geneticData->Dosages();
     d = &geneticValues[0];

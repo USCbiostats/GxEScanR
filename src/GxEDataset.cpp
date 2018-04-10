@@ -1762,7 +1762,7 @@ int CGxEPolytomousDataset::FitModels() {
   if (m_geneCount[0] > MinimumCellCount && m_geneCount[2] > MinimumCellCount) {
     memset(m_betaPolytomousG_E, 0, m_numParamPolytomous * sizeof(double));
     if (PolytomousLogistic(m_betaPolytomousG_E, m_inverseInformationPolytomousG_E) != 0)
-      retval |= 0x120;
+      retval |= 0x0020;
     if (m_bProbabilities == true)
       CalculateRestrictedPolytomousDosageScoreConstants();
     else if (m_bDosages == false)
@@ -1772,7 +1772,7 @@ int CGxEPolytomousDataset::FitModels() {
       retval |= 0x0100;
   }
   else {
-    retval |= 0x120;
+    retval |= 0x0120;
   }
   
   memset(m_betaG_E, 0, m_numCovariates * sizeof(double));
@@ -1795,16 +1795,16 @@ int CGxEPolytomousDataset::FitModels() {
     CalculatePolytomousMeasuredScoreConstants();
   }
   if (m_geneCount[0] > MinimumCellCount && m_geneCount[2] > MinimumCellCount) {
-    if ((retval & 0x20) != 0) {
-      retval |= 0x40;
+    if ((retval & 0x0020) != 0) {
+      retval |= 0x0040;
     }
     else {
       memset(m_betaPolytomousCaseOnly, 0, m_numParamPolytomous * sizeof(double));
       if (PolytomousLogistic(m_betaPolytomousCaseOnly, m_inverseInformationPolytomousCaseOnly) != 0)
-        retval |= 0x40;
+        retval |= 0x0040;
     }
     if ((retval & 0x0100) != 0) {
-      retval |= 0x200;
+      retval |= 0x0200;
     }
     else {
       if (m_bProbabilities == true)
@@ -1822,7 +1822,7 @@ int CGxEPolytomousDataset::FitModels() {
   
   CalculateScoreConstants(m_gene, m_numCovariates, true);
   if (Logistic((bool *)m_outcome, m_numCovariates, m_betaCaseOnly, m_inverseInformationCaseOnly))
-    retval |= 0x08;
+    retval |= 0x0008;
   else
     DoubleInverseInformation(m_inverseInformationCaseOnly, m_numCovariates);
   
@@ -1841,7 +1841,7 @@ int CGxEPolytomousDataset::FitModels() {
     else {
       memset(m_betaPolytomousControlOnly, 0, m_numParamPolytomous * sizeof(double));
       if (PolytomousLogistic(m_betaPolytomousControlOnly, m_inverseInformationPolytomousControlOnly) != 0)
-        retval |= 0x40;
+        retval |= 0x80;
     }
     if ((retval & 0x0100) != 0) {
       retval |= 0x400;
