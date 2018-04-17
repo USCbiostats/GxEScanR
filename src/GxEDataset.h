@@ -159,6 +159,8 @@ public:
   bool AllelesSwapped() const { return m_allelesSwapped; }
   const double *Beta() const { return m_beta; }
   const double *InverseInformation() const { return m_inverseInformation; }
+  
+  void Print(std::ostream &outfile, int n = 0);
 };
 
 class CGxELogisticDataset : public CGxEDataset {

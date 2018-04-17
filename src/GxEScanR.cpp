@@ -7,8 +7,76 @@
 #include "Subject.h"
 #include "GeneticData.h"
 #include "BinaryDosage.h"
+#include "Impute2.h"
 #include "MatrixFunctions.h"
 #include "GxEDataset.h"
+
+CGeneticData *OpenBinaryDosageFile(const Rcpp::List &geneticInfo) {
+  CGeneticData *geneticData = NULL;
+  int format, subversion, numSubjects, numSNPs;
+  std::string filename;
+  
+  format = (int)geneticInfo["format"];
+  subversion = (int)geneticInfo["version"];
+  numSubjects = (int)geneticInfo["numSubjects"];
+  numSNPs = (int)geneticInfo["numSNPs"];
+  filename = Rcpp::as<std::string>(geneticInfo["filename"]);
+  
+  if (format == 1 && subversion == 1)
+    geneticData = new CBinaryDosageFormat1_1(filename, numSubjects, numSNPs);
+  else if (format == 1 && subversion == 2)
+    geneticData = new CBinaryDosageFormat1_2(filename, numSubjects, numSNPs);
+  else if (format == 2 && subversion == 1)
+    geneticData = new CBinaryDosageFormat2_1(filename, numSubjects, numSNPs);
+  else if (format == 2 && subversion == 2)
+    geneticData = new CBinaryDosageFormat2_2(filename, numSubjects, numSNPs);
+  else if (format == 3 && subversion == 1)
+    geneticData = new CBinaryDosageFormat3_1(filename, numSubjects, numSNPs);
+  else if (format == 3 && subversion == 2)
+    geneticData = new CBinaryDosageFormat3_2(filename, numSubjects, numSNPs);
+  else if (format == 4 && subversion == 2)
+    geneticData = new CBinaryDosageFormat4_2(filename, numSubjects, numSNPs);
+  else
+    Rcpp::stop("Unknown binary dosage file format");
+  
+  return geneticData;
+}
+
+CGeneticData *OpenImpute2File(const Rcpp::List &geneticInfo) {
+  CGeneticData *geneticData;
+  std::string filename;
+  int numSubjects, numSNPs;
+  bool header;
+  std::vector<int> snpCol;
+  int startCol;
+  int format;
+  char sep = '\t';
+  int i;
+  
+  filename = Rcpp::as<std::string>(geneticInfo["filename"]);
+  numSubjects = (int)geneticInfo["numSubjects"];
+  numSNPs = (int)geneticInfo["numSNPs"];
+  header = (bool)geneticInfo["header"];
+  snpCol = Rcpp::as<std::vector<int> >(geneticInfo["snpCol"]);
+  startCol = (int)geneticInfo["startCol"];
+  format = (int)geneticInfo["format"];
+  geneticData = new CImpute2(numSubjects, numSNPs, FALSE, (format != 1),
+                             filename, header, snpCol, startCol, format , sep);
+  return geneticData;
+}
+
+CGeneticData *OpenGeneticData(const Rcpp::List &geneticInfo) {
+  std::string geneticFileType;
+
+  geneticFileType = Rcpp::as<std::string>(geneticInfo["filetype"]);
+  if (geneticFileType == "BinaryDosage")
+    return OpenBinaryDosageFile(geneticInfo);
+  if (geneticFileType == "Impute2")
+    return OpenImpute2File(geneticInfo);
+  Rcpp::stop("Unknown genetic data type");
+  
+  return NULL;
+}
 
 void ConvertCovariates(Rcpp::List subjectData, std::vector<double> &cov, int numSubjects, int numCov) {
   std::vector<double> covR  = Rcpp::as<std::vector<double> >(subjectData["covariates"]);
@@ -103,7 +171,7 @@ void WriteResults(std::ostream &outfile, const int maxRet, const CGxEPolytomousD
             << gxeData.BetaRestrictedPolytomousCaseOnly()[betaLoc] / sqrt(gxeData.InverseInformationRestrictedPolytomousCaseOnly()[(betaLoc + 2) * betaLoc]) << '\t';
   }
   if (maxRet &0x400) {
-    outfile << "NA\tNA\t";
+    outfile << "NA\tNA";
   } else {
     betaLoc = nCov;
     outfile << gxeData.BetaRestrictedPolytomousControlOnly()[betaLoc] / gxeData.Mean()[nCov - 1] << '\t'
@@ -132,22 +200,35 @@ void WriteResults(std::ostream &outfile, const int maxRet, const CGxEPolytomousD
 // [[Rcpp::export]]
 Rcpp::List GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string outputFilename) {
   CGeneticData *geneticData = NULL;
+  std::vector<double> phenotype = Rcpp::as<std::vector<double> >(subjectData["phenotype"]);
+  std::vector<double> covariates;
+  std::vector<int> geneIndex = Rcpp::as<std::vector<int> >(subjectData["geneIndex"]);
+  int numSubjectsUsed, numCov;
+  // Data needed for GxEDataset
+  std::vector<char> missingPhenotype;
+  std::vector<char> caseControl; // Already have variable named phenotype
+  std::vector<char> missingCov;
+  std::vector<char> missingGene;
+  std::vector<char> filter;
+  std::vector<double> geneticValues;
+  double *d, *p0, *p1, *p2;
+  
+  std::ofstream outfile(outputFilename.c_str());
+  int retVal;
+
+  int i, j; 
+  unsigned int ui;
+  /*
   int format, subversion;
   int numSubjects, numSNPs;
+  std::string geneticFileType;
   std::string gFilename;
   std::vector<double> dosages;
   std::vector<std::vector<double> > probabilities;
-  std::vector<int> subjectOrder = Rcpp::as<std::vector<int> >(subjectData["gLoc"]);
-  std::vector<double> phenotype = Rcpp::as<std::vector<double> >(subjectData["phenotypes"]);
-  std::vector<char> caseControl;
-  std::vector<char> missingPhenotype;
   Rcpp::List subList = geneticInfo["subjects"];
   Rcpp::DataFrame subInfo = Rcpp::as<Rcpp::DataFrame>(subList["Info"]);
   std::vector<std::string> subjectID = Rcpp::as<std::vector<std::string> >(subInfo["IID"]);
   std::vector<double> covariates;
-  std::vector<char> missingCov;
-  std::vector<char> missingGene;
-  std::vector<char> filter;
   std::vector<double> geneticValues;
   int numSubjectsUsed, numCov;
   int i, j;
@@ -156,17 +237,113 @@ Rcpp::List GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string 
   double *d, *p0, *p1, *p2;
   std::ofstream outfile(outputFilename.c_str());
   Rcpp::List res;
+*/ 
+  if (!outfile.good()) {
+    Rcpp::stop("Unable to open output file");
+  }
+  outfile << "BetaG\tzG\tBetaGxE\tzGxE\tChi2df\t";
+  outfile << "Beta_HWGE\tz_HWGE\tBeta_HWCase\tz_HWCase\tBeta_HWCtrl\tz_HWCtrl\t";
+  outfile << "Beta_PolyGE\tz_PolyGE\tBeta_PolyCase\tz_PolyCase\tBeta_PolyCtrl\tzPolyCtrl\t";
+  outfile << "Beta_RPolyGE\tz_RPolyGE\tBeta_RPolyCase\tz_RPolyCase\tBeta_RPolyCtrl\tz_RPolyCtrl\n";
   
-  numSubjectsUsed = subjectOrder.size();
+  numSubjectsUsed = geneIndex.size();
   numCov = Rcpp::as<std::vector<double> >(subjectData["covariates"]).size() / numSubjectsUsed;
   ConvertCovariates(subjectData, covariates, numCov, numSubjectsUsed);
-  Rcpp::Rcout << "Number of covariate values\t" << numCov << std::endl;
-  format = (int)geneticInfo["format"];
-  subversion = (int)geneticInfo["version"];
-  numSubjects = (int)geneticInfo["numSubjects"];
-  numSNPs = (int)geneticInfo["numSNPs"];
-  gFilename = Rcpp::as<std::string>(geneticInfo["geneticFile"]);
+//  Rcpp::Rcout << "NUmber of subjects used:\t" << numSubjectsUsed << std::endl;
+//  Rcpp::Rcout << "Number of covariate values:\t" << numCov << std::endl;
+  
+  geneticData = OpenGeneticData(geneticInfo);
+  if (geneticData == NULL)
+    Rcpp::stop("Unable to open genetic data");
+  if (geneticData->GetFirst()) {
+    Rcpp::Rcout << "Error reading first SNP" << std::endl;
+    delete geneticData;
+    outfile.close();
+    return 1;
+  }
+//  geneticData->GetNext();
+//  geneticData->GetNext();
+  
+  // Lot of legacy code. There should be no missing covariates or phenotypes
+  missingPhenotype.assign(phenotype.size(), false);
+  caseControl.assign(phenotype.size(), false);
+  for (ui = 0; ui < phenotype.size(); ++ui) {
+    if (phenotype[ui] == 1)
+      caseControl[ui] = true;
+    else if (phenotype[ui] != 0)
+      missingPhenotype[ui] = true;
+  }
+  missingCov.assign(covariates.size(), false);
+  missingGene.assign(numSubjectsUsed, false); // This should be returned from CGeneticData
+  filter.assign(numSubjectsUsed, true); // All are true - no filtering is currently supported
+  if (geneticData->GeneticProbabilities())
+    geneticValues.resize(4 * numSubjectsUsed);
+  else
+    geneticValues.resize(numSubjectsUsed);
+  CGxEPolytomousDataset gxeData(numSubjectsUsed, caseControl.data(), (bool *)missingPhenotype.data(),
+                                numCov, covariates.data(), (bool *)missingCov.data(), numCov, (bool *)filter.data());
 
+  if (gxeData.Initialize() == false)
+    Rcpp::Rcout << "Initialization failed - " << gxeData.ErrorString() << std::endl;
+  
+  d = &geneticValues[0];
+  if (geneticData->GeneticProbabilities()) {
+    p0 = d + numSubjectsUsed;
+    p1 = p0 + numSubjectsUsed;
+    p2 = p1 + numSubjectsUsed;
+    for (i = 0; i < numSubjectsUsed; ++i, ++d, ++p0, ++p1, ++p2) {
+//      if (i < 5)
+//        Rcpp::Rcout << geneIndex[i] << '\t';
+      *d = geneticData->Dosages()[geneIndex[i] - 1];
+      *p0 = geneticData->Probabilities()[0][geneIndex[i] - 1];
+      *p1 = geneticData->Probabilities()[1][geneIndex[i] - 1];
+      *p2 = geneticData->Probabilities()[2][geneIndex[i] - 1];
+    }
+//    Rcpp::Rcout << std::endl;
+  } else {
+    for (i = 0; i < numSubjectsUsed; ++i, ++d)
+      *d = geneticData->Dosages()[geneIndex[i] - 1];
+  }
+  
+  if (geneticData->GeneticProbabilities())
+    gxeData.AssignGene(geneticValues.data(), (bool *)missingGene.data(), true, true);
+  else
+    gxeData.AssignGene(geneticValues.data(), (bool *)missingGene.data(), true, false);
+  gxeData.UpdateGene();
+//  gxeData.Print(outfile);
+  
+  retVal = gxeData.FitModels();
+  WriteResults(outfile, retVal, gxeData);
+
+  for (j = 1; i < geneticData->NumSNPs() && j < 10; ++j) {
+    geneticData->GetNext();
+    d = &geneticValues[0];
+    if (geneticData->GeneticProbabilities()) {
+      p0 = d + numSubjectsUsed;
+      p1 = p0 + numSubjectsUsed;
+      p2 = p1 + numSubjectsUsed;
+      for (i = 0; i < numSubjectsUsed; ++i, ++d, ++p0, ++p1, ++p2) {
+//        if (i < 5)
+//          Rcpp::Rcout << geneIndex[i] << '\t';
+        *d = geneticData->Dosages()[geneIndex[i] - 1];
+        *p0 = geneticData->Probabilities()[0][geneIndex[i] - 1];
+        *p1 = geneticData->Probabilities()[1][geneIndex[i] - 1];
+        *p2 = geneticData->Probabilities()[2][geneIndex[i] - 1];
+      }
+//      Rcpp::Rcout << std::endl;
+    } else {
+      for (i = 0; i < numSubjectsUsed; ++i, ++d)
+        *d = geneticData->Dosages()[geneIndex[i] - 1];
+    }
+    gxeData.UpdateGene();
+    retVal = gxeData.FitModels();
+    WriteResults(outfile, retVal, gxeData);
+  }  
+  
+  if (geneticData)
+    delete geneticData;
+  
+/*    
   if (subversion == 1)
     geneticValues.resize(numSubjectsUsed);
   else
@@ -184,20 +361,6 @@ Rcpp::List GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string 
   missingGene.assign(numSubjectsUsed, false);
   filter.assign(numSubjectsUsed, true);
   
-  if (format == 1 && subversion == 1)
-    geneticData = new CBinaryDosageFormat1_1(gFilename, numSubjects, numSNPs);
-  else if (format == 1 && subversion == 2)
-    geneticData = new CBinaryDosageFormat1_2(gFilename, numSubjects, numSNPs);
-  else if (format == 2 && subversion == 1)
-    geneticData = new CBinaryDosageFormat2_1(gFilename, numSubjects, numSNPs);
-  else if (format == 2 && subversion == 2)
-    geneticData = new CBinaryDosageFormat2_2(gFilename, numSubjects, numSNPs);
-  else if (format == 3 && subversion == 1)
-    geneticData = new CBinaryDosageFormat3_1(gFilename, numSubjects, numSNPs);
-  else if (format == 3 && subversion == 2)
-    geneticData = new CBinaryDosageFormat3_2(gFilename, numSubjects, numSNPs);
-  else if (format == 4 && subversion == 2)
-    geneticData = new CBinaryDosageFormat4_2(gFilename, numSubjects, numSNPs);
   
   if (geneticData != NULL) {
     if (geneticData->GetFirst()) {
@@ -222,7 +385,7 @@ Rcpp::List GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string 
       }
       probabilities = geneticData->Probabilities();
     }
-/*
+
     if (geneticData->GetNext()) {
       Rcpp::Rcout << "GetNext failure" << std::endl;
       Rcpp::Rcout << geneticData->ErrorMessage() << std::endl;
@@ -245,7 +408,7 @@ Rcpp::List GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string 
       }
       probabilities = geneticData->Probabilities();
     }
-*/
+
   }
   
   CGxEPolytomousDataset gxeData(numSubjectsUsed, caseControl.data(), (bool *)missingPhenotype.data(),
@@ -294,7 +457,7 @@ Rcpp::List GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string 
     for (i = 0; i < numSubjectsUsed * gxeData.NumParameters(); ++i)
       covInt[i] = gxeData.CompleteCovariates()[i];
   }
-  /*
+  
   std::ofstream outfile("GxEDataset.txt");
   for (i = 0; i < numSubjects; ++i) {
     outfile << phenotype[i];
@@ -303,7 +466,7 @@ Rcpp::List GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string 
     outfile << std::endl;
   }
   outfile.close();
- */
+ 
 //  Rcpp::Rcout << "Number of parameters\t" << gxeData.NumParameters() << std::endl;
   std::vector<double> covMean;
   covMean.resize(gxeData.NumParameters());
@@ -329,6 +492,8 @@ Rcpp::List GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string 
                            Rcpp::Named("Probabilities") = probabilities);
   outfile.close();
   return res;
+ */
+  return 0;
 }
 
 //' Function to display the results from the scans performed by GxEScan

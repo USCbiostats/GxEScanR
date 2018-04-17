@@ -23,52 +23,32 @@
 #' 1 - failure
 #' @export
 GxEScan <- function(subjectData, geneticData, outputFile) {
+  if (missing(subjectData) == TRUE)
+    stop("No subject data specified")
+  if (missing(geneticData) == TRUE)
+    stop("No genetic data specified")
+  if (missing(outputFile) == TRUE)
+    stop("No output file specified")
   subjectSubset <- SubsetSubjects(subjectData, geneticData)
   if (is.list(subjectSubset) == FALSE)
     return (1)
   return (GxEScanC(subjectSubset, geneticData, outputFile))
-#  return (subjectSubset)
 }
 
+# Subset the subjects with complete phenotype and covariate data
+# and find their indices in the genetic file
 SubsetSubjects <- function(subjectData, geneticData) {
-  subjectData <- na.omit(subjectData)
+  subjectData <- subjectData[complete.cases(subjectData),]
   subjectTest <- TestSubjectDataR(subjectData)
-  if (subjectTest$success == FALSE)
-    return (1)
   
-  if (subjectTest$hasFamilyID == TRUE) {
-    if (geneticData$subjects$useFID == FALSE)
-      return (1)
-    colnames(subjectData)[3] <- "Phenotype"
-    subjectData <- subjectData[order(subjectData$Phenotype),]
-    m1 <- data.frame(1:nrow(subjectData), subjectData[,c(1,2)], stringsAsFactors = FALSE)
-    colnames(m1) <- c("subNum", "FID", "IID")
-    m2 <- data.frame(1:nrow(geneticData$subjects$Info), geneticData$subjects$Info)
-    colnames(m2) <- c("gLoc", "FID", "IID")
-    msg <- merge(m1, m2, by.x = c("FID", "IID"), by.y = c("FID", "IID"))
-    msg <- msg[order(msg$subNum),]
-    #    colnames(msg)[3] <- "Phenotype"
-    phenotypes <- as.numeric(subjectData[c(msg[,"subNum"]),3])
-    # covariates <- as.matrix(as.numeric(subjectData[c(msg[,"subNum"]),c(4:ncol(subjectData))]))
-    covariates <- as.matrix(subjectData[c(msg[,"subNum"]),c(4:ncol(subjectData))])
-  } else {
-    colnames(subjectData)[2] <- "Phenotype"
-    subjectData <- subjectData[order(subjectData$Phenotype),]
-    m1 <- data.frame(1:nrow(subjectData), subjectData[,1], stringsAsFactors = FALSE)
-    colnames(m1) <- c("subNum", "IID")
-    m2 <- data.frame(1:nrow(geneticData$subjects$Info), geneticData$subjects$Info)
-    if (ncol(m2) == 3) {
-      colnames(m2) <- c("gLoc", "FID", "IID")
-    } else {
-      colnames(m2) <- c("gLoc", "IID")
-    }
-    msg <- merge(m1, m2, by.x = c("IID"), by.y = c("IID"))
-    msg <- msg[order(msg$subNum),]
-
-    phenotypes <- as.numeric(subjectData[c(msg[,"subNum"]),2])
-#    covariates <- as.matrix(as.numeric(subjectData[c(msg[,"subNum"]),c(3:ncol(subjectData))]))
-    covariates <- as.matrix(subjectData[c(msg[,"subNum"]),c(3:ncol(subjectData))])
-  }
-  gloc <- msg[,c("gLoc")]
-  return (list(gLoc = gloc, phenotypes = phenotypes, covariates = covariates))
+  if (subjectTest$usesFID != geneticData$usesFID)
+    stop("Subject data and genetic data must both use family ID on not use family ID")
+  
+  subIDs <- paste(subjectTest$subjects$FID, subjectTest$subjects$IID, sep = "_gxe_") 
+  geneIDs <- paste(geneticData$subjects$FID, geneticData$subjects$IID, sep = "_gxe_")
+  indices <- match(subIDs, geneIDs)
+  
+  return (list(phenotype = subjectTest$phenotype[!is.na(indices)],
+               covariates = subjectTest$covariates[!is.na(indices),],
+               geneIndex = indices[complete.cases(indices)]))
 }  

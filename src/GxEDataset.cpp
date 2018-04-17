@@ -399,6 +399,8 @@ void CGxEDataset::UpdateGene() {
   m_numUsed = 0;
   for (ui = 0; ui < m_numSubjects; ++ui, e += m_numParameters, gxe += m_numParameters, ++g, ++notMissing) {
     //		std::cout << ui << std::endl;
+//    if (ui < 5)
+//      std::cout << *g << '\t';
     if (*notMissing == false)
       continue;
     ++m_numUsed;
@@ -411,6 +413,7 @@ void CGxEDataset::UpdateGene() {
       *(gxe + 1) = *g * *e;
     }
   }
+//  std::cout << std::endl;
   //	std::cout << "Before X transpose X" << std::endl;
   //	XTransposeX(m_covInt, m_xtransposex, m_used, m_numParameters, m_numSubjects);
 }
@@ -447,6 +450,25 @@ int CGxEDataset::LinearDependenceTest() {
 // Run Tests for valid data
 void CGxEDataset::RunTests() {
   CompletenessTest();
+}
+
+void CGxEDataset::Print(std::ostream &outfile, int n) {
+  int i, j;
+  double *d;
+  bool *x;
+  
+  if (n == 0)
+    n = m_numSubjects;
+  d = m_covInt;
+  x = (bool *)m_outcome;
+  for (i = 0; i < n; ++i, ++x) {
+    outfile << (*x ? 1 : 0) << '\t';
+    for (j = 0; j < m_numCovariates + 2; ++j, ++d) {
+      outfile << *d << '\t';
+    }
+    outfile << std::endl;
+  }
+  
 }
 
 // ******************************************** mplink logistic regression ********************************************
@@ -672,15 +694,16 @@ void CGxELogisticDataset::RunTests() {
   
   memmove(m_used, m_complete, m_numSubjects * sizeof(bool));
   CalculateScoreConstants((bool *)m_outcome, m_numCovariates);
-  std::cout << "Before D|E" << std::endl;
+//  std::cout << "Before D|E" << std::endl;
   if (Logistic((bool *)m_outcome, m_numCovariates, m_betaD_E, m_inverseInformationD_E)) {
     m_errorString = "Unable to maximum model with no genes in model";
     m_good = false;
     std::cout << "D|E did not converged" << std::endl;
-  } else {
-    std::cout << m_betaD_E[0] << '\t' << m_betaD_E[1] << std::endl;
-    std::cout << "D|E converged" << std::endl;
   }
+//  else {
+//    std::cout << m_betaD_E[0] << '\t' << m_betaD_E[1] << std::endl;
+//    std::cout << "D|E converged" << std::endl;
+//  }
 }
 
 // ***************************************************************************//
