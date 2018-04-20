@@ -56,6 +56,26 @@ GxETest <- function() {
     .Call('_GxEScanR_GxETest', PACKAGE = 'GxEScanR')
 }
 
+#' Function to convert and Impute 2 style file to a binary dosage file
+#' 
+#' Function to convert and Impute 2 style file to a binary dosage file
+#' 
+#' @param imp2Info
+#' List containing information of Impute 2 file, returned from GetI2Info
+#' @param filename
+#' Name of binary dosage file to create
+#' @param format
+#' Primary format of binary dosage file
+#' @param subformat
+#' Secondary format of binary dosage file
+#' @return
+#' 0 success
+#' 1 failure
+#' @export
+Imp2toBDC <- function(imp2Info, filename, format, subformat) {
+    .Call('_GxEScanR_Imp2toBDC', PACKAGE = 'GxEScanR', imp2Info, filename, format, subformat)
+}
+
 #' Function to produce summary of a plink binary genetic file used by GxEScan
 #' 
 #' Function to produce summary of a plink binary genetic file used by GxEScan

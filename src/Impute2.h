@@ -4,6 +4,8 @@
 #include "GeneticData.h"
 #endif
 
+CGeneticData *OpenImpute2File(const Rcpp::List &geneticInfo);
+
 class CImpute2 : public CGeneticData {
 protected:
   std::ifstream m_infile;

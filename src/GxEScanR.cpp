@@ -42,29 +42,6 @@ CGeneticData *OpenBinaryDosageFile(const Rcpp::List &geneticInfo) {
   return geneticData;
 }
 
-CGeneticData *OpenImpute2File(const Rcpp::List &geneticInfo) {
-  CGeneticData *geneticData;
-  std::string filename;
-  int numSubjects, numSNPs;
-  bool header;
-  std::vector<int> snpCol;
-  int startCol;
-  int format;
-  char sep = '\t';
-  int i;
-  
-  filename = Rcpp::as<std::string>(geneticInfo["filename"]);
-  numSubjects = (int)geneticInfo["numSubjects"];
-  numSNPs = (int)geneticInfo["numSNPs"];
-  header = (bool)geneticInfo["header"];
-  snpCol = Rcpp::as<std::vector<int> >(geneticInfo["snpCol"]);
-  startCol = (int)geneticInfo["startCol"];
-  format = (int)geneticInfo["format"];
-  geneticData = new CImpute2(numSubjects, numSNPs, FALSE, (format != 1),
-                             filename, header, snpCol, startCol, format , sep);
-  return geneticData;
-}
-
 CGeneticData *OpenGeneticData(const Rcpp::List &geneticInfo) {
   std::string geneticFileType;
 

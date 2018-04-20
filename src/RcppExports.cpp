@@ -41,6 +41,20 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// Imp2toBDC
+int Imp2toBDC(const Rcpp::List& imp2Info, const std::string& filename, int format, int subformat);
+RcppExport SEXP _GxEScanR_Imp2toBDC(SEXP imp2InfoSEXP, SEXP filenameSEXP, SEXP formatSEXP, SEXP subformatSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Rcpp::List& >::type imp2Info(imp2InfoSEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type filename(filenameSEXP);
+    Rcpp::traits::input_parameter< int >::type format(formatSEXP);
+    Rcpp::traits::input_parameter< int >::type subformat(subformatSEXP);
+    rcpp_result_gen = Rcpp::wrap(Imp2toBDC(imp2Info, filename, format, subformat));
+    return rcpp_result_gen;
+END_RCPP
+}
 // PlinkBinaryInfo
 Rcpp::List PlinkBinaryInfo(std::string& geneticFile, std::string& mapFile, std::string& familyFile);
 RcppExport SEXP _GxEScanR_PlinkBinaryInfo(SEXP geneticFileSEXP, SEXP mapFileSEXP, SEXP familyFileSEXP) {
@@ -59,6 +73,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_GxEScanR_GetBinaryDosageInformation", (DL_FUNC) &_GxEScanR_GetBinaryDosageInformation, 3},
     {"_GxEScanR_GxEScanC", (DL_FUNC) &_GxEScanR_GxEScanC, 3},
     {"_GxEScanR_GxETest", (DL_FUNC) &_GxEScanR_GxETest, 0},
+    {"_GxEScanR_Imp2toBDC", (DL_FUNC) &_GxEScanR_Imp2toBDC, 4},
     {"_GxEScanR_PlinkBinaryInfo", (DL_FUNC) &_GxEScanR_PlinkBinaryInfo, 3},
     {NULL, NULL, 0}
 };

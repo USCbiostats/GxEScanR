@@ -5,6 +5,29 @@
 #include <Rcpp.h>
 #include "Impute2.h"
 
+CGeneticData *OpenImpute2File(const Rcpp::List &geneticInfo) {
+  CGeneticData *geneticData;
+  std::string filename;
+  int numSubjects, numSNPs;
+  bool header;
+  std::vector<int> snpCol;
+  int startCol;
+  int format;
+  char sep = '\t';
+  int i;
+  
+  filename = Rcpp::as<std::string>(geneticInfo["filename"]);
+  numSubjects = (int)geneticInfo["numSubjects"];
+  numSNPs = (int)geneticInfo["numSNPs"];
+  header = (bool)geneticInfo["header"];
+  snpCol = Rcpp::as<std::vector<int> >(geneticInfo["snpCol"]);
+  startCol = (int)geneticInfo["startCol"];
+  format = (int)geneticInfo["format"];
+  geneticData = new CImpute2(numSubjects, numSNPs, FALSE, (format != 1),
+                             filename, header, snpCol, startCol, format , sep);
+  return geneticData;
+}
+
 CImpute2::CImpute2(int _numSubjects, int _numSNPs, bool _measured, bool _geneticProbabilities,
                    const std::string &_filename, bool _header, const std::vector<int> &_snpCol, int _startCol,
                    int _format, char _sep) : CGeneticData(_numSubjects, _numSNPs, _measured, _geneticProbabilities) {
