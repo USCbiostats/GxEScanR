@@ -40,10 +40,12 @@ Imp2toBD <- function (i2info, filename, format = 1, subformat = 1) {
     if (i2info$snpCol[5] == 0)
       mapDF$A2 <- '2'
     mapDF$cm <- 0
-    mapDF <- mapDF[,c("CHR", "SNP", "BP", "cm", "A1", "A2")]
+    mapDF <- mapDF[,c("CHR", "SNP", "cm", "BP", "A1", "A2")]
     mapFile <- paste(filename, ".map", sep = "")
     write.table(mapDF, mapFile, quote = FALSE, sep = '\t', row.names = FALSE, col.names = FALSE)
   }
+  bdoseFile <- paste(filename, ".bdosage", sep = "")
+  Imp2toBDC(i2info, bdoseFile, format, subformat)
   return (0)
 }
   

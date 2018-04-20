@@ -45,7 +45,7 @@ void CBinaryDosageFormat1_1::AssignDosages() {
     if (*u == 0xffff)
       *d = NA_REAL;
     else
-      *d = *u / (double)0xfffe;
+      *d = *u / (double)0x7ffe;
   }
 }
 

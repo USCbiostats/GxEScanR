@@ -66,6 +66,8 @@ GetBinaryDosageInfo <- function(geneticFile, familyFile, mapFile, usesFID = TRUE
   mapdf <- MapFileCheck(mapFile)
   if (is.data.frame(mapdf) == FALSE)
     stop("Error reading map file")
+  print(nrow(famdf))
+  print(nrow(mapdf))
   res <- GetBinaryDosageInformation(geneticFile, nrow(famdf), nrow(mapdf))
   if (res$format == 4)
     return (res)

@@ -16,7 +16,7 @@ bool CheckBinaryDosageFileSize(std::ifstream &infile, const int version, const u
   expectedSize += 8;
   infile.seekg(0, std::ios_base::end);
   actualSize = infile.tellg();
-//  Rcpp::Rcout << "Format:\tX." << version << '\t' << expectedSize << '\t' << actualSize << std::endl;
+  Rcpp::Rcout << "Format:\tX." << version << '\t' << expectedSize << '\t' << actualSize << std::endl;
   if (expectedSize == actualSize)
     return true;
   Rcpp::stop("Binary dosage file is not of the expected size");
