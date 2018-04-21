@@ -32,14 +32,15 @@ public:
   virtual int WriteSNP(const double *_d, const double *_p0, const double *_p1, const double *_p2);
 };
 
-class CWriteBD12 : public CWriteBD11 {
+class CWriteBD12 : public CWriteBD {
 public:
   CWriteBD12(const std::string &_filename, int _numSub, int _numSNPs);
   
+  virtual int WriteHeader();
   virtual int WriteSNP(const double *_d);
   virtual int WriteSNP(const double *_d, const double *_p0, const double *_p1, const double *_p2);
 };
-/*
+
 class CWriteBD21 : public CWriteBD {
 public:
   CWriteBD21(const std::string &_filename, int _numSub, int _numSNPs);
@@ -48,5 +49,14 @@ public:
   virtual int WriteSNP(const double *_d);
   virtual int WriteSNP(const double *_d, const double *_p0, const double *_p1, const double *_p2);
 };
-*/
+
+class CWriteBD22 : public CWriteBD {
+public:
+  CWriteBD22(const std::string &_filename, int _numSub, int _numSNPs);
+  
+  virtual int WriteHeader();
+  virtual int WriteSNP(const double *_d);
+  virtual int WriteSNP(const double *_d, const double *_p0, const double *_p1, const double *_p2);
+};
+
 #endif

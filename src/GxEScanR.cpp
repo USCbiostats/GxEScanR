@@ -292,7 +292,7 @@ Rcpp::List GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string 
   retVal = gxeData.FitModels();
   WriteResults(outfile, retVal, gxeData);
 
-  for (j = 1; i < geneticData->NumSNPs() && j < 10; ++j) {
+  for (j = 1; j < geneticData->NumSNPs() && j < 10; ++j) {
     geneticData->GetNext();
     d = &geneticValues[0];
     if (geneticData->GeneticProbabilities()) {
