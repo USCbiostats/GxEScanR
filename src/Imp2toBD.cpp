@@ -2,9 +2,25 @@
 #include <fstream>
 #include <string>
 #include <algorithm>
+#include <cmath>
 #include <Rcpp.h>
 #include "Imp2toBD.h"
 
+unsigned short DtoU(double d) {
+  short u1, u2;
+  double d1, d2;
+  
+  u1 = (short)(d * 10000);
+  d1 = ((double)u1) / 10000;
+  if (d1 > d)
+    u2 = u1 - 1;
+  else
+    u2 = u1 + 1;
+  d2 = ((double)u2) / 100000;
+  if (fabs(d2 - d) < fabs(d1 - d))
+    return u2;
+  return u1;
+}
 //' Function to convert and Impute 2 style file to a binary dosage file
 //' 
 //' Function to convert and Impute 2 style file to a binary dosage file
@@ -37,13 +53,23 @@ int Imp2toBDC(const Rcpp::List &imp2Info, const std::string &filename, int forma
     bdFile = new CWriteBD21(filename, (int)imp2File->NumSubjects(), (int)imp2File->NumSNPs());
   } else if (format == 2 && subformat == 2) {
     bdFile = new CWriteBD22(filename, (int)imp2File->NumSubjects(), (int)imp2File->NumSNPs());
+  } else if (format == 3 && subformat == 1) {
+    bdFile = new CWriteBD31(filename, (int)imp2File->NumSubjects(), (int)imp2File->NumSNPs());
+  } else if (format == 3 && subformat == 2) {
+    bdFile = new CWriteBD32(filename, (int)imp2File->NumSubjects(), (int)imp2File->NumSNPs());
+  } else {
+    Rcpp::Rcout << "Unknown bdosage format";
+    return 1;
   }
   bdFile->WriteHeader();
+  Rcpp::Rcout << "Wrote header" << std::endl;
+
   imp2File->GetFirst();
   if (subformat == 1)
     bdFile->WriteSNP(imp2File->Dosages().data());
   else
     bdFile->WriteSNP(imp2File->Dosages().data(), imp2File->Probabilities()[0].data(), imp2File->Probabilities()[1].data(), imp2File->Probabilities()[2].data());
+
   for (i = 1; i < imp2File->NumSNPs(); ++i) {
     imp2File->GetNext();
     if (subformat == 1)
@@ -68,6 +94,7 @@ CWriteBD::CWriteBD(const std::string &_filename, int _numSub, int _numSNPs) {
   m_p0.resize(m_numSubjects);
   m_p1.resize(m_numSubjects);
   m_p2.resize(m_numSubjects);
+  m_additional.resize(4 * m_numSubjects);
 }
 
 int CWriteBD::WriteHeader() {
@@ -324,6 +351,116 @@ int CWriteBD22::WriteSNP(const double *_d, const double *_p0, const double *_p1,
   u2 = m_p2.data();
   m_outfile.write((char *)u1, sizeof(unsigned short) * m_numSubjects);
   m_outfile.write((char *)u2, sizeof(unsigned short) * m_numSubjects);
+  
+  return 0;
+}
+
+// *******************   Format 3.1  ******************************************
+
+CWriteBD31::CWriteBD31(const std::string &_filename, int _numSub, int _numSNPs) : CWriteBD(_filename, _numSub, _numSNPs) {}
+
+int CWriteBD31::WriteHeader() {
+  const char header[8] = { 'b', 'o', 's', 'e', 0x0, 0x3, 0x0, 0x1 };
+  if (CWriteBD::WriteHeader())
+    return 1;
+  
+  m_outfile.write(header, 8);
+  
+  m_outfile.write((char *)&m_numSubjects, sizeof(int));
+  return 0;
+}
+
+int CWriteBD31::WriteSNP(const double *_d) {
+  const double *d;
+  unsigned short *u;
+  int i;
+  
+  if (CWriteBD::WriteSNP(_d))
+    return 1;
+  
+  d = _d;
+  u = m_d.data();
+  for (i = 0; i < m_numSubjects; ++i, ++d, ++u) {
+    *u = DtoU(*d);
+  }
+  u = m_d.data();
+  m_outfile.write((char *)u, sizeof(unsigned short) * m_numSubjects);
+  
+  return 0;
+}
+
+int CWriteBD31::WriteSNP(const double *_d, const double *_p0, const double *_p1, const double *_p2) {
+  if (CWriteBD::WriteSNP(_d, _p0, _p1, _p2))
+    return 1;
+  return 0;
+}
+
+// *******************   Format 3.2  ******************************************
+
+CWriteBD32::CWriteBD32(const std::string &_filename, int _numSub, int _numSNPs) : CWriteBD(_filename, _numSub, _numSNPs) {}
+
+int CWriteBD32::WriteHeader() {
+  const char header[8] = { 'b', 'o', 's', 'e', 0x0, 0x3, 0x0, 0x2 };
+  if (CWriteBD::WriteHeader())
+    return 1;
+  
+  m_outfile.write(header, 8);
+  
+  m_outfile.write((char *)&m_numSubjects, sizeof(int));
+  return 0;
+}
+
+int CWriteBD32::WriteSNP(const double *_d) {
+  if (CWriteBD::WriteSNP(_d))
+    return 1;
+
+  return 0;
+}
+
+int CWriteBD32::WriteSNP(const double *_d, const double *_p0, const double *_p1, const double *_p2) {
+  unsigned short *u1, *u2;
+  const double *d, *p0, *p1, *p2;
+  int snpSize;
+  int i;
+  
+  if (CWriteBD::WriteSNP(_d, _p0, _p1, _p2))
+    return 1;
+  
+  snpSize = m_numSubjects;
+  d = _d;
+  p0 = _p0;
+  p1 = _p1;
+  p2 = _p2;
+  u1 = m_additional.data();
+  u2 = u1 + m_numSubjects;
+  for (i = 0; i < m_numSubjects; ++i, ++d, ++p0, ++p1, ++p2, ++u1) {
+    *u1 = DtoU(*d);
+//    if (i < 4)
+//      Rcpp::Rcout << fabs(*d - (*p1 + *p2 + *p2)) << '\t' << fabs(1 - *p0 - *p1 - *p2) << std::endl;
+    if ((fabs(*d - (*p1 + *p2 + *p2)) > 1e-10) || (fabs(1 - *p0 - *p1 - *p2) > 1e-10)) {
+//      if (i < 4)
+//        Rcpp::Rcout << *d << '\t' << *p0 << '\t' << *p1 << '\t' << *p2 << std::endl;
+      *u1 |= 0x8000;
+      *u2 = DtoU(*p1);
+      *u2 |= 0x8000;
+      ++u2;
+      *u2 = DtoU(*p0);
+      ++u2;
+      *u2 = DtoU(*p2);
+      ++u2;
+      snpSize += 3;
+    } else if (*p1 != 0 && *p2 != 0) {
+      *u1 |= 0x8000;
+      *u2 = DtoU(*p1);
+      ++u2;
+      ++snpSize;
+    }
+  }
+//  Rcpp::Rcout << snpSize << std::endl;
+  snpSize *= sizeof(unsigned short);
+  u1 = m_additional.data();
+  m_outfile.write((char *)&snpSize, sizeof(int));
+  m_outfile.write((char *)u1, snpSize);
   
   return 0;
 }

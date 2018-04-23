@@ -13,6 +13,7 @@ protected:
   int m_numSubjects;
   int m_numSNPs;
   std::vector<unsigned short> m_d, m_p0, m_p1, m_p2;
+  std::vector<unsigned short> m_additional;
   
   CWriteBD(const std::string &_filename, int _numSub, int _numSNPs);
 public:
@@ -53,6 +54,24 @@ public:
 class CWriteBD22 : public CWriteBD {
 public:
   CWriteBD22(const std::string &_filename, int _numSub, int _numSNPs);
+  
+  virtual int WriteHeader();
+  virtual int WriteSNP(const double *_d);
+  virtual int WriteSNP(const double *_d, const double *_p0, const double *_p1, const double *_p2);
+};
+
+class CWriteBD31 : public CWriteBD {
+public:
+  CWriteBD31(const std::string &_filename, int _numSub, int _numSNPs);
+  
+  virtual int WriteHeader();
+  virtual int WriteSNP(const double *_d);
+  virtual int WriteSNP(const double *_d, const double *_p0, const double *_p1, const double *_p2);
+};
+
+class CWriteBD32 : public CWriteBD {
+public:
+  CWriteBD32(const std::string &_filename, int _numSub, int _numSNPs);
   
   virtual int WriteHeader();
   virtual int WriteSNP(const double *_d);

@@ -49,8 +49,8 @@ bool CheckBinaryDosage3FileSize(std::ifstream &infile, const int version, const 
       infile.read((char *)&snpSize, sizeof(int));
 //      Rcpp::Rcout << snpSize << std::endl;
       if (!infile.good()) {
+//        Rcpp::Rcerr << "Reached end of file:\t" << expectedSize << '\t' << actualSize << '\t' << snpSize << '\t' << infile.tellg() << std::endl;
         Rcpp::stop("Binary dosage file is not of the expected size");
-        //        Rcpp::Rcerr << "Reached end of file:\t" << expectedSize << '\t' << actualSize << '\t' << snpSize << '\t' << infile.tellg() << std::endl;
         return false;
       }
       expectedSize += snpSize;
