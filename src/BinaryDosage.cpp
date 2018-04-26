@@ -492,6 +492,81 @@ int CBinaryDosageFormat3_2::GetSNP(unsigned int n) {
   return 0;
 }
 
+// ******************   CBinaryDosageFormat4_1   **********************/
+
+CBinaryDosageFormat4_1::CBinaryDosageFormat4_1(const std::string &_geneticFilename, const int _numSubjects, const int _numSNPs)
+  : CBinaryDosage(_numSubjects, _numSNPs, true, _geneticFilename, 1, 1) {
+  const char header[8] = {'b', 'o', 's', 'e', 0x0, 0x4, 0x0, 0x1};
+  char readHeader[8];
+  unsigned int beginDosages;
+  
+  m_firstSNPpos = 0;
+  //  Rcpp::Rcout << "Contructor 1.1" << std::endl;  
+  if (m_infile.good()) {
+    m_infile.read(readHeader, 8);
+    //    Rcpp::Rcout << "Header:\t" << (int)readHeader[4] << '\t'
+    //                << (int)readHeader[5] << '\t'
+    //                << (int)readHeader[6] << '\t'
+    //                << (int)readHeader[7] << std::endl;
+    if (std::memcmp(header, readHeader, 8)) {
+      m_errorMessage = "File is not a binary dosage format 4.2 file";
+    } else {
+      m_infile.seekg(36);
+      m_infile.read((char *)&beginDosages, sizeof(unsigned int));
+      if (!m_infile.good()) {
+        m_errorMessage = "Error finding start of dosage data";
+      } else {
+        m_firstSNPpos = beginDosages;
+        //        Rcpp::Rcout << "First dosage postion:\t" << m_firstSNPpos << std::endl;
+        m_valid = true;
+      }
+      //      Rcpp::Rcout << m_errorMessage << std::endl;
+    }
+  }
+  m_readBuffer.resize(m_numSubjects);
+}
+
+void CBinaryDosageFormat4_1::AssignDosages() {
+  unsigned short *u;
+  double *d;
+  unsigned int ui;
+  
+  for (ui = 0, u = &m_readBuffer[0], d = &m_dosages[0]; ui < m_numSubjects; ++ui, ++u, ++d) {
+    if (*u > 20000)
+      *d = NA_REAL;
+    else
+      *d = *u / 10000.;
+  }
+}
+
+int CBinaryDosageFormat4_1::GetFirst() {
+  return GetSNP(1);
+}
+
+int CBinaryDosageFormat4_1::GetNext() {
+  if (!m_valid)
+    return 1;
+  m_infile.read((char *)&m_readBuffer[0], m_numSubjects * sizeof(unsigned short));
+  if (!m_infile.good())
+    return 1;
+  AssignDosages();
+  return 0;
+}
+
+int CBinaryDosageFormat4_1::GetSNP(unsigned int n) {
+  if (CGeneticData::GetSNP(n))
+    return 1;
+  m_infile.clear();
+  m_infile.seekg(m_firstSNPpos + (n - 1) * m_numSubjects * sizeof(unsigned short));
+  m_infile.read((char *)&m_readBuffer[0], m_numSubjects * sizeof(unsigned short));
+  if (!m_infile.good()) {
+    m_errorMessage = "Dosage read failure";
+    return 1;
+  }
+  AssignDosages();
+  return 0;
+}
+
 // ******************   CBinaryDosageFormat4_2   **********************/
 
 CBinaryDosageFormat4_2::CBinaryDosageFormat4_2(const std::string &_geneticFilename, const int _numSubjects, const int _numSNPs)
@@ -517,7 +592,7 @@ CBinaryDosageFormat4_2::CBinaryDosageFormat4_2(const std::string &_geneticFilena
         m_errorMessage = "Error finding start of dosage data";
       } else {
         m_firstSNPpos = beginDosages;
-        Rcpp::Rcout << "First dosage postion:\t" << m_firstSNPpos << std::endl;
+//        Rcpp::Rcout << "First dosage postion:\t" << m_firstSNPpos << std::endl;
         m_valid = true;
       }
       //      Rcpp::Rcout << m_errorMessage << std::endl;

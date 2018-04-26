@@ -7,7 +7,7 @@ FamilyFileCheck <- function(familyFile) {
 }
 
 MapFileCheck <- function(mapFile) {
-  df <- read.table(mapFile, stringsAsFactors = FALSE) #, c("character", "character", "numeric", "numeric", "character", "character"), header = FALSE)
+  df <- read.table(mapFile, stringsAsFactors = FALSE, colClasses = c("character", "character", "numeric", "numeric", "character", "character"), header = FALSE)
   if (ncol(df) != 6)
     stop("Map file does not have 6 columns")
   if (is.numeric(df[,3]) == FALSE | is.numeric(df[,4]) == FALSE)
@@ -66,8 +66,8 @@ GetBinaryDosageInfo <- function(geneticFile, familyFile, mapFile, usesFID = TRUE
   mapdf <- MapFileCheck(mapFile)
   if (is.data.frame(mapdf) == FALSE)
     stop("Error reading map file")
-  print(nrow(famdf))
-  print(nrow(mapdf))
+#  print(nrow(famdf))
+#  print(nrow(mapdf))
   res <- GetBinaryDosageInformation(geneticFile, nrow(famdf), nrow(mapdf))
   if (res$format == 4)
     return (res)

@@ -34,6 +34,8 @@ CGeneticData *OpenBinaryDosageFile(const Rcpp::List &geneticInfo) {
     geneticData = new CBinaryDosageFormat3_1(filename, numSubjects, numSNPs);
   else if (format == 3 && subversion == 2)
     geneticData = new CBinaryDosageFormat3_2(filename, numSubjects, numSNPs);
+  else if (format == 4 && subversion == 1)
+    geneticData = new CBinaryDosageFormat4_1(filename, numSubjects, numSNPs);
   else if (format == 4 && subversion == 2)
     geneticData = new CBinaryDosageFormat4_2(filename, numSubjects, numSNPs);
   else
@@ -218,7 +220,23 @@ Rcpp::List GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string 
   if (!outfile.good()) {
     Rcpp::stop("Unable to open output file");
   }
-  outfile << "BetaG\tzG\tBetaGxE\tzGxE\tChi2df\t";
+  
+  Rcpp::DataFrame snpData = Rcpp::as<Rcpp::DataFrame>(geneticInfo["snps"]);
+  std::vector<std::string> snpName = Rcpp::as<std::vector<std::string> >(snpData["SNP"]);
+  std::vector<std::string> chrName = Rcpp::as<std::vector<std::string> >(snpData["CHR"]);
+  std::vector<std::string> a1Name = Rcpp::as<std::vector<std::string> >(snpData["A1"]);
+  std::vector<std::string> a2Name = Rcpp::as<std::vector<std::string> >(snpData["A2"]);
+  std::vector<int> bp = Rcpp::as<std::vector<int> >(snpData["BP"]);
+  if (chrName[0] != "")
+    outfile << "CHR\t";
+  if (snpName[0] != "")
+    outfile << "SNP\t";
+  if (bp[0] != 0)
+    outfile << "BP\t";
+  if (a1Name[0] != "")
+    outfile << "A1\tA2\t";
+//  Rcpp::Rcout << snpName[0] << '\t' << chrName[0] << '\t' << a1Name[0] << '\t' << a2Name[0] << '\t' << bp[0] << std::endl;
+  outfile << "Cases\tControls\tBetaG\tzG\tBetaGxE\tzGxE\tChi2df\t";
   outfile << "Beta_HWGE\tz_HWGE\tBeta_HWCase\tz_HWCase\tBeta_HWCtrl\tz_HWCtrl\t";
   outfile << "Beta_PolyGE\tz_PolyGE\tBeta_PolyCase\tz_PolyCase\tBeta_PolyCtrl\tzPolyCtrl\t";
   outfile << "Beta_RPolyGE\tz_RPolyGE\tBeta_RPolyCase\tz_RPolyCase\tBeta_RPolyCtrl\tz_RPolyCtrl\n";
@@ -290,9 +308,22 @@ Rcpp::List GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string 
 //  gxeData.Print(outfile);
   
   retVal = gxeData.FitModels();
+  if (chrName[0] != "")
+    outfile << chrName[0] << '\t';
+  if (snpName[0] != "")
+    outfile << snpName[0] << '\t';
+  if (bp[0] != 0)
+    outfile << bp[0] << '\t';
+  if (a1Name[0] != "") {
+    if (gxeData.AllelesSwapped())
+      outfile << a2Name[0] << '\t' << a1Name[0] << '\t';
+    else
+      outfile << a1Name[0] << '\t' << a2Name[0] << '\t';
+  }
+  outfile << gxeData.NumCasesUsed() << '\t' << gxeData.NumControlsUsed() << '\t';
   WriteResults(outfile, retVal, gxeData);
 
-  for (j = 1; j < geneticData->NumSNPs() && j < 10; ++j) {
+  for (j = 1; j < geneticData->NumSNPs(); ++j) {
     geneticData->GetNext();
     d = &geneticValues[0];
     if (geneticData->GeneticProbabilities()) {
@@ -314,6 +345,19 @@ Rcpp::List GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string 
     }
     gxeData.UpdateGene();
     retVal = gxeData.FitModels();
+    if (chrName[0] != "")
+      outfile << chrName[j] << '\t';
+    if (snpName[0] != "")
+      outfile << snpName[j] << '\t';
+    if (bp[0] != 0)
+      outfile << bp[j] << '\t';
+    if (a1Name[0] != "") {
+      if (gxeData.AllelesSwapped())
+        outfile << a2Name[j] << '\t' << a1Name[j] << '\t';
+      else
+        outfile << a1Name[j] << '\t' << a2Name[j] << '\t';
+    }
+    outfile << gxeData.NumCasesUsed() << '\t' << gxeData.NumControlsUsed() << '\t';
     WriteResults(outfile, retVal, gxeData);
   }  
   

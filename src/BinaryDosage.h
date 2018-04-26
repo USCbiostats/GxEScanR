@@ -97,6 +97,20 @@ public:
 };
 
 
+class CBinaryDosageFormat4_1 : public CBinaryDosage {
+protected:
+  std::vector<unsigned short> m_readBuffer;
+  std::streamoff m_firstSNPpos;
+  virtual void AssignDosages();
+public:
+  CBinaryDosageFormat4_1(const std::string &_geneticFilename, const int numSubjects, const int numSNPs);
+  virtual ~CBinaryDosageFormat4_1() {}
+  
+  virtual int GetFirst();
+  virtual int GetNext();
+  virtual int GetSNP(unsigned int n);
+};
+
 class CBinaryDosageFormat4_2 : public CBinaryDosage {
 protected:
   std::vector<unsigned short> m_readBuffer;
@@ -110,6 +124,5 @@ public:
   virtual int GetNext();
   virtual int GetSNP(unsigned int n);
 };
-
 
 #endif
