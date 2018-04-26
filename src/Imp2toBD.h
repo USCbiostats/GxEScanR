@@ -89,4 +89,14 @@ public:
   virtual int WriteSNP(const double *_d, const double *_p0, const double *_p1, const double *_p2);
 };
 
+class CWriteBD42 : public CWriteBD {
+public:
+  CWriteBD42(const std::string &_filename, int _numSub, int _numSNPs);
+  
+  virtual int WriteHeader();
+  virtual int WriteSubjectAndSNPInfo(const Rcpp::List &imp2Info);
+  virtual int WriteSNP(const double *_d);
+  virtual int WriteSNP(const double *_d, const double *_p0, const double *_p1, const double *_p2);
+};
+
 #endif

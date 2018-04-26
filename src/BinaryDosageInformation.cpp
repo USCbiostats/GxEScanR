@@ -16,7 +16,7 @@ bool CheckBinaryDosageFileSize(std::ifstream &infile, const int version, const u
   expectedSize += 8;
   infile.seekg(0, std::ios_base::end);
   actualSize = infile.tellg();
-  Rcpp::Rcout << "Format:\tX." << version << '\t' << expectedSize << '\t' << actualSize << std::endl;
+//  Rcpp::Rcout << "Format:\tX." << version << '\t' << expectedSize << '\t' << actualSize << std::endl;
   if (expectedSize == actualSize)
     return true;
   Rcpp::stop("Binary dosage file is not of the expected size");
@@ -75,9 +75,7 @@ void ReadStringArray(std::ifstream &infile, std::vector<std::string> &x, const u
   x.resize(numStrings);
   charArray = new char[arraySize];
   infile.read(charArray, arraySize);
-  Rcpp::Rcout << infile.tellg() << std::endl;
   stringArray = charArray;
-  Rcpp::Rcout << stringArray << std::endl;
 
   std::istringstream is(stringArray);
   for (ui = 0; ui < numStrings; ++ui)
@@ -131,25 +129,25 @@ bool GetBinaryDosage4Info(std::ifstream &infile, unsigned int &numSubjects, unsi
   infile.read((char *)&groupSize[0], numGroups*sizeof(int));
   infile.seekg(startSubjects);
 
-  Rcpp::Rcout << "Subjects:\t" << numSubjects << "\tSNPs\t" << numSNPs << "\tGroups:\t" << numGroups << std::endl;
-  Rcpp::Rcout << "Group Sizes:";
-  for (ui = 0; ui < numGroups; ++ui)
-    Rcpp::Rcout << '\t' << groupSize[ui];
-  Rcpp::Rcout << std::endl;
-  Rcpp::Rcout << "Subject Options:\t" << std::hex << subjectOptions << "\tSNP Options:\t" << snpOptions << std::dec << std::endl;
-  Rcpp::Rcout << "Start Subjects:\t" << uiStartSubjects << "\tStart SNPs:\t" << uiStartSNPs << "\tStart Dosage:\t" << uiStartDosage << std::endl;
+//  Rcpp::Rcout << "Subjects:\t" << numSubjects << "\tSNPs\t" << numSNPs << "\tGroups:\t" << numGroups << std::endl;
+//  Rcpp::Rcout << "Group Sizes:";
+//  for (ui = 0; ui < numGroups; ++ui)
+//    Rcpp::Rcout << '\t' << groupSize[ui];
+//  Rcpp::Rcout << std::endl;
+//  Rcpp::Rcout << "Subject Options:\t" << std::hex << subjectOptions << "\tSNP Options:\t" << snpOptions << std::dec << std::endl;
+//  Rcpp::Rcout << "Start Subjects:\t" << uiStartSubjects << "\tStart SNPs:\t" << uiStartSNPs << "\tStart Dosage:\t" << uiStartDosage << std::endl;
 
   // Read in the family and subject IDs
-  Rcpp::Rcout << infile.tellg() << std::endl;
   infile.read((char *)&subjectStringSize, sizeof(unsigned int));
   infile.read((char *)&familyStringSize, sizeof(unsigned int));
-  Rcpp::Rcout << "Subject Array Size:\t" << subjectStringSize << "\tFamily Array Size:\t" << familyStringSize << std::endl;
-  Rcpp::Rcout << infile.tellg() << std::endl;
+//  Rcpp::Rcout << "Subject Array Size:\t" << subjectStringSize << "\tFamily Array Size:\t" << familyStringSize << std::endl;
   ReadStringArray(infile, subjectID, numSubjects, subjectStringSize);
-  if (!ignoreFamily)
+  if (!ignoreFamily) {
     ReadStringArray(infile, familyID, numSubjects, familyStringSize);
-  else
+  } else {
     familyID.resize(numSubjects);
+    result["usesFID"] = false;
+  }
   subjects = Rcpp::DataFrame::create(Rcpp::Named("FID") = familyID,
                                     Rcpp::Named("IID") = subjectID,
                                     Rcpp::Named("stringsAsFactors") = false);
@@ -165,7 +163,7 @@ bool GetBinaryDosage4Info(std::ifstream &infile, unsigned int &numSubjects, unsi
 //              << "\tRef Allele array size:\t" << refAlleleStringSize << "\tAlt Allele array Size:\t" << altAlleleStringSize << std::endl;
 
   // Read in the SNP names - SNP names will be set to chromosome:location if not read in here
-  if (snpOptions & 0x02) 
+  if (snpOptions & 0x02)
     ReadStringArray(infile, snpID, numSNPs, snpStringSize);
   else
     snpID.resize(numSNPs);
