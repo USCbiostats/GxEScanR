@@ -20,7 +20,7 @@ public:
   virtual ~CWriteBD() { m_outfile.close(); }
 
   virtual int WriteHeader();
-  virtual int WriteSubjectAndSNPInfo(const Rcpp::List &imp2Info) { return 1; }
+  virtual int WriteSubjectAndSNPInfo(const Rcpp::List &imp2Info) { return 0; }
   virtual int WriteSNP(const double *_d);
   virtual int WriteSNP(const double *_d, const double *_p0, const double *_p1, const double *_p2);
 };

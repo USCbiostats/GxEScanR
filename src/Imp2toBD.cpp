@@ -60,16 +60,13 @@ int Imp2toBDC(const Rcpp::List &imp2Info, const std::string &filename, int forma
     bdFile = new CWriteBD32(filename, (int)imp2File->NumSubjects(), (int)imp2File->NumSNPs());
   } else if (format == 4 && subformat == 1) {
     bdFile = new CWriteBD41(filename, (int)imp2File->NumSubjects(), (int)imp2File->NumSNPs());
-    bdFile->WriteHeader();
-    bdFile->WriteSubjectAndSNPInfo(imp2Info);
-    delete bdFile;
-    return 0;
   } else {
-    Rcpp::Rcout << "Unknown bdosage format";
+    Rcpp::Rcout << "Unknown bdosage format" << std::endl;
     return 1;
   }
   bdFile->WriteHeader();
   Rcpp::Rcout << "Wrote header" << std::endl;
+  bdFile->WriteSubjectAndSNPInfo(imp2Info);
 
   imp2File->GetFirst();
   if (subformat == 1)
@@ -556,6 +553,7 @@ int CWriteBD41::WriteSubjectAndSNPInfo(const Rcpp::List &imp2Info) {
       fidString << '\t' << fid[i];
     fidSize = fidString.str().length() + 1;
   }
+  
   iidString.str("");
   iidString << iid[0];
   for (i = 1; i < m_numSubjects; ++i)
@@ -564,7 +562,8 @@ int CWriteBD41::WriteSubjectAndSNPInfo(const Rcpp::List &imp2Info) {
 
   snpStart = subjectStart + 2 * sizeof(int) + fidSize + iidSize;
 
-  snpString.str(snpName[0]);
+  snpString.str("");
+  snpString << snpName[0];
   for (i = 1; i < m_numSNPs; ++i)
     snpString << '\t' << snpName[i];
   snpSize = snpString.str().length() + 1;
@@ -572,7 +571,7 @@ int CWriteBD41::WriteSubjectAndSNPInfo(const Rcpp::List &imp2Info) {
   chrString.str("");
   chrSize = 0;
   if (snpOptions & 0x0004) {
-    chrString.str(chromosome[0]);
+    chrString << chromosome[0];
     if (!(snpOptions & 0x0008)) {
       Rcpp::Rcout << snpOptions << std::endl;
       Rcpp::Rcout << "One chromosome" << std::endl;
@@ -586,16 +585,17 @@ int CWriteBD41::WriteSubjectAndSNPInfo(const Rcpp::List &imp2Info) {
   a1String.str("");
   a1Size = 0;
   if (snpOptions & 0x0020) {
-    a1String.str(refAllele[0]);
+    a1String << refAllele[0];
     for (i = 1; i < m_numSNPs; ++i)
       a1String << '\t' << refAllele[i];
     a1Size = a1String.str().length() + 1;
+    Rcpp::Rcout << a1String.str() << std::endl;
   }
 
   a2String.str("");
   a2Size = 0;
   if (snpOptions & 0x0040) {
-    a2String.str(altAllele[0]);
+    a2String << altAllele[0];
     for (i = 1; i < m_numSNPs; ++i)
       a2String << '\t' << altAllele[i];
     a2Size = a2String.str().length() + 1;
@@ -611,13 +611,13 @@ int CWriteBD41::WriteSubjectAndSNPInfo(const Rcpp::List &imp2Info) {
   m_outfile.write((char *)&dosageStart, sizeof(int));
   m_outfile.write((char *)&m_numSubjects, sizeof(int));
 
-  m_outfile.write((char *)&fidSize, sizeof(int));
   m_outfile.write((char *)&iidSize, sizeof(int));
+  m_outfile.write((char *)&fidSize, sizeof(int));
+  m_outfile.write((char *)iidString.str().c_str(), iidString.str().length());
   if (subjectOptions) {
     m_outfile.write((char *)fidString.str().c_str(), fidString.str().length());
     m_outfile.write(&zeroChar, 1);
   }
-  m_outfile.write((char *)iidString.str().c_str(), iidString.str().length());
   m_outfile.write(&zeroChar, 1);
 
   m_outfile.write((char *)&snpSize, sizeof(int));

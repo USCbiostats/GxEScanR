@@ -75,7 +75,9 @@ void ReadStringArray(std::ifstream &infile, std::vector<std::string> &x, const u
   x.resize(numStrings);
   charArray = new char[arraySize];
   infile.read(charArray, arraySize);
+  Rcpp::Rcout << infile.tellg() << std::endl;
   stringArray = charArray;
+  Rcpp::Rcout << stringArray << std::endl;
 
   std::istringstream is(stringArray);
   for (ui = 0; ui < numStrings; ++ui)
@@ -129,18 +131,20 @@ bool GetBinaryDosage4Info(std::ifstream &infile, unsigned int &numSubjects, unsi
   infile.read((char *)&groupSize[0], numGroups*sizeof(int));
   infile.seekg(startSubjects);
 
-//  Rcpp::Rcout << "Subjects:\t" << numSubjects << "\tSNPs\t" << numSNPs << "\tGroups:\t" << numGroups << std::endl;
-//  Rcpp::Rcout << "Group Sizes:";
-//  for (ui = 0; ui < numGroups; ++ui)
-//    Rcpp::Rcout << '\t' << groupSize[ui];
-//  Rcpp::Rcout << std::endl;
-//  Rcpp::Rcout << "Subject Options:\t" << std::hex << subjectOptions << "\tSNP Options:\t" << snpOptions << std::dec << std::endl;
-//  Rcpp::Rcout << "Start Subjects:\t" << uiStartSubjects << "\tStart SNPs:\t" << uiStartSNPs << "\tStart Dosage:\t" << uiStartDosage << std::endl;
+  Rcpp::Rcout << "Subjects:\t" << numSubjects << "\tSNPs\t" << numSNPs << "\tGroups:\t" << numGroups << std::endl;
+  Rcpp::Rcout << "Group Sizes:";
+  for (ui = 0; ui < numGroups; ++ui)
+    Rcpp::Rcout << '\t' << groupSize[ui];
+  Rcpp::Rcout << std::endl;
+  Rcpp::Rcout << "Subject Options:\t" << std::hex << subjectOptions << "\tSNP Options:\t" << snpOptions << std::dec << std::endl;
+  Rcpp::Rcout << "Start Subjects:\t" << uiStartSubjects << "\tStart SNPs:\t" << uiStartSNPs << "\tStart Dosage:\t" << uiStartDosage << std::endl;
 
   // Read in the family and subject IDs
+  Rcpp::Rcout << infile.tellg() << std::endl;
   infile.read((char *)&subjectStringSize, sizeof(unsigned int));
   infile.read((char *)&familyStringSize, sizeof(unsigned int));
-//  Rcpp::Rcout << "Subject Array Size:\t" << subjectStringSize << "\tFamily Array Size:\t" << familyStringSize << std::endl;
+  Rcpp::Rcout << "Subject Array Size:\t" << subjectStringSize << "\tFamily Array Size:\t" << familyStringSize << std::endl;
+  Rcpp::Rcout << infile.tellg() << std::endl;
   ReadStringArray(infile, subjectID, numSubjects, subjectStringSize);
   if (!ignoreFamily)
     ReadStringArray(infile, familyID, numSubjects, familyStringSize);
