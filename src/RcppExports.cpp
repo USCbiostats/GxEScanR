@@ -19,7 +19,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // GxEScanC
-Rcpp::List GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string outputFilename);
+int GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string outputFilename);
 RcppExport SEXP _GxEScanR_GxEScanC(SEXP subjectDataSEXP, SEXP geneticInfoSEXP, SEXP outputFilenameSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
