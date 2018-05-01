@@ -177,7 +177,7 @@ void WriteResults(std::ostream &outfile, const int maxRet, const CGxEPolytomousD
 //' 1 failure
 //' @export
 // [[Rcpp::export]]
-Rcpp::List GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string outputFilename) {
+int GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string outputFilename) {
   CGeneticData *geneticData = NULL;
   std::vector<double> phenotype = Rcpp::as<std::vector<double> >(subjectData["phenotype"]);
   std::vector<double> covariates;
