@@ -1774,6 +1774,54 @@ int CGxEPolytomousDataset::FitModels() {
   
   retval = CGxELogisticDataset::FitModels();
   
+  memset(m_betaG_E, 0, m_numCovariates * sizeof(double));
+  m_betaG_E[0] = log(m_geneFrequency / (1. - m_geneFrequency));
+//  for (unsigned int ui = 0; ui < m_numCovariates; ++ui)
+//    std::cout << '\t' << m_betaG_E[ui];
+//  std::cout << std::endl;
+  CalculateScoreConstants(m_gene, m_numCovariates);
+  if (Logistic((bool *)m_outcome, m_numCovariates, m_betaG_E, m_inverseInformationG_E)) {
+    retval |= 0x124;
+  } else {
+    DoubleInverseInformation(m_inverseInformationG_E, m_numCovariates);
+    memmove(m_betaCaseOnly, m_betaG_E, m_numCovariates * sizeof(double));
+    memmove(m_betaCntlOnly, m_betaG_E, m_numCovariates * sizeof(double));
+
+    if (m_bProbabilities == true || m_bDosages == false) {
+      if (m_bProbabilities == true)
+        CalculateRestrictedPolytomousDosageScoreConstants();
+      else
+        CalculateRestrictedPolytomousMeasuredScoreConstants();
+      if (m_geneCount[0] > MinimumCellCount && m_geneCount[2] > MinimumCellCount) {
+        memset(m_betaRestrictedPolytomousG_E, 0, m_numParamRestrictedPolytomous * sizeof(double));
+        memmove(m_betaRestrictedPolytomousG_E, m_betaG_E, (m_numCovariates - 1) * sizeof(double));
+        m_betaRestrictedPolytomousG_E[0] += log(2);
+        m_betaRestrictedPolytomousG_E[m_numParamRestrictedPolytomous - 2] = m_betaG_E[0] + m_betaG_E[0];
+        m_betaRestrictedPolytomousG_E[m_numParamRestrictedPolytomous - 1] = m_betaG_E[m_numCovariates - 1];
+        for (unsigned int ui = 0; ui < m_numParamRestrictedPolytomous; ++ui)
+          std::cout << '\t' << m_betaRestrictedPolytomousG_E[ui];
+        std::cout << std::endl;
+        if (RestrictedPolytomousLogistic(m_betaRestrictedPolytomousG_E, m_inverseInformationRestrictedPolytomousG_E) != 0) {
+          retval |= 0x0120;
+        } else {
+          for (unsigned int ui = 0; ui < m_numParamRestrictedPolytomous; ++ui)
+            std::cout << '\t' << m_betaRestrictedPolytomousG_E[ui];
+          std::cout << std::endl;
+          if (m_bProbabilities == true)
+            CalculatePolytomousDosageScoreConstants();
+          else
+            CalculatePolytomousMeasuredScoreConstants();
+          memset(m_betaPolytomousG_E, 0, m_numParamPolytomous * sizeof(double));
+          if (PolytomousLogistic(m_betaPolytomousG_E, m_inverseInformationPolytomousG_E) != 0)
+            retval |= 0x0020;
+        }
+      }
+    } else {
+      retval = 0x0120;
+    }
+  }
+
+/*  
   if (m_bProbabilities == true)
     CalculatePolytomousDosageScoreConstants();
   else if (m_bDosages == false)
@@ -1797,18 +1845,7 @@ int CGxEPolytomousDataset::FitModels() {
   else {
     retval |= 0x0120;
   }
-  
-  memset(m_betaG_E, 0, m_numCovariates * sizeof(double));
-  CalculateScoreConstants(m_gene, m_numCovariates);
-  if (Logistic((bool *)m_outcome, m_numCovariates, m_betaG_E, m_inverseInformationG_E)) {
-    retval |= 0x04;
-  }
-  else {
-    DoubleInverseInformation(m_inverseInformationG_E, m_numCovariates);
-    memmove(m_betaCaseOnly, m_betaG_E, m_numCovariates * sizeof(double));
-    memmove(m_betaCntlOnly, m_betaG_E, m_numCovariates * sizeof(double));
-  }
-  
+*/  
   // Case-only models
   SelectCaseControl(true);
   if (m_bProbabilities == true) {
