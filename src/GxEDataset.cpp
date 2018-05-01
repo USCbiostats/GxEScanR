@@ -1809,9 +1809,11 @@ int CGxEPolytomousDataset::FitModels() {
           if (PolytomousLogistic(m_betaPolytomousG_E, m_inverseInformationPolytomousG_E) != 0)
             retval |= 0x0020;
         }
+      } else {
+        retval |= 0x0120;
       }
     } else {
-      retval = 0x0120;
+      retval |= 0x0120;
     }
   }
 
@@ -1848,56 +1850,56 @@ int CGxEPolytomousDataset::FitModels() {
           if (PolytomousLogistic(m_betaPolytomousCaseOnly, m_inverseInformationPolytomousCaseOnly) != 0)
             retval |= 0x0040;
         }
+      } else {
+        retval |= 0x0240;
       }
     } else {
-      retval = 0x0240;
+      retval |= 0x0240;
     }
   }
   
-/*
-  // Case-only models
-  SelectCaseControl(true);
-
-  if (m_bProbabilities == true) {
-    CalculatePolytomousDosageScoreConstants();
-  }
-  else if (m_bDosages == false) {
-    CalculatePolytomousMeasuredScoreConstants();
-  }
-  if (m_geneCount[0] > MinimumCellCount && m_geneCount[2] > MinimumCellCount) {
-    if ((retval & 0x0020) != 0) {
-      retval |= 0x0040;
-    }
-    else {
-      memset(m_betaPolytomousCaseOnly, 0, m_numParamPolytomous * sizeof(double));
-      if (PolytomousLogistic(m_betaPolytomousCaseOnly, m_inverseInformationPolytomousCaseOnly) != 0)
-        retval |= 0x0040;
-    }
-    if ((retval & 0x0100) != 0) {
-      retval |= 0x0200;
-    }
-    else {
-      if (m_bProbabilities == true)
-        CalculateRestrictedPolytomousDosageScoreConstants();
-      else if (m_bDosages == false)
-        CalculateRestrictedPolytomousMeasuredScoreConstants();
-      memset(m_betaRestrictedPolytomousCaseOnly, 0, m_numParamRestrictedPolytomous * sizeof(double));
-      if (RestrictedPolytomousLogistic(m_betaRestrictedPolytomousCaseOnly, m_inverseInformationRestrictedPolytomousCaseOnly) != 0)
-        retval |= 0x0200;
-    }
-  }
-  else {
-    retval |= 0x0240;
-  }
-  
-  CalculateScoreConstants(m_gene, m_numCovariates, true);
-  if (Logistic((bool *)m_outcome, m_numCovariates, m_betaCaseOnly, m_inverseInformationCaseOnly))
-    retval |= 0x0008;
-  else
-    DoubleInverseInformation(m_inverseInformationCaseOnly, m_numCovariates);
-*/  
   // Control only models
   SelectCaseControl(false);
+  CalculateScoreConstants(m_gene, m_numCovariates, false);
+  if (Logistic((bool *)m_outcome, m_numCovariates, m_betaCntlOnly, m_inverseInformationCntlOnly)) {
+    retval |= 0x0490;
+  } else {
+    DoubleInverseInformation(m_inverseInformationCntlOnly, m_numCovariates);
+    
+    if (m_bProbabilities == true || m_bDosages == false) {
+      if (m_bProbabilities == true)
+        CalculateRestrictedPolytomousDosageScoreConstants();
+      else
+        CalculateRestrictedPolytomousMeasuredScoreConstants();
+      if (m_geneCount[0] > MinimumCellCount && m_geneCount[2] > MinimumCellCount) {
+        memset(m_betaRestrictedPolytomousControlOnly, 0, m_numParamRestrictedPolytomous * sizeof(double));
+        memmove(m_betaRestrictedPolytomousControlOnly, m_betaCntlOnly, (m_numCovariates - 1) * sizeof(double));
+        m_betaRestrictedPolytomousControlOnly[0] += log(2);
+        m_betaRestrictedPolytomousControlOnly[m_numParamRestrictedPolytomous - 2] = m_betaCntlOnly[0] + m_betaCntlOnly[0];
+        m_betaRestrictedPolytomousControlOnly[m_numParamRestrictedPolytomous - 1] = m_betaCntlOnly[m_numCovariates - 1];
+        if (RestrictedPolytomousLogistic(m_betaRestrictedPolytomousControlOnly, m_inverseInformationRestrictedPolytomousControlOnly) != 0) {
+          retval |= 0x0480;
+        } else {
+          if (m_bProbabilities == true)
+            CalculatePolytomousDosageScoreConstants();
+          else
+            CalculatePolytomousMeasuredScoreConstants();
+          memset(m_betaPolytomousControlOnly, 0, m_numParamPolytomous * sizeof(double));
+          memmove(m_betaPolytomousControlOnly, m_betaRestrictedPolytomousControlOnly, (m_numParamRestrictedPolytomous - 1) * sizeof(double));
+          memmove(m_betaPolytomousControlOnly + m_numParamRestrictedPolytomous - 1, m_betaRestrictedPolytomousControlOnly + 1, (m_numParamRestrictedPolytomous - 3) * sizeof(double));
+          m_betaPolytomousControlOnly[m_numParamPolytomous - 1] = m_betaPolytomousControlOnly[m_numParamRestrictedPolytomous - 1];
+          if (PolytomousLogistic(m_betaPolytomousControlOnly, m_inverseInformationPolytomousControlOnly) != 0)
+            retval |= 0x0080;
+        }
+      } else {
+        retval |= 0x0480;
+      }
+    } else {
+      retval |= 0x0480;
+    }
+  }
+//  retval |= 0x080;
+/*  
   if (m_bProbabilities == true) {
     CalculatePolytomousDosageScoreConstants();
   }
@@ -1929,13 +1931,7 @@ int CGxEPolytomousDataset::FitModels() {
   else {
     retval |= 0x0480;
   }
-  
-  CalculateScoreConstants(m_gene, m_numCovariates, false);
-  if (Logistic((bool *)m_outcome, m_numCovariates, m_betaCntlOnly, m_inverseInformationCntlOnly))
-    retval |= 0x10;
-  else
-    DoubleInverseInformation(m_inverseInformationCntlOnly, m_numCovariates);
-  
+*/
   return retval;
 }
 /*
