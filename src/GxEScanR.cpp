@@ -411,6 +411,8 @@ int GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string outputF
       }
     } else {
       WriteSNP(outfile, j, chrName, snpName, bp, a1Name, a2Name, gxeData.AllelesSwapped());
+      if (writeSkippedToOutput)
+        outfile << "\t0";
       outfile << '\t' << gxeData.NumCasesUsed() << '\t' << gxeData.NumControlsUsed() << '\t';
       WriteResults(outfile, retVal, gxeData);
     }
