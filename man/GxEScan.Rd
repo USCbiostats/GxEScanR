@@ -4,7 +4,8 @@
 \alias{GxEScan}
 \title{Function to test format of subject data table passed to GxEScan}
 \usage{
-GxEScan(subjectData, geneticData, outputFile)
+GxEScan(subjectData, geneticData, outputFile, skippedFilename = "",
+  minMaf = 0.05)
 }
 \arguments{
 \item{subjectData}{Data frame with subject data
@@ -21,7 +22,13 @@ with the gene.}
 \item{geneticData}{List with information on reading genetic data
 This is returned from GetGeneticInfo}
 
-\item{outputFile}{Name of file to store results in}
+\item{outputFile}{Name of file to write the results to}
+
+\item{skippedFilename}{Name of file to write info about SNPs that were skipped. If this is blank
+no file is written. If this is the same as outputFilename, the skipped SNPs
+are written to the output file along with NA for all tests.}
+
+\item{minMaf}{Minimum minor allele frequency. Has to be a value between 0.0001 and 0.25}
 }
 \value{
 0 - success

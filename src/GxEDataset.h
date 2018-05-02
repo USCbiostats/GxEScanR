@@ -67,6 +67,8 @@ protected:
   const bool *m_missingGene;
   // Gene frequency in subjects with complete data
   double m_geneFrequency;
+  // Minimum minor allele frequency
+  double m_minMaf;
   // Indicator if alleles 1 and 2 were swapped - This occurs when the allele frequency is greater than 0.5
   bool m_allelesSwapped;
   // Is this dosage data
@@ -134,6 +136,8 @@ public:
   
   void AssignGene(const double *_gene, const bool *_missingGene, bool _dosages, bool _probabilities);
   virtual void UpdateGene();
+
+  void MinMaf(double minMaf) { m_minMaf = minMaf; }
   
   bool isGood() const { return m_good; }
   const std::string ErrorString() const { return m_errorString; }

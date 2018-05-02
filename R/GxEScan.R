@@ -17,22 +17,30 @@
 #' List with information on reading genetic data
 #' This is returned from GetGeneticInfo
 #' @param outputFile
-#' Name of file to store results in
+#' Name of file to write the results to
+#' @param skippedFilename
+#' Name of file to write info about SNPs that were skipped. If this is blank
+#' no file is written. If this is the same as outputFilename, the skipped SNPs
+#' are written to the output file along with NA for all tests.
+#' @param minMaf
+#' Minimum minor allele frequency. Has to be a value between 0.0001 and 0.25
 #' @return
 #' 0 - success
 #' 1 - failure
 #' @export
-GxEScan <- function(subjectData, geneticData, outputFile) {
+GxEScan <- function(subjectData, geneticData, outputFile, skippedFilename = "", minMaf = 0.05) {
   if (missing(subjectData) == TRUE)
     stop("No subject data specified")
   if (missing(geneticData) == TRUE)
     stop("No genetic data specified")
   if (missing(outputFile) == TRUE)
     stop("No output file specified")
+  if (minMaf < 0.0001 | minMaf > 0.25)
+    stop("Minimum minor allele frequency must be between 0.0001 and 0.25")
   subjectSubset <- SubsetSubjects(subjectData, geneticData)
   if (is.list(subjectSubset) == FALSE)
     return (1)
-  return (GxEScanC(subjectSubset, geneticData, outputFile))
+  return (GxEScanC(subjectSubset, geneticData, outputFile, skippedFilename, minMaf))
 }
 
 # Subset the subjects with complete phenotype and covariate data

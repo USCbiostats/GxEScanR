@@ -34,12 +34,18 @@ GetBinaryDosageInformation <- function(binaryDosageFilename, nSub, nSNPs) {
 #' about the source of genetic data.
 #' @param outputFilename
 #' Name of output file
+#' @param skippedFilename
+#' Name of file to write info about SNPs that were skipped. If this is blank
+#' no file is written. If this is the same as outputFilename, the skipped SNPs
+#' are written to the output file along with NA for all tests.
+#' @param minMaf
+#' Minimum minor allele frequency. Must be between 0.0001 and 0.25
 #' @return
 #' 0 success
 #' 1 failure
 #' @export
-GxEScanC <- function(subjectData, geneticInfo, outputFilename) {
-    .Call('_GxEScanR_GxEScanC', PACKAGE = 'GxEScanR', subjectData, geneticInfo, outputFilename)
+GxEScanC <- function(subjectData, geneticInfo, outputFilename, skippedFilename, minMaf) {
+    .Call('_GxEScanR_GxEScanC', PACKAGE = 'GxEScanR', subjectData, geneticInfo, outputFilename, skippedFilename, minMaf)
 }
 
 #' Function to display the results from the scans performed by GxEScan

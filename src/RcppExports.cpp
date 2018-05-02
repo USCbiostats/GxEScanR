@@ -19,15 +19,17 @@ BEGIN_RCPP
 END_RCPP
 }
 // GxEScanC
-int GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string outputFilename);
-RcppExport SEXP _GxEScanR_GxEScanC(SEXP subjectDataSEXP, SEXP geneticInfoSEXP, SEXP outputFilenameSEXP) {
+int GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string outputFilename, std::string skippedFilename, double minMaf);
+RcppExport SEXP _GxEScanR_GxEScanC(SEXP subjectDataSEXP, SEXP geneticInfoSEXP, SEXP outputFilenameSEXP, SEXP skippedFilenameSEXP, SEXP minMafSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::List >::type subjectData(subjectDataSEXP);
     Rcpp::traits::input_parameter< Rcpp::List >::type geneticInfo(geneticInfoSEXP);
     Rcpp::traits::input_parameter< std::string >::type outputFilename(outputFilenameSEXP);
-    rcpp_result_gen = Rcpp::wrap(GxEScanC(subjectData, geneticInfo, outputFilename));
+    Rcpp::traits::input_parameter< std::string >::type skippedFilename(skippedFilenameSEXP);
+    Rcpp::traits::input_parameter< double >::type minMaf(minMafSEXP);
+    rcpp_result_gen = Rcpp::wrap(GxEScanC(subjectData, geneticInfo, outputFilename, skippedFilename, minMaf));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -71,7 +73,7 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_GxEScanR_GetBinaryDosageInformation", (DL_FUNC) &_GxEScanR_GetBinaryDosageInformation, 3},
-    {"_GxEScanR_GxEScanC", (DL_FUNC) &_GxEScanR_GxEScanC, 3},
+    {"_GxEScanR_GxEScanC", (DL_FUNC) &_GxEScanR_GxEScanC, 5},
     {"_GxEScanR_GxETest", (DL_FUNC) &_GxEScanR_GxETest, 0},
     {"_GxEScanR_Imp2toBDC", (DL_FUNC) &_GxEScanR_Imp2toBDC, 4},
     {"_GxEScanR_PlinkBinaryInfo", (DL_FUNC) &_GxEScanR_PlinkBinaryInfo, 3},

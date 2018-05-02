@@ -4,7 +4,7 @@
 \alias{GxEScanC}
 \title{Function to fit models scanning over genotypes}
 \usage{
-GxEScanC(subjectData, geneticInfo, outputFilename)
+GxEScanC(subjectData, geneticInfo, outputFilename, skippedFilename, minMaf)
 }
 \arguments{
 \item{subjectData}{List returned from SubsetSubjects}
@@ -13,6 +13,12 @@ GxEScanC(subjectData, geneticInfo, outputFilename)
 about the source of genetic data.}
 
 \item{outputFilename}{Name of output file}
+
+\item{skippedFilename}{Name of file to write info about SNPs that were skipped. If this is blank
+no file is written. If this is the same as outputFilename, the skipped SNPs
+are written to the output file along with NA for all tests.}
+
+\item{minMaf}{Minimum minor allele frequency. Must be between 0.0001 and 0.25}
 }
 \value{
 0 success

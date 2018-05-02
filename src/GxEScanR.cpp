@@ -64,12 +64,27 @@ void ConvertCovariates(Rcpp::List subjectData, std::vector<double> &cov, int num
   Transpose(covR.data(), cov.data(), (unsigned int)numSubjects, (unsigned int)numCov);
 }
 
+// Write the sNP inforamtion
+std::ostream &WriteSNP(std::ostream &outfile, int snpNum, std::vector<std::string> &chrName, std::vector<std::string> &snpName,
+              std::vector<int> &bp, std::vector<std::string> &a1Name, std::vector<std::string> &a2Name, bool swapped) {
+  if (chrName[0] != "")
+    outfile << chrName[snpNum] << '\t';
+  if (snpName[0] != "")
+    outfile << snpName[snpNum] << '\t';
+  if (bp[0] != 0)
+    outfile << bp[snpNum] << '\t';
+  if (a1Name[0] != "") {
+    if (swapped)
+      outfile << a2Name[snpNum] << '\t' << a1Name[snpNum];
+    else
+      outfile << a1Name[snpNum] << '\t' << a2Name[snpNum];
+  }
+  return outfile;
+}
+
 void WriteResults(std::ostream &outfile, const int maxRet, const CGxEPolytomousDataset &gxeData) {
   int betaLoc, nCov;
   double a, b, c, x, y;
-  
-  if ((maxRet & 0x7ff) == 0x7ff)
-    return;
   
   nCov = gxeData.NumCovariates();
 //  Rcpp::Rcout << "Number of Covariates:\t" << nCov << std::endl;
@@ -172,12 +187,18 @@ void WriteResults(std::ostream &outfile, const int maxRet, const CGxEPolytomousD
 //' about the source of genetic data.
 //' @param outputFilename
 //' Name of output file
+//' @param skippedFilename
+//' Name of file to write info about SNPs that were skipped. If this is blank
+//' no file is written. If this is the same as outputFilename, the skipped SNPs
+//' are written to the output file along with NA for all tests.
+//' @param minMaf
+//' Minimum minor allele frequency. Must be between 0.0001 and 0.25
 //' @return
 //' 0 success
 //' 1 failure
 //' @export
 // [[Rcpp::export]]
-int GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string outputFilename) {
+int GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string outputFilename, std::string skippedFilename, double minMaf) {
   CGeneticData *geneticData = NULL;
   std::vector<double> phenotype = Rcpp::as<std::vector<double> >(subjectData["phenotype"]);
   std::vector<double> covariates;
@@ -193,6 +214,9 @@ int GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string outputF
   double *d, *p0, *p1, *p2;
   
   std::ofstream outfile(outputFilename.c_str());
+  std::ofstream outfile2;
+  bool writeSkippedToOutput = false;
+  bool writeSkipped = false;
   int retVal;
 
   int i, j; 
@@ -217,8 +241,23 @@ int GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string outputF
   std::ofstream outfile(outputFilename.c_str());
   Rcpp::List res;
 */ 
+  if (minMaf < 0.0001 || minMaf > 0.25)
+    Rcpp::stop("Minimum minor allele frequnecy must be between 0.0001 and 0.25");
+
   if (!outfile.good()) {
     Rcpp::stop("Unable to open output file");
+  }
+  if (skippedFilename != "") {
+    outfile2.open(skippedFilename.c_str());
+    if (skippedFilename == outputFilename) {
+      writeSkippedToOutput = true;
+    } else {
+      writeSkipped = true;
+      if (!outfile2.good()) {
+        outfile.close();
+        Rcpp::stop("Unable to open skipped file");
+      }
+    }
   }
   
   Rcpp::DataFrame snpData = Rcpp::as<Rcpp::DataFrame>(geneticInfo["snps"]);
@@ -236,10 +275,23 @@ int GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string outputF
   if (a1Name[0] != "")
     outfile << "A1\tA2\t";
 //  Rcpp::Rcout << snpName[0] << '\t' << chrName[0] << '\t' << a1Name[0] << '\t' << a2Name[0] << '\t' << bp[0] << std::endl;
+  if (writeSkippedToOutput)
+    outfile << "Code\t";
   outfile << "Cases\tControls\tBetaG\tzG\tBetaGxE\tzGxE\tChi2df\t";
   outfile << "Beta_HWGE\tz_HWGE\tBeta_HWCase\tz_HWCase\tBeta_HWCtrl\tz_HWCtrl\t";
   outfile << "Beta_PolyGE\tz_PolyGE\tBeta_PolyCase\tz_PolyCase\tBeta_PolyCtrl\tzPolyCtrl\t";
-  outfile << "Beta_RPolyGE\tz_RPolyGE\tBeta_RPolyCase\tz_RPolyCase\tBeta_RPolyCtrl\tz_RPolyCtrl\n";
+  outfile << "Beta_RPolyGE\tz_RPolyGE\tBeta_RPolyCase\tz_RPolyCase\tBeta_RPolyCtrl\tz_RPolyCtrl" << std::endl;
+  if (writeSkipped) {
+    if (chrName[0] != "")
+      outfile2 << "CHR\t";
+    if (snpName[0] != "")
+      outfile2 << "SNP\t";
+    if (bp[0] != 0)
+      outfile2 << "BP\t";
+    if (a1Name[0] != "")
+      outfile2 << "A1\tA2\t";
+    outfile2 << "Code" << std::endl;
+  }
   
   numSubjectsUsed = geneIndex.size();
   numCov = Rcpp::as<std::vector<double> >(subjectData["covariates"]).size() / numSubjectsUsed;
@@ -254,6 +306,7 @@ int GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string outputF
     Rcpp::Rcout << "Error reading first SNP" << std::endl;
     delete geneticData;
     outfile.close();
+    outfile2.close();
     return 1;
   }
 //  geneticData->GetNext();
@@ -281,6 +334,7 @@ int GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string outputF
   if (gxeData.Initialize() == false)
     Rcpp::Rcout << "Initialization failed - " << gxeData.ErrorString() << std::endl;
   
+  gxeData.MinMaf(minMaf);
   d = &geneticValues[0];
   if (geneticData->GeneticProbabilities()) {
     p0 = d + numSubjectsUsed;
@@ -308,21 +362,22 @@ int GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string outputF
 //  gxeData.Print(outfile);
   
   retVal = gxeData.FitModels();
-  if (chrName[0] != "")
-    outfile << chrName[0] << '\t';
-  if (snpName[0] != "")
-    outfile << snpName[0] << '\t';
-  if (bp[0] != 0)
-    outfile << bp[0] << '\t';
-  if (a1Name[0] != "") {
-    if (gxeData.AllelesSwapped())
-      outfile << a2Name[0] << '\t' << a1Name[0] << '\t';
-    else
-      outfile << a1Name[0] << '\t' << a2Name[0] << '\t';
+//  Rcpp::Rcout << std::hex << retVal << std::dec << std::endl;
+  if ((retVal & 0x07ff) == 0x07ff) {
+    if (writeSkipped) {
+      WriteSNP(outfile2, 0, chrName, snpName, bp, a1Name, a2Name, false);
+      outfile2 << '\t' << (retVal >> 12) << std::endl;
+    } else if (writeSkippedToOutput) {
+      WriteSNP(outfile, 0, chrName, snpName, bp, a1Name, a2Name, gxeData.AllelesSwapped());
+      outfile << '\t' << (retVal >> 12) << "\tNA\tNA\t";
+      WriteResults(outfile, retVal, gxeData);
+    }
+  } else {
+    WriteSNP(outfile, 0, chrName, snpName, bp, a1Name, a2Name, gxeData.AllelesSwapped());
+    outfile << '\t' << gxeData.NumCasesUsed() << '\t' << gxeData.NumControlsUsed() << '\t';
+    WriteResults(outfile, retVal, gxeData);
   }
-  outfile << gxeData.NumCasesUsed() << '\t' << gxeData.NumControlsUsed() << '\t';
-  WriteResults(outfile, retVal, gxeData);
-
+  
   for (j = 1; j < geneticData->NumSNPs(); ++j) {
     geneticData->GetNext();
     d = &geneticValues[0];
@@ -345,22 +400,24 @@ int GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string outputF
     }
     gxeData.UpdateGene();
     retVal = gxeData.FitModels();
-    if (chrName[0] != "")
-      outfile << chrName[j] << '\t';
-    if (snpName[0] != "")
-      outfile << snpName[j] << '\t';
-    if (bp[0] != 0)
-      outfile << bp[j] << '\t';
-    if (a1Name[0] != "") {
-      if (gxeData.AllelesSwapped())
-        outfile << a2Name[j] << '\t' << a1Name[j] << '\t';
-      else
-        outfile << a1Name[j] << '\t' << a2Name[j] << '\t';
+    if ((retVal & 0x07ff) == 0x07ff) {
+      if (writeSkipped) {
+        WriteSNP(outfile2, j, chrName, snpName, bp, a1Name, a2Name, false);
+        outfile2 << '\t' << (retVal >> 12) << std::endl;
+      } else if (writeSkippedToOutput) {
+        WriteSNP(outfile, j, chrName, snpName, bp, a1Name, a2Name, false);
+        outfile << '\t' << (retVal >> 12) << "\tNA\tNA\t";
+        WriteResults(outfile, retVal, gxeData);
+      }
+    } else {
+      WriteSNP(outfile, j, chrName, snpName, bp, a1Name, a2Name, gxeData.AllelesSwapped());
+      outfile << '\t' << gxeData.NumCasesUsed() << '\t' << gxeData.NumControlsUsed() << '\t';
+      WriteResults(outfile, retVal, gxeData);
     }
-    outfile << gxeData.NumCasesUsed() << '\t' << gxeData.NumControlsUsed() << '\t';
-    WriteResults(outfile, retVal, gxeData);
   }  
   
+  outfile.close();
+  outfile2.close();
   if (geneticData)
     delete geneticData;
   

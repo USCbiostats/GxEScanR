@@ -54,6 +54,7 @@ CGxEDataset::CGxEDataset(const unsigned int _numSub, const void *_outcome, const
   m_gene = NULL;
   m_missingGene = NULL;
   m_geneFrequency = 0.;
+  m_minMaf = 0.05;
   m_allelesSwapped = false;
   m_bDosages = false;
   m_bProbabilities = false;
@@ -927,9 +928,13 @@ int CGxELogisticDataset::Logistic(const bool *outcome, unsigned int numCovar, do
 int CGxELogisticDataset::FitModels() {
   if (m_initialized == false) {
     m_errorString = "Model not initialized";
-    return 0xffff;
+    return 0x1fff;
   }
   
+  if (m_geneFrequency < m_minMaf) {
+    m_errorString = "Minor allele frequency under minimum value";
+    return 0x2fff;
+  }
   // No subjects with complete data
   if (m_numUsed == 0)
     return 0x03;
@@ -1771,6 +1776,11 @@ void CGxEPolytomousDataset::Standardize() {
 // Fit all the models
 int CGxEPolytomousDataset::FitModels() {
   int retval = 0;
+
+  if (m_geneFrequency < m_minMaf) {
+    m_errorString = "Minor allele frequency under minimum value";
+    return 0x2fff;
+  }
   
   retval = CGxELogisticDataset::FitModels();
   
