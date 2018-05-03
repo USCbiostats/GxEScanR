@@ -48,6 +48,36 @@ GxEScanC <- function(subjectData, geneticInfo, outputFilename, skippedFilename, 
     .Call('_GxEScanR_GxEScanC', PACKAGE = 'GxEScanR', subjectData, geneticInfo, outputFilename, skippedFilename, minMaf)
 }
 
+#' Function to fit models scanning over a subset of genotypes
+#' 
+#' Function to fit selected models over a subset of genotypes. Results from
+#' these models are then processed by GxETest to display the results
+#' for these one step tests along with two step tests derived from
+#' the one step tests.
+#' 
+#' @param subjectData
+#' List returned from SubsetSubjects
+#' @param geneticInfo
+#' List returned from one of the functions to get the required information
+#' about the source of genetic data.
+#' @param outputFilename
+#' Name of output file
+#' @param skippedFilename
+#' Name of file to write info about SNPs that were skipped. If this is blank
+#' no file is written. If this is the same as outputFilename, the skipped SNPs
+#' are written to the output file along with NA for all tests.
+#' @param minMaf
+#' Minimum minor allele frequency. Must be between 0.0001 and 0.25
+#' @param snpIndices
+#' Indices of SNP locations in geneticInfo to be used in analysis
+#' @return
+#' 0 success
+#' 1 failure
+#' @export
+GxEScanCSubset <- function(subjectData, geneticInfo, outputFilename, skippedFilename, minMaf, snpIndices) {
+    .Call('_GxEScanR_GxEScanCSubset', PACKAGE = 'GxEScanR', subjectData, geneticInfo, outputFilename, skippedFilename, minMaf, snpIndices)
+}
+
 #' Function to display the results from the scans performed by GxEScan
 #' 
 #' Function to display the results from the scans performed by GxEScan.

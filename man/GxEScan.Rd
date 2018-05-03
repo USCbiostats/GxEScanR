@@ -5,7 +5,7 @@
 \title{Function to test format of subject data table passed to GxEScan}
 \usage{
 GxEScan(subjectData, geneticData, outputFile, skippedFilename = "",
-  minMaf = 0.05)
+  minMaf = 0.05, snps)
 }
 \arguments{
 \item{subjectData}{Data frame with subject data
@@ -29,6 +29,9 @@ no file is written. If this is the same as outputFilename, the skipped SNPs
 are written to the output file along with NA for all tests.}
 
 \item{minMaf}{Minimum minor allele frequency. Has to be a value between 0.0001 and 0.25}
+
+\item{snps}{Subset of SNPs to use. This can be a character vector of SNP names or an
+integer vector of locations in the snps data frame in the genetic data list}
 }
 \value{
 0 - success

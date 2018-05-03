@@ -576,6 +576,212 @@ int GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string outputF
   return 0;
 }
 
+//' Function to fit models scanning over a subset of genotypes
+//' 
+//' Function to fit selected models over a subset of genotypes. Results from
+//' these models are then processed by GxETest to display the results
+//' for these one step tests along with two step tests derived from
+//' the one step tests.
+//' 
+//' @param subjectData
+//' List returned from SubsetSubjects
+//' @param geneticInfo
+//' List returned from one of the functions to get the required information
+//' about the source of genetic data.
+//' @param outputFilename
+//' Name of output file
+//' @param skippedFilename
+//' Name of file to write info about SNPs that were skipped. If this is blank
+//' no file is written. If this is the same as outputFilename, the skipped SNPs
+//' are written to the output file along with NA for all tests.
+//' @param minMaf
+//' Minimum minor allele frequency. Must be between 0.0001 and 0.25
+//' @param snpIndices
+//' Indices of SNP locations in geneticInfo to be used in analysis
+//' @return
+//' 0 success
+//' 1 failure
+//' @export
+// [[Rcpp::export]]
+int GxEScanCSubset(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string outputFilename, std::string skippedFilename, double minMaf, std::vector<int> &snpIndices) {
+  CGeneticData *geneticData = NULL;
+  std::vector<double> phenotype = Rcpp::as<std::vector<double> >(subjectData["phenotype"]);
+  std::vector<double> covariates;
+  std::vector<int> geneIndex = Rcpp::as<std::vector<int> >(subjectData["geneIndex"]);
+  int numSubjectsUsed, numCov;
+  // Data needed for GxEDataset
+  std::vector<char> missingPhenotype;
+  std::vector<char> caseControl; // Already have variable named phenotype
+  std::vector<char> missingCov;
+  std::vector<char> missingGene;
+  std::vector<char> filter;
+  std::vector<double> geneticValues;
+  double *d, *p0, *p1, *p2;
+  
+  std::ofstream outfile(outputFilename.c_str());
+  std::ofstream outfile2;
+  bool writeSkippedToOutput = false;
+  bool writeSkipped = false;
+  int retVal;
+  
+  int i, j, k; 
+  unsigned int ui;
+  
+  if (minMaf < 0.0001 || minMaf > 0.25)
+    Rcpp::stop("Minimum minor allele frequnecy must be between 0.0001 and 0.25");
+  
+  if (!outfile.good()) {
+    Rcpp::stop("Unable to open output file");
+  }
+  if (skippedFilename != "") {
+    outfile2.open(skippedFilename.c_str());
+    if (skippedFilename == outputFilename) {
+      writeSkippedToOutput = true;
+    } else {
+      writeSkipped = true;
+      if (!outfile2.good()) {
+        outfile.close();
+        Rcpp::stop("Unable to open skipped file");
+      }
+    }
+  }
+  
+  Rcpp::DataFrame snpData = Rcpp::as<Rcpp::DataFrame>(geneticInfo["snps"]);
+  std::vector<std::string> snpName = Rcpp::as<std::vector<std::string> >(snpData["SNP"]);
+  std::vector<std::string> chrName = Rcpp::as<std::vector<std::string> >(snpData["CHR"]);
+  std::vector<std::string> a1Name = Rcpp::as<std::vector<std::string> >(snpData["A1"]);
+  std::vector<std::string> a2Name = Rcpp::as<std::vector<std::string> >(snpData["A2"]);
+  std::vector<int> bp = Rcpp::as<std::vector<int> >(snpData["BP"]);
+  if (chrName[0] != "")
+    outfile << "CHR\t";
+  if (snpName[0] != "")
+    outfile << "SNP\t";
+  if (bp[0] != 0)
+    outfile << "BP\t";
+  if (a1Name[0] != "")
+    outfile << "A1\tA2\t";
+  //  Rcpp::Rcout << snpName[0] << '\t' << chrName[0] << '\t' << a1Name[0] << '\t' << a2Name[0] << '\t' << bp[0] << std::endl;
+  if (writeSkippedToOutput)
+    outfile << "Code\t";
+  outfile << "Cases\tControls\tBetaG\tzG\tBetaGxE\tzGxE\tChi2df\t";
+  outfile << "Beta_HWGE\tz_HWGE\tBeta_HWCase\tz_HWCase\tBeta_HWCtrl\tz_HWCtrl\t";
+  outfile << "Beta_PolyGE\tz_PolyGE\tBeta_PolyCase\tz_PolyCase\tBeta_PolyCtrl\tzPolyCtrl\t";
+  outfile << "Beta_RPolyGE\tz_RPolyGE\tBeta_RPolyCase\tz_RPolyCase\tBeta_RPolyCtrl\tz_RPolyCtrl" << std::endl;
+  if (writeSkipped) {
+    if (chrName[0] != "")
+      outfile2 << "CHR\t";
+    if (snpName[0] != "")
+      outfile2 << "SNP\t";
+    if (bp[0] != 0)
+      outfile2 << "BP\t";
+    if (a1Name[0] != "")
+      outfile2 << "A1\tA2\t";
+    outfile2 << "Code" << std::endl;
+  }
+  
+  numSubjectsUsed = geneIndex.size();
+  numCov = Rcpp::as<std::vector<double> >(subjectData["covariates"]).size() / numSubjectsUsed;
+  ConvertCovariates(subjectData, covariates, numCov, numSubjectsUsed);
+  //  Rcpp::Rcout << "NUmber of subjects used:\t" << numSubjectsUsed << std::endl;
+  //  Rcpp::Rcout << "Number of covariate values:\t" << numCov << std::endl;
+  
+  geneticData = OpenGeneticData(geneticInfo);
+  if (geneticData == NULL)
+    Rcpp::stop("Unable to open genetic data");
+  
+  if (geneticData->GetSNP(snpIndices[0])) {
+    Rcpp::Rcout << "Error reading first specified SNP" << std::endl;
+    delete geneticData;
+    outfile.close();
+    outfile2.close();
+    return 1;
+  }
+  
+  // Lot of legacy code. There should be no missing covariates or phenotypes
+  missingPhenotype.assign(phenotype.size(), false);
+  caseControl.assign(phenotype.size(), false);
+  for (ui = 0; ui < phenotype.size(); ++ui) {
+    if (phenotype[ui] == 1)
+      caseControl[ui] = true;
+    else if (phenotype[ui] != 0)
+      missingPhenotype[ui] = true;
+  }
+  missingCov.assign(covariates.size(), false);
+  missingGene.assign(numSubjectsUsed, false); // This should be returned from CGeneticData
+  filter.assign(numSubjectsUsed, true); // All are true - no filtering is currently supported
+  if (geneticData->GeneticProbabilities())
+    geneticValues.resize(4 * numSubjectsUsed);
+  else
+    geneticValues.resize(numSubjectsUsed);
+  CGxEPolytomousDataset gxeData(numSubjectsUsed, caseControl.data(), (bool *)missingPhenotype.data(),
+                                numCov, covariates.data(), (bool *)missingCov.data(), numCov, (bool *)filter.data());
+  if (gxeData.Initialize() == false)
+    Rcpp::Rcout << "Initialization failed - " << gxeData.ErrorString() << std::endl;
+  gxeData.MinMaf(minMaf);
+  
+  k = 0;
+  for (j = snpIndices[0] - 1; j < geneticData->NumSNPs() && k < snpIndices.size();) {
+    ++j;
+    if (j == snpIndices[k]) {
+      d = &geneticValues[0];
+      if (geneticData->GeneticProbabilities()) {
+        p0 = d + numSubjectsUsed;
+        p1 = p0 + numSubjectsUsed;
+        p2 = p1 + numSubjectsUsed;
+        for (i = 0; i < numSubjectsUsed; ++i, ++d, ++p0, ++p1, ++p2) {
+          //      if (i < 5)
+          //        Rcpp::Rcout << geneIndex[i] << '\t';
+          *d = geneticData->Dosages()[geneIndex[i] - 1];
+          *p0 = geneticData->Probabilities()[0][geneIndex[i] - 1];
+          *p1 = geneticData->Probabilities()[1][geneIndex[i] - 1];
+          *p2 = geneticData->Probabilities()[2][geneIndex[i] - 1];
+        }
+        //    Rcpp::Rcout << std::endl;
+      } else {
+        for (i = 0; i < numSubjectsUsed; ++i, ++d)
+          *d = geneticData->Dosages()[geneIndex[i] - 1];
+      }
+      
+      if (k == 0) {
+        if (geneticData->GeneticProbabilities())
+          gxeData.AssignGene(geneticValues.data(), (bool *)missingGene.data(), true, true);
+        else
+          gxeData.AssignGene(geneticValues.data(), (bool *)missingGene.data(), true, false);
+        gxeData.UpdateGene();
+      } else {
+        gxeData.UpdateGene();
+      }
+      //  gxeData.Print(outfile);
+      
+      retVal = gxeData.FitModels();
+      //  Rcpp::Rcout << std::hex << retVal << std::dec << std::endl;
+      if ((retVal & 0x07ff) == 0x07ff) {
+        if (writeSkipped) {
+          WriteSNP(outfile2, j - 1, chrName, snpName, bp, a1Name, a2Name, false);
+          outfile2 << '\t' << (retVal >> 12) << std::endl;
+        } else if (writeSkippedToOutput) {
+          WriteSNP(outfile, j - 1, chrName, snpName, bp, a1Name, a2Name, gxeData.AllelesSwapped());
+          outfile << '\t' << (retVal >> 12) << "\tNA\tNA\t";
+          WriteResults(outfile, retVal, gxeData);
+        }
+      } else {
+        WriteSNP(outfile, j - 1, chrName, snpName, bp, a1Name, a2Name, gxeData.AllelesSwapped());
+        outfile << '\t' << gxeData.NumCasesUsed() << '\t' << gxeData.NumControlsUsed() << '\t';
+        WriteResults(outfile, retVal, gxeData);
+      }
+      ++k;
+    }
+    geneticData->GetNext();
+  }
+
+  outfile.close();
+  outfile2.close();
+  if (geneticData)
+    delete geneticData;
+  
+  return 0;
+}
+
 //' Function to display the results from the scans performed by GxEScan
 //' 
 //' Function to display the results from the scans performed by GxEScan.

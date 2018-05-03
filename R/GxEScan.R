@@ -24,11 +24,14 @@
 #' are written to the output file along with NA for all tests.
 #' @param minMaf
 #' Minimum minor allele frequency. Has to be a value between 0.0001 and 0.25
+#' @param snps
+#' Subset of SNPs to use. This can be a character vector of SNP names or an
+#' integer vector of locations in the snps data frame in the genetic data list
 #' @return
 #' 0 - success
 #' 1 - failure
 #' @export
-GxEScan <- function(subjectData, geneticData, outputFile, skippedFilename = "", minMaf = 0.05) {
+GxEScan <- function(subjectData, geneticData, outputFile, skippedFilename = "", minMaf = 0.05, snps) {
   if (missing(subjectData) == TRUE)
     stop("No subject data specified")
   if (missing(geneticData) == TRUE)
@@ -37,10 +40,15 @@ GxEScan <- function(subjectData, geneticData, outputFile, skippedFilename = "", 
     stop("No output file specified")
   if (minMaf < 0.0001 | minMaf > 0.25)
     stop("Minimum minor allele frequency must be between 0.0001 and 0.25")
+  if (missing(snps) == FALSE)
+    snpIndices <- FindSNPLocs(geneticData$snps, snps)
   subjectSubset <- SubsetSubjects(subjectData, geneticData)
   if (is.list(subjectSubset) == FALSE)
     return (1)
-  return (GxEScanC(subjectSubset, geneticData, outputFile, skippedFilename, minMaf))
+
+  if (missing(snps) == TRUE)  
+    return (GxEScanC(subjectSubset, geneticData, outputFile, skippedFilename, minMaf))
+  return (GxEScanCSubset(subjectSubset, geneticData, outputFile, skippedFilename, minMaf, snpIndices))
 }
 
 # Subset the subjects with complete phenotype and covariate data
@@ -60,3 +68,22 @@ SubsetSubjects <- function(subjectData, geneticData) {
                covariates = subjectTest$covariates[!is.na(indices),],
                geneIndex = indices[complete.cases(indices)]))
 }  
+
+FindSNPLocs <- function(snpList, snps) {
+  if (is.vector(snps, 'character') == TRUE)
+    snps <- match(snps, snpList$SNP)
+  else if (is.vector(snps, 'integer') == FALSE)
+    stop("snps is not a character or integer vector")
+
+  if (anyNA(snps))
+    stop("Not all SNPs found")
+  snps <- sort(snps)
+  if (length(snps) != length(unique(snps)))
+    stop("SNP values are not unique")
+  if (min(snps) < 1)
+    stop("snp locations must be positive")
+  if (max(snps) > nrow(snpList))
+    stop("Value of snp location greater than number of SNPs")
+
+  return (snps)
+}
