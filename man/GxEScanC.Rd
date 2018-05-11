@@ -4,7 +4,8 @@
 \alias{GxEScanC}
 \title{Function to fit models scanning over genotypes}
 \usage{
-GxEScanC(subjectData, geneticInfo, outputFilename, skippedFilename, minMaf)
+GxEScanC(subjectData, geneticInfo, outputFilename, skippedFilename, minMaf,
+  geCutoff)
 }
 \arguments{
 \item{subjectData}{List returned from SubsetSubjects}
@@ -19,6 +20,8 @@ no file is written. If this is the same as outputFilename, the skipped SNPs
 are written to the output file along with NA for all tests.}
 
 \item{minMaf}{Minimum minor allele frequency. Must be between 0.0001 and 0.25}
+
+\item{geCutoff}{p-value cut off value for logistic G|E test to fit polytomous models.}
 }
 \value{
 0 success

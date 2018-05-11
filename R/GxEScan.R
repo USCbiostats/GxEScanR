@@ -23,7 +23,12 @@
 #' no file is written. If this is the same as outputFilename, the skipped SNPs
 #' are written to the output file along with NA for all tests.
 #' @param minMaf
-#' Minimum minor allele frequency. Has to be a value between 0.0001 and 0.25
+#' Minimum minor allele frequency. Has to be a value between 0.0001 and 0.25.
+#' Default value is 0.05.
+#' @param geCutoff
+#' p-value cut off for fitting polytomous logistic regression models given the results
+#' from the the logistic model assuming Hardy-Weinberg equilibrium. Must be a
+#' value fromm 0 to 1. Default value is 0.001.
 #' @param snps
 #' Subset of SNPs to use. This can be a character vector of SNP names or an
 #' integer vector of locations in the snps data frame in the genetic data list
@@ -31,7 +36,7 @@
 #' 0 - success
 #' 1 - failure
 #' @export
-GxEScan <- function(subjectData, geneticData, outputFile, skippedFilename = "", minMaf = 0.05, snps) {
+GxEScan <- function(subjectData, geneticData, outputFile, skippedFilename = "", minMaf = 0.05, geCutoff = 0.001, snps) {
   if (missing(subjectData) == TRUE)
     stop("No subject data specified")
   if (missing(geneticData) == TRUE)
@@ -40,6 +45,8 @@ GxEScan <- function(subjectData, geneticData, outputFile, skippedFilename = "", 
     stop("No output file specified")
   if (minMaf < 0.0001 | minMaf > 0.25)
     stop("Minimum minor allele frequency must be between 0.0001 and 0.25")
+  if (geCutoff < 0 | geCutoff > 1)
+    stop("Cut off for G given E test must be between 0 and 1")
   if (missing(snps) == FALSE)
     snpIndices <- FindSNPLocs(geneticData$snps, snps)
   subjectSubset <- SubsetSubjects(subjectData, geneticData)
@@ -47,8 +54,8 @@ GxEScan <- function(subjectData, geneticData, outputFile, skippedFilename = "", 
     return (1)
 
   if (missing(snps) == TRUE)  
-    return (GxEScanC(subjectSubset, geneticData, outputFile, skippedFilename, minMaf))
-  return (GxEScanCSubset(subjectSubset, geneticData, outputFile, skippedFilename, minMaf, snpIndices))
+    return (GxEScanC(subjectSubset, geneticData, outputFile, skippedFilename, minMaf, -qnorm(geCutoff / 2)))
+  return (GxEScanCSubset(subjectSubset, geneticData, outputFile, skippedFilename, minMaf, -qnorm(geCutoff / 2), snpIndices))
 }
 
 # Subset the subjects with complete phenotype and covariate data
