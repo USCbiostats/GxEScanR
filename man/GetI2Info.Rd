@@ -15,15 +15,15 @@ GetI2Info(i2file, header = TRUE, snpCol = c("SNP", "CHR", "BP", "A1", "A2"),
 \item{snpCol}{Must be provided if there is no header.
 If this case this must be a integer vector of the column numbers for SNP name,
 chromosome, location in BP, reference allele, and alternate allele respectively.
-All must be provided a value of 0 indicates the value isn't in the file. SNP name
-column is required.
-If provided and there is a header, the vector may integer vector as described
+All must be provided. A value of 0 indicates the value isn't in the file. The file
+must contain a column for the SNP name.
+If provided and there is a header, the vector may be an integer vector as described
 above or it may be a character array with the column names of the appropriate
-values. Unused columns can be indicated the an empty string or NA. If snpCol
+values. Unused columns can be indicated with an empty string or NA. If snpCol
 is not provided and there is a header, snpCol takes on the default values of
 'SNP', 'CHR', 'BP', 'A1' and 'A2'.}
 
-\item{subID}{A data frame with two columns. Each column must be a character. The first column
+\item{subID}{A data frame with two columns. Each column must be a character type. The first column
 is the family ID and the second column is the subject ID. If family IDs are not
 used the family ID column must be filled with empty strings and not NAs.}
 
@@ -31,7 +31,7 @@ used the family ID column must be filled with empty strings and not NAs.}
 1 indicates that only the dosage is in the file Default value is 2.}
 
 \item{usesFID}{Does the impute file contain both the family and subject ID? Not used if
-there is not header. Default value is TRUE.}
+there is no header. Default value is TRUE.}
 
 \item{sep}{Separator used in file. Currently only space and tabs are allowed.
 Default value is tab.}
