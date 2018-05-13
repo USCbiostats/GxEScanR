@@ -246,7 +246,8 @@ protected:
   double m_geneCount[3];
   double *m_polyScoreConstants;
   double *m_subjectXTX;
-  
+
+  double m_geCutoff;  
   // Number of parameters in each model
   unsigned int m_numParamHW;
   unsigned int m_numParamPolytomous;
@@ -301,7 +302,10 @@ public:
   virtual ~CGxEPolytomousDataset();
   
   virtual int FitModels();
+
+  void GECutoff(double geCutoff) { m_geCutoff = geCutoff; }
   
+  double GECutoff() const { return m_geCutoff; }
   const double *BetaG_E() const { return m_betaG_E; }
   const double *BetaCaseOnly() const { return m_betaCaseOnly; }
   const double *BetaCntlOnly() const { return m_betaCntlOnly; }

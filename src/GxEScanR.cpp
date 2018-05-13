@@ -82,7 +82,7 @@ std::ostream &WriteSNP(std::ostream &outfile, int snpNum, std::vector<std::strin
   return outfile;
 }
 
-void WriteResults(std::ostream &outfile, const int maxRet, const CGxEPolytomousDataset &gxeData) {
+void WriteAllResults(std::ostream &outfile, const int maxRet, const CGxEPolytomousDataset &gxeData) {
   int betaLoc, nCov;
   double a, b, c, x, y;
   
@@ -173,6 +173,109 @@ void WriteResults(std::ostream &outfile, const int maxRet, const CGxEPolytomousD
   }
   outfile << std::endl;
 }
+
+void WriteResults(std::ostream &outfile, const int maxRet, const CGxEPolytomousDataset &gxeData) {
+  int betaLoc, nCov;
+  double a, b, c, x, y;
+  
+  nCov = gxeData.NumCovariates();
+  //  Rcpp::Rcout << "Number of Covariates:\t" << nCov << std::endl;
+  if (maxRet & 0x01) {
+    outfile << "NA\tNA\t";
+  } else {
+    betaLoc = nCov;
+    outfile << gxeData.BetaD_GE()[betaLoc] << '\t'
+            << gxeData.BetaD_GE()[betaLoc] / sqrt(gxeData.InverseInformationD_GE()[(betaLoc + 2) * betaLoc]) << '\t';
+  }
+  if (maxRet &0x02) {
+    outfile << "NA\tNA\tNA\t";
+  } else {
+    betaLoc = nCov + 1;
+    a = gxeData.InverseInformationD_GxE()[(betaLoc + 2) * (betaLoc - 1)];
+    b = gxeData.InverseInformationD_GxE()[(betaLoc + 2) * (betaLoc - 1) + 1];
+    c = gxeData.InverseInformationD_GxE()[(betaLoc + 2) * betaLoc];
+    x = gxeData.BetaD_GxE()[betaLoc - 1];
+    y = gxeData.BetaD_GxE()[betaLoc];
+    outfile << y / gxeData.Mean()[betaLoc - 2] << '\t'
+            << y / sqrt(c) << '\t'
+            << (c * x * x - (b + b) * x * y + a * y * y) / (a * c - b * b) << '\t';
+  }
+  // Full G|E Model
+  if ((maxRet & 0x0020) == 0) {
+    betaLoc = nCov + nCov - 2;
+    outfile << "P\t" << gxeData.BetaPolytomousG_E()[betaLoc] / gxeData.Mean()[nCov - 1] << '\t'
+            << gxeData.BetaPolytomousG_E()[betaLoc] / sqrt(gxeData.InverseInformationPolytomousG_E()[(betaLoc + 2) * betaLoc]) << '\t';
+    
+  } else if ((maxRet & 0x0100) == 0) {
+    betaLoc = nCov;
+    outfile << "R\t" << gxeData.BetaRestrictedPolytomousG_E()[betaLoc] / gxeData.Mean()[nCov - 1] << '\t'
+            << gxeData.BetaRestrictedPolytomousG_E()[betaLoc] / sqrt(gxeData.InverseInformationRestrictedPolytomousG_E()[(betaLoc + 2) * betaLoc]) << '\t';
+  } else if ((maxRet & 0x0004) == 0) {
+    betaLoc = nCov - 1;
+    outfile << "H\t" << gxeData.BetaG_E()[betaLoc] / gxeData.Mean()[betaLoc] << '\t'
+            << gxeData.BetaG_E()[betaLoc] / sqrt(gxeData.InverseInformationG_E()[(betaLoc + 2) * betaLoc]) << '\t';
+  } else {
+    outfile << "NA\tNA\tNA\t";
+  }
+  
+  // Case Only and control only G|E Model
+  if ((maxRet & 0x00c0) == 0) {
+//    Rcpp::Rcout << "P" << std::endl;
+    betaLoc = nCov + nCov - 2;
+    outfile << "P\t" << gxeData.BetaPolytomousCaseOnly()[betaLoc] / gxeData.Mean()[nCov - 1] << '\t'
+            << gxeData.BetaPolytomousCaseOnly()[betaLoc] / sqrt(gxeData.InverseInformationPolytomousCaseOnly()[(betaLoc + 2) * betaLoc]) << '\t'
+            << gxeData.BetaPolytomousControlOnly()[betaLoc] / gxeData.Mean()[nCov - 1] << '\t'
+            << gxeData.BetaPolytomousControlOnly()[betaLoc] / sqrt(gxeData.InverseInformationPolytomousControlOnly()[(betaLoc + 2) * betaLoc]);
+    
+  } else if ((maxRet & 0x0600) == 0) {
+//    Rcpp::Rcout << "R" << std::endl;
+    betaLoc = nCov;
+    outfile << "R\t" << gxeData.BetaRestrictedPolytomousCaseOnly()[betaLoc] / gxeData.Mean()[nCov - 1] << '\t'
+            << gxeData.BetaRestrictedPolytomousCaseOnly()[betaLoc] / sqrt(gxeData.InverseInformationRestrictedPolytomousCaseOnly()[(betaLoc + 2) * betaLoc]) << '\t'
+            << gxeData.BetaRestrictedPolytomousControlOnly()[betaLoc] / gxeData.Mean()[nCov - 1] << '\t'
+            << gxeData.BetaRestrictedPolytomousControlOnly()[betaLoc] / sqrt(gxeData.InverseInformationRestrictedPolytomousControlOnly()[(betaLoc + 2) * betaLoc]);
+  } else if ((maxRet & 0x0018) == 0) {
+//    Rcpp::Rcout << "H" << std::endl;
+    betaLoc = nCov - 1;
+    outfile << "H\t" << gxeData.BetaCaseOnly()[betaLoc] / gxeData.Mean()[betaLoc] << '\t'
+            << gxeData.BetaCaseOnly()[betaLoc] / sqrt(gxeData.InverseInformationCO()[(betaLoc + 2) * betaLoc]) << '\t'
+            << gxeData.BetaCntlOnly()[betaLoc] / gxeData.Mean()[betaLoc] << '\t'
+            << gxeData.BetaCntlOnly()[betaLoc] / sqrt(gxeData.InverseInformationCntlOnly()[(betaLoc + 2) * betaLoc]);
+  } else {
+    if ((maxRet & 0x06d8) == 0x06d8) {
+      outfile << "NA\tNA\tNA\tNA\tNA";
+    } else if (maxRet & 0x0040) {
+      betaLoc = nCov + nCov - 2;
+      outfile << "P\t" << gxeData.BetaPolytomousCaseOnly()[betaLoc] / gxeData.Mean()[nCov - 1] << '\t'
+              << gxeData.BetaPolytomousCaseOnly()[betaLoc] / sqrt(gxeData.InverseInformationPolytomousCaseOnly()[(betaLoc + 2) * betaLoc])
+              << "\tNA\tNA";
+    } else if (maxRet & 0x0080) {
+      betaLoc = nCov + nCov - 2;
+      outfile << "P\tNA\tNA\t" << gxeData.BetaPolytomousControlOnly()[betaLoc] / gxeData.Mean()[nCov - 1] << '\t'
+              << gxeData.BetaPolytomousControlOnly()[betaLoc] / sqrt(gxeData.InverseInformationPolytomousControlOnly()[(betaLoc + 2) * betaLoc]);
+    } else if (maxRet & 0x0200) {
+      betaLoc = nCov;
+      outfile << "R\t" << gxeData.BetaRestrictedPolytomousCaseOnly()[betaLoc] / gxeData.Mean()[nCov - 1] << '\t'
+              << gxeData.BetaRestrictedPolytomousCaseOnly()[betaLoc] / sqrt(gxeData.InverseInformationRestrictedPolytomousCaseOnly()[(betaLoc + 2) * betaLoc])
+              << "\tNA\tNA";
+    } else if (maxRet & 0x0400) {
+      betaLoc = nCov;
+      outfile << "R\tNA\tNA\t" << gxeData.BetaRestrictedPolytomousControlOnly()[betaLoc] / gxeData.Mean()[nCov - 1] << '\t'
+              << gxeData.BetaRestrictedPolytomousControlOnly()[betaLoc] / sqrt(gxeData.InverseInformationRestrictedPolytomousControlOnly()[(betaLoc + 2) * betaLoc]);
+    } else if (maxRet & 0x0008) {
+      betaLoc = nCov - 1;
+      outfile << "H\t" << gxeData.BetaCaseOnly()[betaLoc] / gxeData.Mean()[nCov - 1] << '\t'
+              << gxeData.BetaCaseOnly()[betaLoc] / sqrt(gxeData.InverseInformationCO()[(betaLoc + 2) * betaLoc])
+              << "\tNA\tNA";
+    } else if (maxRet & 0x0010) {
+      betaLoc = nCov - 1;
+      outfile << "H\tNA\tNA\t" << gxeData.BetaCntlOnly()[betaLoc] / gxeData.Mean()[nCov - 1] << '\t'
+              << gxeData.BetaCntlOnly()[betaLoc] / sqrt(gxeData.InverseInformationCntlOnly()[(betaLoc + 2) * betaLoc]);
+    }
+  }
+  
+  outfile << std::endl;
+}
 //' Function to fit models scanning over genotypes
 //' 
 //' Function to fit selected models over genotypes. Results from
@@ -193,12 +296,14 @@ void WriteResults(std::ostream &outfile, const int maxRet, const CGxEPolytomousD
 //' are written to the output file along with NA for all tests.
 //' @param minMaf
 //' Minimum minor allele frequency. Must be between 0.0001 and 0.25
+//' @param geCutoff
+//' p-value cut off value for logistic G|E test to fit polytomous models.
 //' @return
 //' 0 success
 //' 1 failure
 //' @export
 // [[Rcpp::export]]
-int GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string outputFilename, std::string skippedFilename, double minMaf) {
+int GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string outputFilename, std::string skippedFilename, double minMaf, double geCutoff) {
   CGeneticData *geneticData = NULL;
   std::vector<double> phenotype = Rcpp::as<std::vector<double> >(subjectData["phenotype"]);
   std::vector<double> covariates;
@@ -221,26 +326,7 @@ int GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string outputF
 
   int i, j; 
   unsigned int ui;
-  /*
-  int format, subversion;
-  int numSubjects, numSNPs;
-  std::string geneticFileType;
-  std::string gFilename;
-  std::vector<double> dosages;
-  std::vector<std::vector<double> > probabilities;
-  Rcpp::List subList = geneticInfo["subjects"];
-  Rcpp::DataFrame subInfo = Rcpp::as<Rcpp::DataFrame>(subList["Info"]);
-  std::vector<std::string> subjectID = Rcpp::as<std::vector<std::string> >(subInfo["IID"]);
-  std::vector<double> covariates;
-  std::vector<double> geneticValues;
-  int numSubjectsUsed, numCov;
-  int i, j;
-  unsigned int ui;
-  int retVal;
-  double *d, *p0, *p1, *p2;
-  std::ofstream outfile(outputFilename.c_str());
-  Rcpp::List res;
-*/ 
+
   if (minMaf < 0.0001 || minMaf > 0.25)
     Rcpp::stop("Minimum minor allele frequnecy must be between 0.0001 and 0.25");
 
@@ -278,9 +364,13 @@ int GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string outputF
   if (writeSkippedToOutput)
     outfile << "Code\t";
   outfile << "Cases\tControls\tBetaG\tzG\tBetaGxE\tzGxE\tChi2df\t";
-  outfile << "Beta_HWGE\tz_HWGE\tBeta_HWCase\tz_HWCase\tBeta_HWCtrl\tz_HWCtrl\t";
-  outfile << "Beta_PolyGE\tz_PolyGE\tBeta_PolyCase\tz_PolyCase\tBeta_PolyCtrl\tzPolyCtrl\t";
-  outfile << "Beta_RPolyGE\tz_RPolyGE\tBeta_RPolyCase\tz_RPolyCase\tBeta_RPolyCtrl\tz_RPolyCtrl" << std::endl;
+  if (geCutoff == 0) {
+    outfile << "Beta_HWGE\tz_HWGE\tBeta_HWCase\tz_HWCase\tBeta_HWCtrl\tz_HWCtrl\t";
+    outfile << "Beta_PolyGE\tz_PolyGE\tBeta_PolyCase\tz_PolyCase\tBeta_PolyCtrl\tzPolyCtrl\t";
+    outfile << "Beta_RPolyGE\tz_RPolyGE\tBeta_RPolyCase\tz_RPolyCase\tBeta_RPolyCtrl\tz_RPolyCtrl" << std::endl;
+  } else {
+    outfile << "GEModel\tBeta_GE\tz_GE\tOnlyModel\tBeta_Case\tz_Case\tBeta_Ctrl\tz_Ctrl" << std::endl;
+  }
   if (writeSkipped) {
     if (chrName[0] != "")
       outfile2 << "CHR\t";
@@ -335,6 +425,8 @@ int GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string outputF
     Rcpp::Rcout << "Initialization failed - " << gxeData.ErrorString() << std::endl;
   
   gxeData.MinMaf(minMaf);
+  gxeData.GECutoff(geCutoff);
+  
   d = &geneticValues[0];
   if (geneticData->GeneticProbabilities()) {
     p0 = d + numSubjectsUsed;
@@ -370,14 +462,20 @@ int GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string outputF
     } else if (writeSkippedToOutput) {
       WriteSNP(outfile, 0, chrName, snpName, bp, a1Name, a2Name, gxeData.AllelesSwapped());
       outfile << '\t' << (retVal >> 12) << "\tNA\tNA\t";
-      WriteResults(outfile, retVal, gxeData);
+      if (geCutoff == 0)
+        WriteAllResults(outfile, retVal, gxeData);
+      else
+        WriteResults(outfile, retVal, gxeData);
     }
   } else {
     WriteSNP(outfile, 0, chrName, snpName, bp, a1Name, a2Name, gxeData.AllelesSwapped());
     outfile << '\t' << gxeData.NumCasesUsed() << '\t' << gxeData.NumControlsUsed() << '\t';
-    WriteResults(outfile, retVal, gxeData);
+    if (geCutoff == 0)
+      WriteAllResults(outfile, retVal, gxeData);
+    else
+      WriteResults(outfile, retVal, gxeData);
   }
-  
+
   for (j = 1; j < geneticData->NumSNPs(); ++j) {
     geneticData->GetNext();
     d = &geneticValues[0];
@@ -407,172 +505,28 @@ int GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string outputF
       } else if (writeSkippedToOutput) {
         WriteSNP(outfile, j, chrName, snpName, bp, a1Name, a2Name, false);
         outfile << '\t' << (retVal >> 12) << "\tNA\tNA\t";
-        WriteResults(outfile, retVal, gxeData);
+        if (geCutoff == 0)
+          WriteAllResults(outfile, retVal, gxeData);
+        else
+          WriteResults(outfile, retVal, gxeData);
       }
     } else {
       WriteSNP(outfile, j, chrName, snpName, bp, a1Name, a2Name, gxeData.AllelesSwapped());
       if (writeSkippedToOutput)
         outfile << "\t0";
       outfile << '\t' << gxeData.NumCasesUsed() << '\t' << gxeData.NumControlsUsed() << '\t';
-      WriteResults(outfile, retVal, gxeData);
+      if (geCutoff == 0)
+        WriteAllResults(outfile, retVal, gxeData);
+      else
+        WriteResults(outfile, retVal, gxeData);
     }
-  }  
-  
+  }
+
   outfile.close();
   outfile2.close();
   if (geneticData)
     delete geneticData;
   
-/*    
-  if (subversion == 1)
-    geneticValues.resize(numSubjectsUsed);
-  else
-    geneticValues.resize(4 * numSubjectsUsed);
-  
-  missingPhenotype.assign(phenotype.size(), false);
-  caseControl.assign(phenotype.size(), false);
-  for (ui = 0; ui < phenotype.size(); ++ui) {
-    if (phenotype[ui] == 1)
-      caseControl[ui] = true;
-    else if (phenotype[ui] != 0)
-      missingPhenotype[ui] = true;
-  }
-  missingCov.assign(covariates.size(), false);
-  missingGene.assign(numSubjectsUsed, false);
-  filter.assign(numSubjectsUsed, true);
-  
-  
-  if (geneticData != NULL) {
-    if (geneticData->GetFirst()) {
-      Rcpp::Rcout << "GetFirst failure" << std::endl;
-      Rcpp::Rcout << geneticData->ErrorMessage() << std::endl;
-    } else {
-      dosages = geneticData->Dosages();
-      d = &geneticValues[0];
-      if (subversion == 2) {
-        p0 = d + numSubjectsUsed;
-        p1 = p0 + numSubjectsUsed;
-        p2 = p1 + numSubjectsUsed;
-        for (i = 0; i < numSubjectsUsed; ++i, ++d, ++p0, ++p1, ++p2) {
-          *d = geneticData->Dosages()[subjectOrder[i] - 1];
-          *p0 = geneticData->Probabilities()[0][subjectOrder[i] - 1];
-          *p1 = geneticData->Probabilities()[1][subjectOrder[i] - 1];
-          *p2 = geneticData->Probabilities()[2][subjectOrder[i] - 1];
-        }
-      } else {
-        for (i = 0; i < numSubjectsUsed; ++i, ++d)
-          *d = geneticData->Dosages()[subjectOrder[i] - 1];
-      }
-      probabilities = geneticData->Probabilities();
-    }
-
-    if (geneticData->GetNext()) {
-      Rcpp::Rcout << "GetNext failure" << std::endl;
-      Rcpp::Rcout << geneticData->ErrorMessage() << std::endl;
-    } else {
-      dosages = geneticData->Dosages();
-      d = &geneticValues[0];
-      if (subversion == 2) {
-        p0 = d + numSubjectsUsed;
-        p1 = p0 + numSubjectsUsed;
-        p2 = p1 + numSubjectsUsed;
-        for (i = 0; i < numSubjectsUsed; ++i, ++d, ++p0, ++p1, ++p2) {
-          *d = geneticData->Dosages()[subjectOrder[i] - 1];
-          *p0 = geneticData->Probabilities()[0][subjectOrder[i] - 1];
-          *p1 = geneticData->Probabilities()[1][subjectOrder[i] - 1];
-          *p2 = geneticData->Probabilities()[2][subjectOrder[i] - 1];
-        }
-      } else {
-        for (i = 0; i < numSubjectsUsed; ++i, ++d)
-          *d = geneticData->Dosages()[subjectOrder[i] - 1];
-      }
-      probabilities = geneticData->Probabilities();
-    }
-
-  }
-  
-  CGxEPolytomousDataset gxeData(numSubjectsUsed, caseControl.data(), (bool *)missingPhenotype.data(),
-                                numCov, covariates.data(), (bool *)missingCov.data(), numCov, (bool *)filter.data());
-  if (gxeData.Initialize() == false)
-    Rcpp::Rcout << "Initialization failed - " << gxeData.ErrorString() << std::endl;
-  if (subversion == 2)
-    gxeData.AssignGene(geneticValues.data(), (bool *)missingGene.data(), true, true);
-  else
-    gxeData.AssignGene(geneticValues.data(), (bool *)missingGene.data(), true, false);
-  gxeData.UpdateGene();
-  retVal = gxeData.FitModels();
-  WriteResults(outfile, retVal, gxeData);
-  j = 1;
-  while(geneticData->GetNext() == 0 && j < 5) {
-    ++j;
-    dosages = geneticData->Dosages();
-    d = &geneticValues[0];
-    if (subversion == 2) {
-      p0 = d + numSubjectsUsed;
-      p1 = p0 + numSubjectsUsed;
-      p2 = p1 + numSubjectsUsed;
-      for (i = 0; i < numSubjectsUsed; ++i, ++d, ++p0, ++p1, ++p2) {
-        *d = geneticData->Dosages()[subjectOrder[i] - 1];
-        *p0 = geneticData->Probabilities()[0][subjectOrder[i] - 1];
-        *p1 = geneticData->Probabilities()[1][subjectOrder[i] - 1];
-        *p2 = geneticData->Probabilities()[2][subjectOrder[i] - 1];
-      }
-    } else {
-      for (i = 0; i < numSubjectsUsed; ++i, ++d)
-        *d = geneticData->Dosages()[subjectOrder[i] - 1];
-    }
-    probabilities = geneticData->Probabilities();
-    gxeData.UpdateGene();
-    retVal = gxeData.FitModels();
-//    Rcpp::Rcout << "Fit Model, result:\t" << retVal << std::endl;
-    WriteResults(outfile, retVal, gxeData);
-  }
-  
-  if (geneticData)
-    delete geneticData;
-
-  std::vector<double> covInt;
-  covInt.assign(numSubjectsUsed * gxeData.NumParameters(), -9);
-  if (gxeData.CompleteCovariates() != NULL) {
-    for (i = 0; i < numSubjectsUsed * gxeData.NumParameters(); ++i)
-      covInt[i] = gxeData.CompleteCovariates()[i];
-  }
-  
-  std::ofstream outfile("GxEDataset.txt");
-  for (i = 0; i < numSubjects; ++i) {
-    outfile << phenotype[i];
-    for (j = 0; j < gxeData.NumParameters(); ++j)
-      outfile << '\t' << covInt[i * gxeData.NumParameters() + j];
-    outfile << std::endl;
-  }
-  outfile.close();
- 
-//  Rcpp::Rcout << "Number of parameters\t" << gxeData.NumParameters() << std::endl;
-  std::vector<double> covMean;
-  covMean.resize(gxeData.NumParameters());
-  for (i = 0; i < gxeData.NumParameters(); ++i)
-    covMean[i] = gxeData.Mean()[i];
-  std::vector<double> beta;
-  beta.resize(gxeData.NumCovariates() + 2);
-  for (ui = 0; ui < gxeData.NumCovariates() + 2; ++ui)
-    beta[ui] = gxeData.BetaD_GxE()[ui];
-  std::vector<double> invInfo;
-  invInfo.resize((gxeData.NumCovariates() + 2) * (gxeData.NumCovariates() + 2));
-  for (ui = 0; ui < (gxeData.NumCovariates() + 2) * (gxeData.NumCovariates() + 2); ++ui)
-    invInfo[ui] = gxeData.InverseInformationD_GxE()[ui];
-  res = Rcpp::List::create(Rcpp::Named("Dosages") = dosages,
-                           Rcpp::Named("GeneValues") = geneticValues,
-                           Rcpp::Named("Phenotypes") = phenotype,
-                           Rcpp::Named("Covariates") = covariates,
-                           Rcpp::Named("CovInt") = covInt,
-                           Rcpp::Named("CovMean") = covMean,
-                           Rcpp::Named("MaxRet") = retVal,
-                           Rcpp::Named("Beta") = beta,
-                           Rcpp::Named("InvInfo") = invInfo,
-                           Rcpp::Named("Probabilities") = probabilities);
-  outfile.close();
-  return res;
- */
   return 0;
 }
 
@@ -596,6 +550,8 @@ int GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string outputF
 //' are written to the output file along with NA for all tests.
 //' @param minMaf
 //' Minimum minor allele frequency. Must be between 0.0001 and 0.25
+//' @param geCutoff
+//' p-value cut off value for logistic G|E test to fit polytomous models.
 //' @param snpIndices
 //' Indices of SNP locations in geneticInfo to be used in analysis
 //' @return
@@ -603,7 +559,7 @@ int GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string outputF
 //' 1 failure
 //' @export
 // [[Rcpp::export]]
-int GxEScanCSubset(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string outputFilename, std::string skippedFilename, double minMaf, std::vector<int> &snpIndices) {
+int GxEScanCSubset(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string outputFilename, std::string skippedFilename, double minMaf, double geCutoff, std::vector<int> &snpIndices) {
   CGeneticData *geneticData = NULL;
   std::vector<double> phenotype = Rcpp::as<std::vector<double> >(subjectData["phenotype"]);
   std::vector<double> covariates;
@@ -626,7 +582,7 @@ int GxEScanCSubset(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string o
   
   int i, j, k; 
   unsigned int ui;
-  
+
   if (minMaf < 0.0001 || minMaf > 0.25)
     Rcpp::stop("Minimum minor allele frequnecy must be between 0.0001 and 0.25");
   
@@ -664,9 +620,13 @@ int GxEScanCSubset(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string o
   if (writeSkippedToOutput)
     outfile << "Code\t";
   outfile << "Cases\tControls\tBetaG\tzG\tBetaGxE\tzGxE\tChi2df\t";
-  outfile << "Beta_HWGE\tz_HWGE\tBeta_HWCase\tz_HWCase\tBeta_HWCtrl\tz_HWCtrl\t";
-  outfile << "Beta_PolyGE\tz_PolyGE\tBeta_PolyCase\tz_PolyCase\tBeta_PolyCtrl\tzPolyCtrl\t";
-  outfile << "Beta_RPolyGE\tz_RPolyGE\tBeta_RPolyCase\tz_RPolyCase\tBeta_RPolyCtrl\tz_RPolyCtrl" << std::endl;
+  if (geCutoff == 0) {
+    outfile << "Beta_HWGE\tz_HWGE\tBeta_HWCase\tz_HWCase\tBeta_HWCtrl\tz_HWCtrl\t";
+    outfile << "Beta_PolyGE\tz_PolyGE\tBeta_PolyCase\tz_PolyCase\tBeta_PolyCtrl\tzPolyCtrl\t";
+    outfile << "Beta_RPolyGE\tz_RPolyGE\tBeta_RPolyCase\tz_RPolyCase\tBeta_RPolyCtrl\tz_RPolyCtrl" << std::endl;
+  } else {
+    outfile << "GEModel\tBeta_GE\tz_GE\tOnlyModel\tBeta_Case\tz_Case\tBeta_Ctrl\tz_Ctrl" << std::endl;
+  }
   if (writeSkipped) {
     if (chrName[0] != "")
       outfile2 << "CHR\t";
@@ -718,6 +678,7 @@ int GxEScanCSubset(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string o
   if (gxeData.Initialize() == false)
     Rcpp::Rcout << "Initialization failed - " << gxeData.ErrorString() << std::endl;
   gxeData.MinMaf(minMaf);
+  gxeData.GECutoff(geCutoff);
   
   k = 0;
   for (j = snpIndices[0] - 1; j < geneticData->NumSNPs() && k < snpIndices.size();) {
@@ -762,12 +723,18 @@ int GxEScanCSubset(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string o
         } else if (writeSkippedToOutput) {
           WriteSNP(outfile, j - 1, chrName, snpName, bp, a1Name, a2Name, gxeData.AllelesSwapped());
           outfile << '\t' << (retVal >> 12) << "\tNA\tNA\t";
-          WriteResults(outfile, retVal, gxeData);
+          if (geCutoff == 0)
+            WriteAllResults(outfile, retVal, gxeData);
+          else
+            WriteResults(outfile, retVal, gxeData);
         }
       } else {
         WriteSNP(outfile, j - 1, chrName, snpName, bp, a1Name, a2Name, gxeData.AllelesSwapped());
         outfile << '\t' << gxeData.NumCasesUsed() << '\t' << gxeData.NumControlsUsed() << '\t';
-        WriteResults(outfile, retVal, gxeData);
+        if (geCutoff == 0)
+          WriteAllResults(outfile, retVal, gxeData);
+        else
+          WriteResults(outfile, retVal, gxeData);
       }
       ++k;
     }

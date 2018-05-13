@@ -40,12 +40,14 @@ GetBinaryDosageInformation <- function(binaryDosageFilename, nSub, nSNPs) {
 #' are written to the output file along with NA for all tests.
 #' @param minMaf
 #' Minimum minor allele frequency. Must be between 0.0001 and 0.25
+#' @param geCutoff
+#' p-value cut off value for logistic G|E test to fit polytomous models.
 #' @return
 #' 0 success
 #' 1 failure
 #' @export
-GxEScanC <- function(subjectData, geneticInfo, outputFilename, skippedFilename, minMaf) {
-    .Call('_GxEScanR_GxEScanC', PACKAGE = 'GxEScanR', subjectData, geneticInfo, outputFilename, skippedFilename, minMaf)
+GxEScanC <- function(subjectData, geneticInfo, outputFilename, skippedFilename, minMaf, geCutoff) {
+    .Call('_GxEScanR_GxEScanC', PACKAGE = 'GxEScanR', subjectData, geneticInfo, outputFilename, skippedFilename, minMaf, geCutoff)
 }
 
 #' Function to fit models scanning over a subset of genotypes
@@ -68,14 +70,16 @@ GxEScanC <- function(subjectData, geneticInfo, outputFilename, skippedFilename, 
 #' are written to the output file along with NA for all tests.
 #' @param minMaf
 #' Minimum minor allele frequency. Must be between 0.0001 and 0.25
+#' @param geCutoff
+#' p-value cut off value for logistic G|E test to fit polytomous models.
 #' @param snpIndices
 #' Indices of SNP locations in geneticInfo to be used in analysis
 #' @return
 #' 0 success
 #' 1 failure
 #' @export
-GxEScanCSubset <- function(subjectData, geneticInfo, outputFilename, skippedFilename, minMaf, snpIndices) {
-    .Call('_GxEScanR_GxEScanCSubset', PACKAGE = 'GxEScanR', subjectData, geneticInfo, outputFilename, skippedFilename, minMaf, snpIndices)
+GxEScanCSubset <- function(subjectData, geneticInfo, outputFilename, skippedFilename, minMaf, geCutoff, snpIndices) {
+    .Call('_GxEScanR_GxEScanCSubset', PACKAGE = 'GxEScanR', subjectData, geneticInfo, outputFilename, skippedFilename, minMaf, geCutoff, snpIndices)
 }
 
 #' Function to display the results from the scans performed by GxEScan

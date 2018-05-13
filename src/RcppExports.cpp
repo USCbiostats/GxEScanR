@@ -19,8 +19,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // GxEScanC
-int GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string outputFilename, std::string skippedFilename, double minMaf);
-RcppExport SEXP _GxEScanR_GxEScanC(SEXP subjectDataSEXP, SEXP geneticInfoSEXP, SEXP outputFilenameSEXP, SEXP skippedFilenameSEXP, SEXP minMafSEXP) {
+int GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string outputFilename, std::string skippedFilename, double minMaf, double geCutoff);
+RcppExport SEXP _GxEScanR_GxEScanC(SEXP subjectDataSEXP, SEXP geneticInfoSEXP, SEXP outputFilenameSEXP, SEXP skippedFilenameSEXP, SEXP minMafSEXP, SEXP geCutoffSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -29,13 +29,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< std::string >::type outputFilename(outputFilenameSEXP);
     Rcpp::traits::input_parameter< std::string >::type skippedFilename(skippedFilenameSEXP);
     Rcpp::traits::input_parameter< double >::type minMaf(minMafSEXP);
-    rcpp_result_gen = Rcpp::wrap(GxEScanC(subjectData, geneticInfo, outputFilename, skippedFilename, minMaf));
+    Rcpp::traits::input_parameter< double >::type geCutoff(geCutoffSEXP);
+    rcpp_result_gen = Rcpp::wrap(GxEScanC(subjectData, geneticInfo, outputFilename, skippedFilename, minMaf, geCutoff));
     return rcpp_result_gen;
 END_RCPP
 }
 // GxEScanCSubset
-int GxEScanCSubset(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string outputFilename, std::string skippedFilename, double minMaf, std::vector<int>& snpIndices);
-RcppExport SEXP _GxEScanR_GxEScanCSubset(SEXP subjectDataSEXP, SEXP geneticInfoSEXP, SEXP outputFilenameSEXP, SEXP skippedFilenameSEXP, SEXP minMafSEXP, SEXP snpIndicesSEXP) {
+int GxEScanCSubset(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string outputFilename, std::string skippedFilename, double minMaf, double geCutoff, std::vector<int>& snpIndices);
+RcppExport SEXP _GxEScanR_GxEScanCSubset(SEXP subjectDataSEXP, SEXP geneticInfoSEXP, SEXP outputFilenameSEXP, SEXP skippedFilenameSEXP, SEXP minMafSEXP, SEXP geCutoffSEXP, SEXP snpIndicesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -44,8 +45,9 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< std::string >::type outputFilename(outputFilenameSEXP);
     Rcpp::traits::input_parameter< std::string >::type skippedFilename(skippedFilenameSEXP);
     Rcpp::traits::input_parameter< double >::type minMaf(minMafSEXP);
+    Rcpp::traits::input_parameter< double >::type geCutoff(geCutoffSEXP);
     Rcpp::traits::input_parameter< std::vector<int>& >::type snpIndices(snpIndicesSEXP);
-    rcpp_result_gen = Rcpp::wrap(GxEScanCSubset(subjectData, geneticInfo, outputFilename, skippedFilename, minMaf, snpIndices));
+    rcpp_result_gen = Rcpp::wrap(GxEScanCSubset(subjectData, geneticInfo, outputFilename, skippedFilename, minMaf, geCutoff, snpIndices));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -89,8 +91,8 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_GxEScanR_GetBinaryDosageInformation", (DL_FUNC) &_GxEScanR_GetBinaryDosageInformation, 3},
-    {"_GxEScanR_GxEScanC", (DL_FUNC) &_GxEScanR_GxEScanC, 5},
-    {"_GxEScanR_GxEScanCSubset", (DL_FUNC) &_GxEScanR_GxEScanCSubset, 6},
+    {"_GxEScanR_GxEScanC", (DL_FUNC) &_GxEScanR_GxEScanC, 6},
+    {"_GxEScanR_GxEScanCSubset", (DL_FUNC) &_GxEScanR_GxEScanCSubset, 7},
     {"_GxEScanR_GxETest", (DL_FUNC) &_GxEScanR_GxETest, 0},
     {"_GxEScanR_Imp2toBDC", (DL_FUNC) &_GxEScanR_Imp2toBDC, 4},
     {"_GxEScanR_PlinkBinaryInfo", (DL_FUNC) &_GxEScanR_PlinkBinaryInfo, 3},
