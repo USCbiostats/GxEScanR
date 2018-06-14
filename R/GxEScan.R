@@ -58,6 +58,44 @@ GxEScan <- function(subjectData, geneticData, outputFile, skippedFilename = "", 
   return (GxEScanCSubset(subjectSubset, geneticData, outputFile, skippedFilename, minMaf, -qnorm(geCutoff / 2), snpIndices))
 }
 
+#' Function to calculate allele frequencies
+#' 
+#' Function to calculate allele frequencies
+#' 
+#' @param subjectData
+#' Data frame with subject data
+#' First column must be a character string
+#' If second column is a character string, the first column is the
+#' is the family ID and the second column is the subject ID otherwise
+#' the first column is the subject
+#' The column following the subject ID is the subject's phenotype
+#' this column must be a numeric value and not an integer
+#' The remian columns are the covariates values. These must be numeric
+#' values. The covariate in the last column is the covariate interacting
+#' with the gene.
+#' @param geneticData
+#' List with information on reading genetic data
+#' This is returned from GetGeneticInfo
+#' @param outputFile
+#' Name of file to write the results to
+#' @return
+#' 0 - success
+#' 1 - failure
+#' @export
+GxEScanFreq <- function(subjectData, geneticData, outputFile) {
+  if (missing(subjectData) == TRUE)
+    stop("No subject data specified")
+  if (missing(geneticData) == TRUE)
+    stop("No genetic data specified")
+  if (missing(outputFile) == TRUE)
+    stop("No output file specified")
+  subjectSubset <- SubsetSubjects(subjectData, geneticData)
+  if (is.list(subjectSubset) == FALSE)
+    return (1)
+  
+  return (GxEScanFreqC(subjectSubset, geneticData, outputFile));
+}
+
 # Subset the subjects with complete phenotype and covariate data
 # and find their indices in the genetic file
 SubsetSubjects <- function(subjectData, geneticData) {

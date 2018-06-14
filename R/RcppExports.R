@@ -96,6 +96,25 @@ GxETest <- function() {
     .Call('_GxEScanR_GxETest', PACKAGE = 'GxEScanR')
 }
 
+#' Function to calculate allele frequencies
+#' 
+#' Function to calculate allele frequencies
+#' 
+#' @param subjectData
+#' List returned from SubsetSubjects
+#' @param geneticInfo
+#' List returned from one of the functions to get the required information
+#' about the source of genetic data.
+#' @param outputFilename
+#' Name of output file
+#' @return
+#' 0 success
+#' 1 failure
+#' @export
+GxEScanFreqC <- function(subjectData, geneticInfo, outputFilename) {
+    .Call('_GxEScanR_GxEScanFreqC', PACKAGE = 'GxEScanR', subjectData, geneticInfo, outputFilename)
+}
+
 #' Function to convert and Impute 2 style file to a binary dosage file
 #' 
 #' Function to convert and Impute 2 style file to a binary dosage file
