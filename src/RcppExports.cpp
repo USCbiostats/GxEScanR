@@ -74,6 +74,19 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// GxEScanFreqC2
+int GxEScanFreqC2(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string outputFilename);
+RcppExport SEXP _GxEScanR_GxEScanFreqC2(SEXP subjectDataSEXP, SEXP geneticInfoSEXP, SEXP outputFilenameSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::List >::type subjectData(subjectDataSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type geneticInfo(geneticInfoSEXP);
+    Rcpp::traits::input_parameter< std::string >::type outputFilename(outputFilenameSEXP);
+    rcpp_result_gen = Rcpp::wrap(GxEScanFreqC2(subjectData, geneticInfo, outputFilename));
+    return rcpp_result_gen;
+END_RCPP
+}
 // Imp2toBDC
 int Imp2toBDC(const Rcpp::List& imp2Info, const std::string& filename, int format, int subformat);
 RcppExport SEXP _GxEScanR_Imp2toBDC(SEXP imp2InfoSEXP, SEXP filenameSEXP, SEXP formatSEXP, SEXP subformatSEXP) {
@@ -108,6 +121,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_GxEScanR_GxEScanCSubset", (DL_FUNC) &_GxEScanR_GxEScanCSubset, 7},
     {"_GxEScanR_GxETest", (DL_FUNC) &_GxEScanR_GxETest, 0},
     {"_GxEScanR_GxEScanFreqC", (DL_FUNC) &_GxEScanR_GxEScanFreqC, 3},
+    {"_GxEScanR_GxEScanFreqC2", (DL_FUNC) &_GxEScanR_GxEScanFreqC2, 3},
     {"_GxEScanR_Imp2toBDC", (DL_FUNC) &_GxEScanR_Imp2toBDC, 4},
     {"_GxEScanR_PlinkBinaryInfo", (DL_FUNC) &_GxEScanR_PlinkBinaryInfo, 3},
     {NULL, NULL, 0}

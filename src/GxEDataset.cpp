@@ -1784,7 +1784,17 @@ int CGxEPolytomousDataset::FitModels() {
     return 0x2fff;
   }
   
+  if (m_geCutoff > -1) {
+    retval |= 0x07fc;
+    return retval;
+  }
+  
   retval = CGxELogisticDataset::FitModels();
+
+//  if (m_geCutoff > -1) {
+//    retval |= 0x07fc;
+//    return retval;
+//  }
   
   memset(m_betaG_E, 0, m_numCovariates * sizeof(double));
   m_betaG_E[0] = log(m_geneFrequency / (1. - m_geneFrequency));
@@ -1797,6 +1807,7 @@ int CGxEPolytomousDataset::FitModels() {
     memmove(m_betaCaseOnly, m_betaG_E, m_numCovariates * sizeof(double));
     memmove(m_betaCntlOnly, m_betaG_E, m_numCovariates * sizeof(double));
 
+//    std::cout << zval1 << '\t' << m_geCutoff << std::endl;
     if (zval1 > m_geCutoff) {
       if (m_bProbabilities == true || m_bDosages == false) {
         if (m_bProbabilities == true)
@@ -1804,6 +1815,7 @@ int CGxEPolytomousDataset::FitModels() {
         else
           CalculateRestrictedPolytomousMeasuredScoreConstants();
         if (m_geneCount[0] > MinimumCellCount && m_geneCount[2] > MinimumCellCount) {
+//          std::cout << "Fitting Restricted" <<  std::endl;
           memset(m_betaRestrictedPolytomousG_E, 0, m_numParamRestrictedPolytomous * sizeof(double));
           memmove(m_betaRestrictedPolytomousG_E, m_betaG_E, (m_numCovariates - 1) * sizeof(double));
           m_betaRestrictedPolytomousG_E[0] += log(2);
@@ -1816,12 +1828,16 @@ int CGxEPolytomousDataset::FitModels() {
               CalculatePolytomousDosageScoreConstants();
             else
               CalculatePolytomousMeasuredScoreConstants();
+//            std::cout << "Fitting Full" << std::endl;
             memset(m_betaPolytomousG_E, 0, m_numParamPolytomous * sizeof(double));
             memmove(m_betaPolytomousG_E, m_betaRestrictedPolytomousG_E, (m_numParamRestrictedPolytomous - 1) * sizeof(double));
             memmove(m_betaPolytomousG_E + m_numParamRestrictedPolytomous - 1, m_betaRestrictedPolytomousG_E + 1, (m_numParamRestrictedPolytomous - 3) * sizeof(double));
             m_betaPolytomousG_E[m_numParamPolytomous - 1] = m_betaPolytomousG_E[m_numParamRestrictedPolytomous - 1];
             if (PolytomousLogistic(m_betaPolytomousG_E, m_inverseInformationPolytomousG_E) != 0)
               retval |= 0x0020;
+//            else
+//              std::cout << "Fitted Full" << std::endl;
+            
           }
         } else {
           retval |= 0x0120;

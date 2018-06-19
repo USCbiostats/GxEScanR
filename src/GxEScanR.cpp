@@ -425,6 +425,7 @@ int GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string outputF
     Rcpp::Rcout << "Initialization failed - " << gxeData.ErrorString() << std::endl;
   
   gxeData.MinMaf(minMaf);
+//  Rcpp::Rcout << geCutoff << std::endl;
   gxeData.GECutoff(geCutoff);
   
   d = &geneticValues[0];
@@ -786,6 +787,12 @@ int GxETest() {
 //' @export
 // [[Rcpp::export]]
 int GxEScanFreqC(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string outputFilename) {
+  // ??? This has lots of problems because it uses CGxEScanDataset
+  // There is not need for covariates. Case/Control status might be
+  // of use. Allele frequencies could be calculated for cases and
+  // control separately. This would be useful when fitting the G|E,
+  // case only and control only models. Id est they are useful for
+  // calculating the starting value of alpha in those models.
   CGeneticData *geneticData = NULL;
   std::vector<double> phenotype = Rcpp::as<std::vector<double> >(subjectData["phenotype"]);
   std::vector<double> covariates;
@@ -890,8 +897,9 @@ int GxEScanFreqC(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string out
   gxeData.UpdateGene();
 
   // Write the SNP info
-  WriteSNP(outfile, 0, chrName, snpName, bp, a1Name, a2Name, gxeData.AllelesSwapped());
-  outfile << '\t' << gxeData.GeneFrequency() << std::endl;
+//  WriteSNP(outfile, 0, chrName, snpName, bp, a1Name, a2Name, gxeData.AllelesSwapped());
+//  outfile << '\t';
+  outfile << gxeData.GeneFrequency() << std::endl;
   
   for (j = 1; j < geneticData->NumSNPs(); ++j) {
     geneticData->GetNext();
@@ -911,8 +919,9 @@ int GxEScanFreqC(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string out
         *d = geneticData->Dosages()[geneIndex[i] - 1];
     }
     gxeData.UpdateGene();
-    WriteSNP(outfile, j, chrName, snpName, bp, a1Name, a2Name, gxeData.AllelesSwapped());
-    outfile << '\t' << gxeData.GeneFrequency() << std::endl;
+//    WriteSNP(outfile, j, chrName, snpName, bp, a1Name, a2Name, gxeData.AllelesSwapped());
+//    outfile << '\t';
+    outfile << gxeData.GeneFrequency() << std::endl;
   }
   
   outfile.close();
@@ -920,4 +929,169 @@ int GxEScanFreqC(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string out
     delete geneticData;
   return 0;
 }
+
+//' Function to calculate allele frequencies
+//' 
+//' Function to calculate allele frequencies
+//' 
+//' @param subjectData
+//' List returned from SubsetSubjects
+//' @param geneticInfo
+//' List returned from one of the functions to get the required information
+//' about the source of genetic data.
+//' @param outputFilename
+//' Name of output file
+//' @return
+//' 0 success
+//' 1 failure
+//' @export
+// [[Rcpp::export]]
+int GxEScanFreqC2(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string outputFilename) {
+  // This is a copy of the above function with the difference being
+  // on how the data is output.
+  // ??? This has lots of problems because it uses CGxEScanDataset
+  // There is not need for covariates. Case/Control status might be
+  // of use. Allele frequencies could be calculated for cases and
+  // control separately. This would be useful when fitting the G|E,
+  // case only and control only models. Id est they are useful for
+  // calculating the starting value of alpha in those models.
+  CGeneticData *geneticData = NULL;
+  std::vector<double> phenotype = Rcpp::as<std::vector<double> >(subjectData["phenotype"]);
+  std::vector<double> covariates;
+  std::vector<int> geneIndex = Rcpp::as<std::vector<int> >(subjectData["geneIndex"]);
+  int numSubjectsUsed, numCov;
+  // Data needed for GxEDataset
+  std::vector<char> missingPhenotype;
+  std::vector<char> caseControl; // Already have variable named phenotype
+  std::vector<char> missingCov;
+  std::vector<char> missingGene;
+  std::vector<char> filter;
+  std::vector<double> geneticValues;
+  double *d, *p0, *p1, *p2;
   
+  std::vector<double> geneFreq;
+  
+  std::ofstream outfile(outputFilename.c_str(), std::ios_base::out | std::ios_base::binary);
+  int retVal;
+  
+  int i, j; 
+  unsigned int ui;
+  
+  if (!outfile.good()) {
+    Rcpp::stop("Unable to open output file");
+  }
+  
+  // Get the SNP info
+  Rcpp::DataFrame snpData = Rcpp::as<Rcpp::DataFrame>(geneticInfo["snps"]);
+  std::vector<std::string> snpName = Rcpp::as<std::vector<std::string> >(snpData["SNP"]);
+  std::vector<std::string> chrName = Rcpp::as<std::vector<std::string> >(snpData["CHR"]);
+  std::vector<std::string> a1Name = Rcpp::as<std::vector<std::string> >(snpData["A1"]);
+  std::vector<std::string> a2Name = Rcpp::as<std::vector<std::string> >(snpData["A2"]);
+  std::vector<int> bp = Rcpp::as<std::vector<int> >(snpData["BP"]);
+  // Write the header
+//  if (chrName[0] != "")
+//    outfile << "CHR\t";
+//  if (snpName[0] != "")
+//    outfile << "SNP\t";
+//  if (bp[0] != 0)
+//    outfile << "BP\t";
+//  if (a1Name[0] != "")
+//    outfile << "A1\tA2\t";
+//  outfile << "Freq" << std::endl;
+  
+  // Get info about the subjects
+  numSubjectsUsed = geneIndex.size();
+  numCov = Rcpp::as<std::vector<double> >(subjectData["covariates"]).size() / numSubjectsUsed;
+  ConvertCovariates(subjectData, covariates, numCov, numSubjectsUsed);
+  
+  // Open the genetic data file
+  geneticData = OpenGeneticData(geneticInfo);
+  if (geneticData == NULL)
+    Rcpp::stop("Unable to open genetic data");
+  if (geneticData->GetFirst()) {
+    Rcpp::Rcout << "Error reading first SNP" << std::endl;
+    delete geneticData;
+    outfile.close();
+    return 1;
+  }
+  
+  // Lot of legacy code. There should be no missing covariates or phenotypes
+  missingPhenotype.assign(phenotype.size(), false);
+  caseControl.assign(phenotype.size(), false);
+  for (ui = 0; ui < phenotype.size(); ++ui) {
+    if (phenotype[ui] == 1)
+      caseControl[ui] = true;
+    else if (phenotype[ui] != 0)
+      missingPhenotype[ui] = true;
+  }
+  missingCov.assign(covariates.size(), false);
+  missingGene.assign(numSubjectsUsed, false); // This should be returned from CGeneticData
+  filter.assign(numSubjectsUsed, true); // All are true - no filtering is currently supported
+  if (geneticData->GeneticProbabilities())
+    geneticValues.resize(4 * numSubjectsUsed);
+  else
+    geneticValues.resize(numSubjectsUsed);
+  
+  // Create the dataset
+  CGxEPolytomousDataset gxeData(numSubjectsUsed, caseControl.data(), (bool *)missingPhenotype.data(),
+                                numCov, covariates.data(), (bool *)missingCov.data(), numCov, (bool *)filter.data());
+  if (gxeData.Initialize() == false)
+    Rcpp::Rcout << "Initialization failed - " << gxeData.ErrorString() << std::endl;
+
+  geneFreq.resize(geneticData->NumSNPs());  
+  d = &geneticValues[0];
+  if (geneticData->GeneticProbabilities()) {
+    p0 = d + numSubjectsUsed;
+    p1 = p0 + numSubjectsUsed;
+    p2 = p1 + numSubjectsUsed;
+    for (i = 0; i < numSubjectsUsed; ++i, ++d, ++p0, ++p1, ++p2) {
+      *d = geneticData->Dosages()[geneIndex[i] - 1];
+      *p0 = geneticData->Probabilities()[0][geneIndex[i] - 1];
+      *p1 = geneticData->Probabilities()[1][geneIndex[i] - 1];
+      *p2 = geneticData->Probabilities()[2][geneIndex[i] - 1];
+    }
+  } else {
+    for (i = 0; i < numSubjectsUsed; ++i, ++d)
+      *d = geneticData->Dosages()[geneIndex[i] - 1];
+  }
+  
+  if (geneticData->GeneticProbabilities())
+    gxeData.AssignGene(geneticValues.data(), (bool *)missingGene.data(), true, true);
+  else
+    gxeData.AssignGene(geneticValues.data(), (bool *)missingGene.data(), true, false);
+  gxeData.UpdateGene();
+  
+  // Write the SNP info
+//  WriteSNP(outfile, 0, chrName, snpName, bp, a1Name, a2Name, gxeData.AllelesSwapped());
+//  outfile << '\t' << gxeData.GeneFrequency() << std::endl;
+  geneFreq[0] = gxeData.GeneFrequency();
+  
+  for (j = 1; j < geneticData->NumSNPs(); ++j) {
+    geneticData->GetNext();
+    d = &geneticValues[0];
+    if (geneticData->GeneticProbabilities()) {
+      p0 = d + numSubjectsUsed;
+      p1 = p0 + numSubjectsUsed;
+      p2 = p1 + numSubjectsUsed;
+      for (i = 0; i < numSubjectsUsed; ++i, ++d, ++p0, ++p1, ++p2) {
+        *d = geneticData->Dosages()[geneIndex[i] - 1];
+        *p0 = geneticData->Probabilities()[0][geneIndex[i] - 1];
+        *p1 = geneticData->Probabilities()[1][geneIndex[i] - 1];
+        *p2 = geneticData->Probabilities()[2][geneIndex[i] - 1];
+      }
+    } else {
+      for (i = 0; i < numSubjectsUsed; ++i, ++d)
+        *d = geneticData->Dosages()[geneIndex[i] - 1];
+    }
+    gxeData.UpdateGene();
+//    WriteSNP(outfile, j, chrName, snpName, bp, a1Name, a2Name, gxeData.AllelesSwapped());
+//    outfile << '\t' << gxeData.GeneFrequency() << std::endl;
+    geneFreq[0] = gxeData.GeneFrequency();
+  }
+
+  outfile.write((char *)geneFreq.data(), geneFreq.size() * sizeof(double)); 
+  outfile.close();
+  if (geneticData)
+    delete geneticData;
+  return 0;
+}
