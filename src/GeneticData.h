@@ -11,13 +11,14 @@ protected:
   bool m_valid;
   bool m_bMeasured;
   bool m_bGeneticProbabilities;
-  std::vector<double> m_dosages;
-  std::vector<std::vector<double> > m_probabilities;
+  double *m_doseData;
+  double *m_dosages;
+  double *m_probabilities[3];
   
   CGeneticData(const int _numSubjects, const int _numSNPs, bool _measured, bool _geneticProbabilities);
   CGeneticData() {}
 public:
-  virtual ~CGeneticData() {}
+  virtual ~CGeneticData();
 
   const std::string &ErrorMessage() { return m_errorMessage; }
   unsigned int NumSubjects() const { return m_numSubjects; }
@@ -25,8 +26,8 @@ public:
   bool Valid() const { return m_valid; }
   bool Measured() const { return m_bMeasured; }
   bool GeneticProbabilities() const { return m_bGeneticProbabilities; }
-  const std::vector<double> Dosages() const { return m_dosages; }
-  const std::vector<std::vector<double> > Probabilities() const { return m_probabilities; }
+  const double *Dosages() const { return m_dosages; }
+  const double *Probabilities(int n) const { return m_probabilities[n]; }
   
   virtual int GetFirst() = 0;
   virtual int GetNext() = 0;

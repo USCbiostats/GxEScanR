@@ -72,16 +72,16 @@ int Imp2toBDC(const Rcpp::List &imp2Info, const std::string &filename, int forma
 
   imp2File->GetFirst();
   if (subformat == 1)
-    bdFile->WriteSNP(imp2File->Dosages().data());
+    bdFile->WriteSNP(imp2File->Dosages());
   else
-    bdFile->WriteSNP(imp2File->Dosages().data(), imp2File->Probabilities()[0].data(), imp2File->Probabilities()[1].data(), imp2File->Probabilities()[2].data());
+    bdFile->WriteSNP(imp2File->Dosages(), imp2File->Probabilities(0), imp2File->Probabilities(1), imp2File->Probabilities(2));
 
   for (i = 1; i < imp2File->NumSNPs(); ++i) {
     imp2File->GetNext();
     if (subformat == 1)
-      bdFile->WriteSNP(imp2File->Dosages().data());
+      bdFile->WriteSNP(imp2File->Dosages());
     else
-      bdFile->WriteSNP(imp2File->Dosages().data(), imp2File->Probabilities()[0].data(), imp2File->Probabilities()[1].data(), imp2File->Probabilities()[2].data());
+      bdFile->WriteSNP(imp2File->Dosages(), imp2File->Probabilities(0), imp2File->Probabilities(1), imp2File->Probabilities(2));
   }
   
   if (bdFile)

@@ -437,9 +437,9 @@ int GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string outputF
 //      if (i < 5)
 //        Rcpp::Rcout << geneIndex[i] << '\t';
       *d = geneticData->Dosages()[geneIndex[i] - 1];
-      *p0 = geneticData->Probabilities()[0][geneIndex[i] - 1];
-      *p1 = geneticData->Probabilities()[1][geneIndex[i] - 1];
-      *p2 = geneticData->Probabilities()[2][geneIndex[i] - 1];
+      *p0 = geneticData->Probabilities(0)[geneIndex[i] - 1];
+      *p1 = geneticData->Probabilities(1)[geneIndex[i] - 1];
+      *p2 = geneticData->Probabilities(2)[geneIndex[i] - 1];
     }
 //    Rcpp::Rcout << std::endl;
   } else {
@@ -488,9 +488,9 @@ int GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string outputF
 //        if (i < 5)
 //          Rcpp::Rcout << geneIndex[i] << '\t';
         *d = geneticData->Dosages()[geneIndex[i] - 1];
-        *p0 = geneticData->Probabilities()[0][geneIndex[i] - 1];
-        *p1 = geneticData->Probabilities()[1][geneIndex[i] - 1];
-        *p2 = geneticData->Probabilities()[2][geneIndex[i] - 1];
+        *p0 = geneticData->Probabilities(0)[geneIndex[i] - 1];
+        *p1 = geneticData->Probabilities(1)[geneIndex[i] - 1];
+        *p2 = geneticData->Probabilities(2)[geneIndex[i] - 1];
       }
 //      Rcpp::Rcout << std::endl;
     } else {
@@ -682,28 +682,64 @@ int GxEScanCSubset(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string o
   gxeData.GECutoff(geCutoff);
   
   k = 0;
+// Testing remembering indices
+  std::vector<const double *> gi;
+  const double **gip;
+  int nsu;
+  if (geneticData->GeneticProbabilities()) {
+    nsu = 4 * numSubjectsUsed;
+    gi.resize(numSubjectsUsed * 4);
+//    std::cout << geneticData->Dosages() << std::endl;
+    for (i = 0; i < numSubjectsUsed; ++i) {
+      gi[i] = geneticData->Dosages() + geneIndex[i] - 1;
+      gi[i + numSubjectsUsed] = geneticData->Probabilities(0) + geneIndex[i] - 1;
+      gi[i + 2*numSubjectsUsed] = geneticData->Probabilities(1) + geneIndex[i] - 1;
+      gi[i + 3*numSubjectsUsed] = geneticData->Probabilities(2) + geneIndex[i] - 1;
+    }
+  } else {
+    nsu = numSubjectsUsed;
+    gi.resize(numSubjectsUsed);
+    for (i = 0; i < numSubjectsUsed; ++i)
+      gi[i] = geneticData->Dosages() + geneIndex[i] - 1;
+  }
+// End remembering indices test
   for (j = snpIndices[0] - 1; j < geneticData->NumSNPs() && k < snpIndices.size();) {
     ++j;
     if (j == snpIndices[k]) {
+//      std::cout << &geneticData->Dosages()[0] << '\t' << gxeData.CompleteCovariates() << std::endl;
       d = &geneticValues[0];
+      gip = gi.data();
       if (geneticData->GeneticProbabilities()) {
-        p0 = d + numSubjectsUsed;
-        p1 = p0 + numSubjectsUsed;
-        p2 = p1 + numSubjectsUsed;
-        for (i = 0; i < numSubjectsUsed; ++i, ++d, ++p0, ++p1, ++p2) {
-          //      if (i < 5)
-          //        Rcpp::Rcout << geneIndex[i] << '\t';
-          *d = geneticData->Dosages()[geneIndex[i] - 1];
-          *p0 = geneticData->Probabilities()[0][geneIndex[i] - 1];
-          *p1 = geneticData->Probabilities()[1][geneIndex[i] - 1];
-          *p2 = geneticData->Probabilities()[2][geneIndex[i] - 1];
+        for (i = 0; i < nsu; ++i, ++d, ++gip) {
+          *d = **gip;
+//          if (i < 5) {
+//            std::cout << *d << '\t' << **gip << '\t' << geneticData->Dosages() << '\t' << geneIndex[i] << std::endl;
+//            std::cout << "dosage\t" << geneticData->Dosages() << std::endl;
+//          }
         }
-        //    Rcpp::Rcout << std::endl;
+        // More index testing
+/*
+          p0 = d + numSubjectsUsed;
+          p1 = p0 + numSubjectsUsed;
+          p2 = p1 + numSubjectsUsed;
+          for (i = 0; i < numSubjectsUsed; ++i, ++d, ++p0, ++p1, ++p2) {
+//              if (i < 5)
+            //        Rcpp::Rcout << geneIndex[i] << '\t';
+            *d = geneticData->Dosages()[geneIndex[i] - 1];
+            *p0 = geneticData->Probabilities(0)[geneIndex[i] - 1];
+            *p1 = geneticData->Probabilities(1)[geneIndex[i] - 1];
+            *p2 = geneticData->Probabilities(2)[geneIndex[i] - 1];
+            if (i < 5)
+              std::cout << *d << '\t' << geneticData->Dosages() << std::endl;
+          }
+*/
+//    Rcpp::Rcout << std::endl;
       } else {
-        for (i = 0; i < numSubjectsUsed; ++i, ++d)
-          *d = geneticData->Dosages()[geneIndex[i] - 1];
+        for (i = 0; i < nsu; ++i, ++d, ++gip)
+          *d = **gip;
+//          for (i = 0; i < numSubjectsUsed; ++i, ++d)
+//            *d = geneticData->Dosages()[geneIndex[i] - 1];
       }
-      
       if (k == 0) {
         if (geneticData->GeneticProbabilities())
           gxeData.AssignGene(geneticValues.data(), (bool *)missingGene.data(), true, true);
@@ -881,9 +917,9 @@ int GxEScanFreqC(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string out
     p2 = p1 + numSubjectsUsed;
     for (i = 0; i < numSubjectsUsed; ++i, ++d, ++p0, ++p1, ++p2) {
       *d = geneticData->Dosages()[geneIndex[i] - 1];
-      *p0 = geneticData->Probabilities()[0][geneIndex[i] - 1];
-      *p1 = geneticData->Probabilities()[1][geneIndex[i] - 1];
-      *p2 = geneticData->Probabilities()[2][geneIndex[i] - 1];
+      *p0 = geneticData->Probabilities(0)[geneIndex[i] - 1];
+      *p1 = geneticData->Probabilities(1)[geneIndex[i] - 1];
+      *p2 = geneticData->Probabilities(2)[geneIndex[i] - 1];
     }
   } else {
     for (i = 0; i < numSubjectsUsed; ++i, ++d)
@@ -897,8 +933,8 @@ int GxEScanFreqC(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string out
   gxeData.UpdateGene();
 
   // Write the SNP info
-//  WriteSNP(outfile, 0, chrName, snpName, bp, a1Name, a2Name, gxeData.AllelesSwapped());
-//  outfile << '\t';
+  WriteSNP(outfile, 0, chrName, snpName, bp, a1Name, a2Name, gxeData.AllelesSwapped());
+  outfile << '\t';
   outfile << gxeData.GeneFrequency() << std::endl;
   
   for (j = 1; j < geneticData->NumSNPs(); ++j) {
@@ -910,9 +946,9 @@ int GxEScanFreqC(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string out
       p2 = p1 + numSubjectsUsed;
       for (i = 0; i < numSubjectsUsed; ++i, ++d, ++p0, ++p1, ++p2) {
         *d = geneticData->Dosages()[geneIndex[i] - 1];
-        *p0 = geneticData->Probabilities()[0][geneIndex[i] - 1];
-        *p1 = geneticData->Probabilities()[1][geneIndex[i] - 1];
-        *p2 = geneticData->Probabilities()[2][geneIndex[i] - 1];
+        *p0 = geneticData->Probabilities(0)[geneIndex[i] - 1];
+        *p1 = geneticData->Probabilities(1)[geneIndex[i] - 1];
+        *p2 = geneticData->Probabilities(2)[geneIndex[i] - 1];
       }
     } else {
       for (i = 0; i < numSubjectsUsed; ++i, ++d)
@@ -1046,9 +1082,9 @@ int GxEScanFreqC2(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string ou
     p2 = p1 + numSubjectsUsed;
     for (i = 0; i < numSubjectsUsed; ++i, ++d, ++p0, ++p1, ++p2) {
       *d = geneticData->Dosages()[geneIndex[i] - 1];
-      *p0 = geneticData->Probabilities()[0][geneIndex[i] - 1];
-      *p1 = geneticData->Probabilities()[1][geneIndex[i] - 1];
-      *p2 = geneticData->Probabilities()[2][geneIndex[i] - 1];
+      *p0 = geneticData->Probabilities(0)[geneIndex[i] - 1];
+      *p1 = geneticData->Probabilities(1)[geneIndex[i] - 1];
+      *p2 = geneticData->Probabilities(2)[geneIndex[i] - 1];
     }
   } else {
     for (i = 0; i < numSubjectsUsed; ++i, ++d)
@@ -1075,9 +1111,9 @@ int GxEScanFreqC2(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string ou
       p2 = p1 + numSubjectsUsed;
       for (i = 0; i < numSubjectsUsed; ++i, ++d, ++p0, ++p1, ++p2) {
         *d = geneticData->Dosages()[geneIndex[i] - 1];
-        *p0 = geneticData->Probabilities()[0][geneIndex[i] - 1];
-        *p1 = geneticData->Probabilities()[1][geneIndex[i] - 1];
-        *p2 = geneticData->Probabilities()[2][geneIndex[i] - 1];
+        *p0 = geneticData->Probabilities(0)[geneIndex[i] - 1];
+        *p1 = geneticData->Probabilities(1)[geneIndex[i] - 1];
+        *p2 = geneticData->Probabilities(2)[geneIndex[i] - 1];
       }
     } else {
       for (i = 0; i < numSubjectsUsed; ++i, ++d)

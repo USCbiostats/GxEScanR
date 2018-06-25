@@ -13,15 +13,25 @@ CGeneticData::CGeneticData(const int _numSubjects, const int _numSNPs, bool _mea
   m_valid = false;
   m_bMeasured = _measured;
   m_bGeneticProbabilities = _geneticProbabilities;
-  m_dosages.resize(m_numSubjects);
   if (m_bGeneticProbabilities) {
-    m_probabilities.resize(3);
-    m_probabilities[0].resize(m_numSubjects);
-    m_probabilities[1].resize(m_numSubjects);
-    m_probabilities[2].resize(m_numSubjects);
+    m_doseData = new double[4 * m_numSubjects];
+    m_dosages = m_doseData;
+    m_probabilities[0] = m_dosages + m_numSubjects;
+    m_probabilities[1] = m_probabilities[0] + m_numSubjects;
+    m_probabilities[2] = m_probabilities[1] + m_numSubjects;
+  } else {
+    m_doseData = new double[m_numSubjects];
+    m_dosages = m_doseData;
+    m_probabilities[0] = NULL;
+    m_probabilities[1] = NULL;
+    m_probabilities[2] = NULL;
   }
 }
 
+CGeneticData::~CGeneticData() {
+  if (m_doseData)
+    delete [] m_doseData;
+}
 int CGeneticData::GetSNP(unsigned int n) {
   if (!m_valid) {
     m_errorMessage = "Data for genetic file is invalid";

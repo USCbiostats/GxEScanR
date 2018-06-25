@@ -1784,10 +1784,10 @@ int CGxEPolytomousDataset::FitModels() {
     return 0x2fff;
   }
   
-  if (m_geCutoff > -1) {
-    retval |= 0x07fc;
-    return retval;
-  }
+//  if (m_geCutoff > -1) {
+//    retval |= 0x07fc;
+//    return retval;
+//  }
   
   retval = CGxELogisticDataset::FitModels();
 

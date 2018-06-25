@@ -36,12 +36,18 @@ CImpute2::CImpute2(int _numSubjects, int _numSNPs, bool _measured, bool _genetic
   m_snpCol = _snpCol;
   m_startCol = _startCol;
   m_format = _format;
-  m_dosages.resize(m_numSubjects);
+  if (m_doseData)
+    delete [] m_doseData;
+  m_doseData = new double[m_numSubjects];
+  m_dosages = m_doseData;
   if (m_format != 1) {
-    m_probabilities.resize(3);
-    m_probabilities[0].resize(m_numSubjects);
-    m_probabilities[1].resize(m_numSubjects);
-    m_probabilities[2].resize(m_numSubjects);
+    m_probabilities[0] = m_dosages + m_numSubjects;
+    m_probabilities[1] = m_probabilities[0] + m_numSubjects;
+    m_probabilities[2] = m_probabilities[1] + m_numSubjects;
+  } else {
+    m_probabilities[0] = NULL;
+    m_probabilities[1] = NULL;
+    m_probabilities[2] = NULL;
   }
   m_sep = _sep;
   
