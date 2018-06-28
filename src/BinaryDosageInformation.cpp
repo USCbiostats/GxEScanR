@@ -265,6 +265,7 @@ bool GetBinaryDosage4Info(std::ifstream &infile, unsigned int &numSubjects, unsi
                                     Rcpp::Named("rsq") = rsq2);
   result["snps"] = snps;
   result["SNPinfo"] = SNPinfo;
+  result["Groups"] = numGroups;
   return true;
 }
 //' Function to produce summary of a binary dosage file used by GxEScan
