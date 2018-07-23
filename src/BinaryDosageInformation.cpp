@@ -108,6 +108,9 @@ bool GetBinaryDosage4Info(std::ifstream &infile, unsigned int &numSubjects, unsi
   std::vector<double> aaf, maf, avgCall, rsq, tempVec;
   std::vector<int> groupSize;
   Rcpp::NumericMatrix aaf2, maf2, avgCall2, rsq2;
+  Rcpp::List tmpList = Rcpp::List::create(aaf2, maf2, avgCall2, rsq2);
+  std::vector<std::string> tmpListNames;
+  int numInList = 0;
   bool ignoreFamily;
   unsigned int ui, uj, uk;
   unsigned int readStart;
@@ -209,6 +212,7 @@ bool GetBinaryDosage4Info(std::ifstream &infile, unsigned int &numSubjects, unsi
 
   // The follow sections of code are required because the information was
   // saved in a row dominant format
+  numInList = 0;
   if (snpOptions &0x0080) {
     infile.read((char *)&tempVec[0], numGroups * numSNPs * sizeof(double));
     
@@ -219,6 +223,9 @@ bool GetBinaryDosage4Info(std::ifstream &infile, unsigned int &numSubjects, unsi
         aaf[readStart + uk] = tempVec[uj];
     }
     aaf2 = ConvertToMatrix(aaf, numSNPs, numGroups);
+    tmpList[numInList] = aaf2;
+    tmpListNames.push_back("AAF");
+    ++numInList;
   }
   if (snpOptions &0x0100) {
     infile.read((char *)&tempVec[0], numGroups * numSNPs * sizeof(double));
@@ -229,6 +236,9 @@ bool GetBinaryDosage4Info(std::ifstream &infile, unsigned int &numSubjects, unsi
         maf[readStart + uk] = tempVec[uj];
     }
     maf2 = ConvertToMatrix(maf, numSNPs, numGroups);
+    tmpList[numInList] = maf2;
+    tmpListNames.push_back("MAF");
+    ++numInList;
   }
   if (snpOptions &0x0200) {
     infile.read((char *)&tempVec[0], numGroups * numSNPs * sizeof(double));
@@ -239,6 +249,9 @@ bool GetBinaryDosage4Info(std::ifstream &infile, unsigned int &numSubjects, unsi
         avgCall[readStart + uk] = tempVec[uj];
     }
     avgCall2 = ConvertToMatrix(avgCall, numSNPs, numGroups);
+    tmpList[numInList] = avgCall2;
+    tmpListNames.push_back("AvgCall");
+    ++numInList;
   }
   if (snpOptions &0x0400) {
     infile.read((char *)&tempVec[0], numGroups * numSNPs * sizeof(double));
@@ -249,8 +262,11 @@ bool GetBinaryDosage4Info(std::ifstream &infile, unsigned int &numSubjects, unsi
         rsq[readStart + uk] = tempVec[uj];
     }
     rsq2 = ConvertToMatrix(rsq, numSNPs, numGroups);
+    tmpList[numInList] = rsq2;
+    tmpListNames.push_back("Rsq");
+    ++numInList;
   }
-  
+
   snps = DataFrame::create(Rcpp::Named("SNP") = snpID,
                            Rcpp::Named("CHR") = chromosomeID,
                            Rcpp::Named("BP") = bp,
@@ -259,10 +275,28 @@ bool GetBinaryDosage4Info(std::ifstream &infile, unsigned int &numSubjects, unsi
                            Rcpp::Named("stringsAsFactors") = false);
 //  Rcpp::Rcout << "MAF size:\t" << maf.size() << std::endl;
 //  Rcpp::Rcout << infile.tellg() << std::endl;
-  SNPinfo = Rcpp::DataFrame::create(Rcpp::Named("aaf") = aaf2,
-                                    Rcpp::Named("maf") = maf2,
-                                    Rcpp::Named("avgCall") = avgCall2,
-                                    Rcpp::Named("rsq") = rsq2);
+  switch (numInList) {
+  case 1:
+    SNPinfo = Rcpp::DataFrame::create(Rcpp::Named(tmpListNames[0]) = tmpList[0]);
+    break;
+  case 2:
+    SNPinfo = Rcpp::DataFrame::create(Rcpp::Named(tmpListNames[0]) = tmpList[0],
+                                      Rcpp::Named(tmpListNames[1]) = tmpList[1]);
+    break;
+  case 3:
+    SNPinfo = Rcpp::DataFrame::create(Rcpp::Named(tmpListNames[0]) = tmpList[0],
+                                      Rcpp::Named(tmpListNames[1]) = tmpList[1],
+                                      Rcpp::Named(tmpListNames[2]) = tmpList[2]);
+    break;
+  case 4:
+    SNPinfo = Rcpp::DataFrame::create(Rcpp::Named(tmpListNames[0]) = tmpList[0],
+                                      Rcpp::Named(tmpListNames[1]) = tmpList[1],
+                                      Rcpp::Named(tmpListNames[2]) = tmpList[2],
+                                      Rcpp::Named(tmpListNames[3]) = tmpList[3]);
+    break;
+  default:
+    break;
+  }
   result["snps"] = snps;
   result["SNPinfo"] = SNPinfo;
   result["Groups"] = numGroups;
@@ -323,7 +357,7 @@ Rcpp::List GetBinaryDosageInformation(const std::string &binaryDosageFilename, c
                               Rcpp::Named("snps") = snps,
                               Rcpp::Named("SNPinfo") = SNPInfo);
 
-  // Open the file  
+  // Open the file
   infile.open(binaryDosageFilename.c_str(), std::ios_base::in | std::ios_base::binary);
   if (!infile.good())
     Rcpp::stop("Unable to open binary dosage file");
@@ -361,7 +395,7 @@ Rcpp::List GetBinaryDosageInformation(const std::string &binaryDosageFilename, c
   }
   result["format"] = format;
   result["version"] = version;
-  
+
   // If format is greater than 2, read the number of subjects
   if (format > 2) {
     infile.read((char *)&numSubjects, sizeof(unsigned int));
