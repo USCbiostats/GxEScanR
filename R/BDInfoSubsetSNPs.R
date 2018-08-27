@@ -56,16 +56,28 @@ SubsetBDSNPs <- function(bdInfo, minMAF = 0, minRsq = 0, useAltFreq = TRUE) {
   }
   
   if (minMAF != 0) {
-    mafColNum <- match(mafColNames, snpInfoColNames)
+    mafColNum <- as.vector(match(mafColNames, snpInfoColNames))
     if (anyNA(mafColNum) == TRUE)
       stop ("Cannot find minor allele frequncy in bdInfo")
   }
   if (minRsq != 0) {
-    rsqColNum <- match(rsqColNames, snpInfoColNames)
+    rsqColNum <- as.vector(match(rsqColNames, snpInfoColNames))
     if (anyNA(rsqColNum))
       stop ("Cannot find r squared value in bdInfo")
   }
-  
+
+  if (bdInfo$Groups == 1) {
+    if (minRsq == 0) {
+      if (useAltFreq)
+        return (which(0.5 - abs(bdInfo$SNPinfo[,mafColNum] - 0.5) > minMAF))
+      return (which(bdInfo$SNPinfo[,mafColNum] > minMAF))
+    }
+    if (minMAF == 0)
+      return (which(bdInfo$SNPinfo[,rsqColNum] > minRsq))
+    if (useAltFreq)
+      return (which(bdInfo$SNPinfo[,rsqColNum] > minRsq & 0.5 - abs(bdInfo$SNPinfo[,mafColNum] - 0.5) > minMAF))
+    return (which(bdInfo$SNPinfo[,rsqColNum] > minRsq & bdInfo$SNPinfo[,mafColNum] > minMAF))
+  }
   if (minRsq == 0) {
     if (useAltFreq)
       return (which(apply((0.5 - abs(bdInfo$SNPinfo[,mafColNum] - 0.5)), 1, 'min') > minMAF))
