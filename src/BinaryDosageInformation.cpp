@@ -77,6 +77,7 @@ void ReadStringArray(std::ifstream &infile, std::vector<std::string> &x, const u
   infile.read(charArray, arraySize);
   stringArray = charArray;
 
+//  Rcpp::Rcout << stringArray << std::endl;
   std::istringstream is(stringArray);
   for (ui = 0; ui < numStrings; ++ui)
     is >> x[ui];
@@ -194,11 +195,14 @@ bool GetBinaryDosage4Info(std::ifstream &infile, unsigned int &numSubjects, unsi
   }
   
   // Read in reference and alternate alleles if provided
-  if (snpOptions &0x0020)
+//  Rcpp::Rcout << std::hex << snpOptions << std::dec << std::endl;
+//  Rcpp::Rcout << numSNPs << '\t' << refAlleleStringSize << std::endl;
+//  Rcpp::Rcout << infile.tellg() << std::endl;
+  if (snpOptions & 0x0020)
     ReadStringArray(infile, refAllele, numSNPs, refAlleleStringSize);
   else
     refAllele.resize(numSNPs);
-  if (snpOptions &0x0040)
+  if (snpOptions & 0x0040)
     ReadStringArray(infile, altAllele, numSNPs, altAlleleStringSize);
   else
     altAllele.resize(numSNPs);
@@ -213,7 +217,7 @@ bool GetBinaryDosage4Info(std::ifstream &infile, unsigned int &numSubjects, unsi
   // The follow sections of code are required because the information was
   // saved in a row dominant format
   numInList = 0;
-  if (snpOptions &0x0080) {
+  if (snpOptions & 0x0080) {
     infile.read((char *)&tempVec[0], numGroups * numSNPs * sizeof(double));
     
     readStart = 0;
@@ -227,7 +231,7 @@ bool GetBinaryDosage4Info(std::ifstream &infile, unsigned int &numSubjects, unsi
     tmpListNames.push_back("AAF");
     ++numInList;
   }
-  if (snpOptions &0x0100) {
+  if (snpOptions & 0x0100) {
     infile.read((char *)&tempVec[0], numGroups * numSNPs * sizeof(double));
     readStart = 0;
     for (ui = 0; ui < numGroups; ++ui, readStart += numSNPs) {
@@ -240,7 +244,7 @@ bool GetBinaryDosage4Info(std::ifstream &infile, unsigned int &numSubjects, unsi
     tmpListNames.push_back("MAF");
     ++numInList;
   }
-  if (snpOptions &0x0200) {
+  if (snpOptions & 0x0200) {
     infile.read((char *)&tempVec[0], numGroups * numSNPs * sizeof(double));
     readStart = 0;
     for (ui = 0; ui < numGroups; ++ui, readStart += numSNPs) {
@@ -253,7 +257,7 @@ bool GetBinaryDosage4Info(std::ifstream &infile, unsigned int &numSubjects, unsi
     tmpListNames.push_back("AvgCall");
     ++numInList;
   }
-  if (snpOptions &0x0400) {
+  if (snpOptions & 0x0400) {
     infile.read((char *)&tempVec[0], numGroups * numSNPs * sizeof(double));
     readStart = 0;
     for (ui = 0; ui < numGroups; ++ui, readStart += numSNPs) {

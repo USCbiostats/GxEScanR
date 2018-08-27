@@ -18,11 +18,15 @@
 #' Minimum r squared of the imputation for the SNP. A value of
 #' zero indicates to not subset based on r squared value.
 #' Default value = 0
+#' @param useAltFreq
+#' If TRUE, minor allele frequency is calculated from the alternate
+#' allele frequency. If FALSE, the minor allele frequency is used.
+#' Default value is TRUE.
 #' @return
 #' Vector of SNP indices to use in the imputation - Usually passed
 #' to GxEScan as the snps value
 #' @export
-SubsetBDSNPs <- function(bdInfo, minMAF = 0, minRsq = 0) {
+SubsetBDSNPs <- function(bdInfo, minMAF = 0, minRsq = 0, useAltFreq = TRUE) {
   if (missing(bdInfo) == TRUE)
     stop ("No binary dosage information provided")
   if (bdInfo$filetype != 'BinaryDosage')
@@ -38,11 +42,17 @@ SubsetBDSNPs <- function(bdInfo, minMAF = 0, minRsq = 0) {
 
   snpInfoColNames <- colnames(bdInfo$SNPinfo)
   if (bdInfo$Groups > 1) {
-    mafColNames <- paste(rep("maf"), 1:bdInfo$Groups, sep = '.')
-    rsqColNames <- paste(rep("rsq"), 1:bdInfo$Groups, sep = '.')
+    if (useAltFreq == TRUE)
+      mafColNames <- paste(rep("AAF"), 1:bdInfo$Groups, sep = '.')
+    else
+      mafColNames <- paste(rep("MAF"), 1:bdInfo$Groups, sep = '.')
+    rsqColNames <- paste(rep("Rsq"), 1:bdInfo$Groups, sep = '.')
   } else {
-    mafColNames <- c("maf")
-    rsqColNames <- c("rsq")
+    if (useAltFreq == TRUE)
+      mafColNames <- c("AAF")
+    else
+      mafColNames <- c("MAF")
+    rsqColNames <- c("Rsq")
   }
   
   if (minMAF != 0) {
@@ -56,10 +66,15 @@ SubsetBDSNPs <- function(bdInfo, minMAF = 0, minRsq = 0) {
       stop ("Cannot find r squared value in bdInfo")
   }
   
-  if (minRsq == 0)
+  if (minRsq == 0) {
+    if (useAltFreq)
+      return (which(apply((0.5 - abs(bdInfo$SNPinfo[,mafColNum] - 0.5)), 1, 'min') > minMAF))
     return (which(apply(bdInfo$SNPinfo[,mafColNum], 1, 'min') > minMAF))
+  }
   if (minMAF == 0)
     return (which(apply(bdInfo$SNPinfo[,rsqColNum], 1, 'min') > minRsq))
+  if (useAltFreq)
+    return (which(apply(bdInfo$SNPinfo[,rsqColNum], 1, 'min') > minRsq & apply((0.5 - abs(bdInfo$SNPinfo[,mafColNum] - 0.5)), 1, 'min') > minMAF))
   return (which(apply(bdInfo$SNPinfo[,rsqColNum], 1, 'min') > minRsq & apply(bdInfo$SNPinfo[,mafColNum], 1, 'min') > minMAF))
 }
   

@@ -4,8 +4,8 @@
 \alias{GetI2Info}
 \title{Function to get information about a file in an Impute 2 format}
 \usage{
-GetI2Info(i2file, header = TRUE, snpCol = c("SNP", "CHR", "BP", "A1", "A2"),
-  subID, startCol, format = 2L, usesFID = TRUE, sep = "\\t")
+GetI2Info(i2file, header = TRUE, snpCol = c("SNP", "CHR", "BP", "A1",
+  "A2"), subID, startCol, format = 2L, usesFID = TRUE, sep = "\\t")
 }
 \arguments{
 \item{i2file}{Impute 2 file name. Must be provided.}

@@ -4,7 +4,7 @@
 \alias{SubsetBDSNPs}
 \title{Function to subset SNPS}
 \usage{
-SubsetBDSNPs(bdInfo, minMAF = 0, minRsq = 0)
+SubsetBDSNPs(bdInfo, minMAF = 0, minRsq = 0, useAltFreq = TRUE)
 }
 \arguments{
 \item{bdInfo}{A binary dosage info list returned from GetBinaryDosageInfo
@@ -18,6 +18,10 @@ Default value = 0}
 \item{minRsq}{Minimum r squared of the imputation for the SNP. A value of
 zero indicates to not subset based on r squared value.
 Default value = 0}
+
+\item{useAltFreq}{If TRUE, minor allele frequency is calculated from the alternate
+allele frequency. If FALSE, the minor allele frequency is used.
+Default value is TRUE.}
 }
 \value{
 Vector of SNP indices to use in the imputation - Usually passed
