@@ -8,6 +8,7 @@ FamilyFileCheck <- function(familyFile) {
 
 MapFileCheck <- function(mapFile) {
   df <- read.table(mapFile, stringsAsFactors = FALSE, colClasses = c("character", "character", "numeric", "numeric", "character", "character"), header = FALSE)
+#  print(df[1:5,])
   if (ncol(df) != 6)
     stop("Map file does not have 6 columns")
   if (is.numeric(df[,3]) == FALSE | is.numeric(df[,4]) == FALSE)

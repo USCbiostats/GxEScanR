@@ -4,13 +4,13 @@
 \alias{GetBinaryDosageInformation}
 \title{Function to produce summary of a binary dosage file used by GxEScan}
 \usage{
-GetBinaryDosageInformation(binaryDosageFilename, nSub, nSNPs)
+GetBinaryDosageInformation(binaryDosageFilename, snSub, snSNPs)
 }
 \arguments{
-\item{nSub}{Number of subjects in the genetic data file. This is needed for formats 1, 2 and 3.
+\item{snSub}{Number of subjects in the genetic data file. This is needed for formats 1, 2 and 3.
 This value is returned for format 4 in the results}
 
-\item{nSNPs}{Number of SNPs in the genetic data file. This is needed for formats 1, 2 and 3.
+\item{snSNPs}{Number of SNPs in the genetic data file. This is needed for formats 1, 2 and 3.
 This value is returned for format 4 in the results}
 
 \item{binaryDosageFilesname}{Name of file with genetic data, normally ends with .bdosage}

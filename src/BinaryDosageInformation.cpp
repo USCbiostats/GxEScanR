@@ -7,10 +7,13 @@
 using namespace Rcpp;
 
 bool CheckBinaryDosageFileSize(std::ifstream &infile, const int version, const unsigned int nSub, const unsigned int nSNPs) {
-  long long expectedSize;
+  long long expectedSize, lnSub, lnSNPs;
   std::streampos actualSize;
-  
-  expectedSize = nSub * nSNPs * sizeof(short);
+
+  lnSub = nSub;
+  lnSNPs = nSNPs;
+//  Rcpp::Rcout << lnSub << '\t' << lnSNPs << std::endl;
+  expectedSize = lnSub * lnSNPs * sizeof(short);
   if (version == 2)
     expectedSize += expectedSize;
   expectedSize += 8;
@@ -312,17 +315,17 @@ bool GetBinaryDosage4Info(std::ifstream &infile, unsigned int &numSubjects, unsi
 //' 
 //' @param binaryDosageFilesname
 //' Name of file with genetic data, normally ends with .bdosage
-//' @param nSub
+//' @param snSub
 //' Number of subjects in the genetic data file. This is needed for formats 1, 2 and 3.
 //' This value is returned for format 4 in the results
-//' @param nSNPs
+//' @param snSNPs
 //' Number of SNPs in the genetic data file. This is needed for formats 1, 2 and 3.
 //' This value is returned for format 4 in the results
 //' @return
 //' List with data needed by GxEScan
 //' @export
 // [[Rcpp::export]]
-Rcpp::List GetBinaryDosageInformation(const std::string &binaryDosageFilename, const unsigned int nSub, const unsigned int nSNPs) {
+Rcpp::List GetBinaryDosageInformation(const std::string &binaryDosageFilename, const unsigned int snSub, const unsigned int snSNPs) {
   std::ifstream infile;
   const char magicWord[4] = { 'b', 'o', 's', 'e' };
   char readMagicWord[4];
@@ -330,10 +333,15 @@ Rcpp::List GetBinaryDosageInformation(const std::string &binaryDosageFilename, c
   int format, version;
   unsigned int numSubjects, numSNPs;
   Rcpp::List result;//, subjects, snps;
+  unsigned int nSub, nSNPs;
   
   format = 0;
   version = 0;
-
+  nSub = (unsigned int)snSub;
+  nSNPs = (unsigned int)snSNPs;
+  
+//  Rcpp::Rcout << "Entering C++\t" << nSub << '\t' << nSNPs << std::endl;
+  
   Rcpp::DataFrame subjects = Rcpp::DataFrame::create(Rcpp::Named("FID") = Rcpp::CharacterVector(),
                                      Rcpp::Named("IID") = Rcpp::CharacterVector(),
                                      Rcpp::Named("stringsAsFactors") = false);
@@ -416,6 +424,7 @@ Rcpp::List GetBinaryDosageInformation(const std::string &binaryDosageFilename, c
     }
   } else {
     // Check the file size for formats 1 and 2
+//    Rcpp::Rcout << "Before Call to Size\t" << nSub << '\t' << nSNPs << std::endl;
     CheckBinaryDosageFileSize(infile, version, nSub, nSNPs);
   }
   

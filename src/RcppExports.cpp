@@ -6,15 +6,15 @@
 using namespace Rcpp;
 
 // GetBinaryDosageInformation
-Rcpp::List GetBinaryDosageInformation(const std::string& binaryDosageFilename, const unsigned int nSub, const unsigned int nSNPs);
-RcppExport SEXP _GxEScanR_GetBinaryDosageInformation(SEXP binaryDosageFilenameSEXP, SEXP nSubSEXP, SEXP nSNPsSEXP) {
+Rcpp::List GetBinaryDosageInformation(const std::string& binaryDosageFilename, const unsigned int snSub, const unsigned int snSNPs);
+RcppExport SEXP _GxEScanR_GetBinaryDosageInformation(SEXP binaryDosageFilenameSEXP, SEXP snSubSEXP, SEXP snSNPsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const std::string& >::type binaryDosageFilename(binaryDosageFilenameSEXP);
-    Rcpp::traits::input_parameter< const unsigned int >::type nSub(nSubSEXP);
-    Rcpp::traits::input_parameter< const unsigned int >::type nSNPs(nSNPsSEXP);
-    rcpp_result_gen = Rcpp::wrap(GetBinaryDosageInformation(binaryDosageFilename, nSub, nSNPs));
+    Rcpp::traits::input_parameter< const unsigned int >::type snSub(snSubSEXP);
+    Rcpp::traits::input_parameter< const unsigned int >::type snSNPs(snSNPsSEXP);
+    rcpp_result_gen = Rcpp::wrap(GetBinaryDosageInformation(binaryDosageFilename, snSub, snSNPs));
     return rcpp_result_gen;
 END_RCPP
 }

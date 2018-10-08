@@ -7,17 +7,17 @@
 #' 
 #' @param binaryDosageFilesname
 #' Name of file with genetic data, normally ends with .bdosage
-#' @param nSub
+#' @param snSub
 #' Number of subjects in the genetic data file. This is needed for formats 1, 2 and 3.
 #' This value is returned for format 4 in the results
-#' @param nSNPs
+#' @param snSNPs
 #' Number of SNPs in the genetic data file. This is needed for formats 1, 2 and 3.
 #' This value is returned for format 4 in the results
 #' @return
 #' List with data needed by GxEScan
 #' @export
-GetBinaryDosageInformation <- function(binaryDosageFilename, nSub, nSNPs) {
-    .Call('_GxEScanR_GetBinaryDosageInformation', PACKAGE = 'GxEScanR', binaryDosageFilename, nSub, nSNPs)
+GetBinaryDosageInformation <- function(binaryDosageFilename, snSub, snSNPs) {
+    .Call('_GxEScanR_GetBinaryDosageInformation', PACKAGE = 'GxEScanR', binaryDosageFilename, snSub, snSNPs)
 }
 
 #' Function to fit models scanning over genotypes
