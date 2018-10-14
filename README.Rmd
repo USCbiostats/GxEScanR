@@ -18,11 +18,6 @@ knitr::opts_chunk$set(
 knitr::opts_knit$set(root.dir = './data')
 ```
 
-<style type="text/css">
-h6 { /* Header 6 */
-  font-size: 14px;
-}
-</style>
 <!-- ![](files/page1.png) -->
 <!-- ![](files/test.png) -->
 
