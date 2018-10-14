@@ -6,14 +6,5 @@
 src/*.o
 src/*.so
 src/*.dll
-*.bdosage
-subset10.*
-example*
 GxEDataset.txt
-Test.out
-GxEDataset?.cov
-GxEDataset?.fam
-SNP?Data.out
-Test2.out
 Test/*
-CHS/*
