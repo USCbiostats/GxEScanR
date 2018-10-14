@@ -133,7 +133,7 @@ repository.
 library(GxEScanR)
 
 # Read dummy phenotype file
-cov <- read.table("example_pheno.txt", header = T)
+cov <- read.table("example_pheno.txt", stringsAsFactors = F, header = T)
 bdose <- GxEScanR::GetBinaryDosageInfo("example.bdose")
 GxEScan(cov, bdose, "example_results.out")
 ```

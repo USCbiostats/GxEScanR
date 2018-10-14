@@ -673,7 +673,7 @@ h6 { /* Header 6 */
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw">library</span>(GxEScanR)</a>
 <a class="sourceLine" id="cb2-2" data-line-number="2"></a>
 <a class="sourceLine" id="cb2-3" data-line-number="3"><span class="co"># Read dummy phenotype file</span></a>
-<a class="sourceLine" id="cb2-4" data-line-number="4">cov &lt;-<span class="st"> </span><span class="kw">read.table</span>(<span class="st">&quot;example_pheno.txt&quot;</span>, <span class="dt">header =</span> T)</a>
+<a class="sourceLine" id="cb2-4" data-line-number="4">cov &lt;-<span class="st"> </span><span class="kw">read.table</span>(<span class="st">&quot;example_pheno.txt&quot;</span>, <span class="dt">stringsAsFactors =</span> F, <span class="dt">header =</span> T)</a>
 <a class="sourceLine" id="cb2-5" data-line-number="5">bdose &lt;-<span class="st"> </span>GxEScanR<span class="op">::</span><span class="kw">GetBinaryDosageInfo</span>(<span class="st">&quot;example.bdose&quot;</span>)</a>
 <a class="sourceLine" id="cb2-6" data-line-number="6"><span class="kw">GxEScan</span>(cov, bdose, <span class="st">&quot;example_results.out&quot;</span>)</a></code></pre></div>
 <h5 id="results---output-file">Results - Output File</h5>
