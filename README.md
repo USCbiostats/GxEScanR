@@ -2,12 +2,6 @@ GxEScanR: An R Package to Detect GxE Interactions in a Genome-wide
 Association Study
 ================
 
-<style type="text/css">
-h6 { /* Header 6 */
-  font-size: 14px;
-}
-</style>
-
 <!-- ![](files/page1.png) -->
 
 <!-- ![](files/test.png) -->
