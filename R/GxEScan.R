@@ -40,7 +40,7 @@ GxEScan <- function(subjectData, geneticData, outputFile, skippedFilename = "", 
   subjectSubset <- SubsetSubjects(subjectData, geneticData)
   if (is.list(subjectSubset) == FALSE)
     return (1)
-  return (GxEScanC(subjectSubset, geneticData, outputFile, skippedFilename, minMaf))
+  return (GxEScanC(subjectSubset$phenotype, subjectSubset$covariates, subjectSubset$geneIndex, geneticData, outputFile, skippedFilename, minMaf))
 }
 
 # Subset the subjects with complete phenotype and covariate data
@@ -50,7 +50,7 @@ SubsetSubjects <- function(subjectData, geneticData) {
   subjectTest <- TestSubjectDataR(subjectData)
   
   if (subjectTest$usesFID != geneticData$usesFID)
-    stop("Subject data and genetic data must both use family ID on not use family ID")
+    stop("Subject data and genetic data must both use family ID or both must not use family ID")
   
   subIDs <- paste(subjectTest$subjects$FID, subjectTest$subjects$IID, sep = "_gxe_") 
   geneIDs <- paste(geneticData$subjects$FID, geneticData$subjects$IID, sep = "_gxe_")
