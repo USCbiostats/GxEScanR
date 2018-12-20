@@ -7,25 +7,157 @@
 using namespace Rcpp;
 
 // GxEScanC
-int GxEScanC(Rcpp::IntegerVector& phenotype, Rcpp::NumericMatrix& covariates, Rcpp::IntegerVector& index, Rcpp::List& geneticData, std::string& outFilename, std::string& skippedFilename, int minmaf);
-RcppExport SEXP _GxEScanR_GxEScanC(SEXP phenotypeSEXP, SEXP covariatesSEXP, SEXP indexSEXP, SEXP geneticDataSEXP, SEXP outFilenameSEXP, SEXP skippedFilenameSEXP, SEXP minmafSEXP) {
+int GxEScanC(arma::vec& phenotype, arma::mat& covariates, arma::vec& mu, arma::vec& sigma2, arma::vec& beta0, arma::icolvec& index, Rcpp::List& geneticData, std::string& outFilename, std::string& skippedFilename, double minmaf);
+RcppExport SEXP _GxEScanR_GxEScanC(SEXP phenotypeSEXP, SEXP covariatesSEXP, SEXP muSEXP, SEXP sigma2SEXP, SEXP beta0SEXP, SEXP indexSEXP, SEXP geneticDataSEXP, SEXP outFilenameSEXP, SEXP skippedFilenameSEXP, SEXP minmafSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::IntegerVector& >::type phenotype(phenotypeSEXP);
-    Rcpp::traits::input_parameter< Rcpp::NumericMatrix& >::type covariates(covariatesSEXP);
-    Rcpp::traits::input_parameter< Rcpp::IntegerVector& >::type index(indexSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type phenotype(phenotypeSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type covariates(covariatesSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type sigma2(sigma2SEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type beta0(beta0SEXP);
+    Rcpp::traits::input_parameter< arma::icolvec& >::type index(indexSEXP);
     Rcpp::traits::input_parameter< Rcpp::List& >::type geneticData(geneticDataSEXP);
     Rcpp::traits::input_parameter< std::string& >::type outFilename(outFilenameSEXP);
     Rcpp::traits::input_parameter< std::string& >::type skippedFilename(skippedFilenameSEXP);
-    Rcpp::traits::input_parameter< int >::type minmaf(minmafSEXP);
-    rcpp_result_gen = Rcpp::wrap(GxEScanC(phenotype, covariates, index, geneticData, outFilename, skippedFilename, minmaf));
+    Rcpp::traits::input_parameter< double >::type minmaf(minmafSEXP);
+    rcpp_result_gen = Rcpp::wrap(GxEScanC(phenotype, covariates, mu, sigma2, beta0, index, geneticData, outFilename, skippedFilename, minmaf));
+    return rcpp_result_gen;
+END_RCPP
+}
+// InitializeLRMod
+int InitializeLRMod(int numRow, int numCol, arma::vec& y, arma::mat& xl, arma::vec& beta, arma::vec& score, arma::vec& w, arma::vec& wInv, arma::vec& yp, arma::vec& zt, arma::vec& k, arma::mat& ql, arma::mat& rtl, arma::vec& abx, arma::vec& expabx, arma::vec& expabxp1, arma::vec& expitabx, arma::vec& logLikelihood);
+RcppExport SEXP _GxEScanR_InitializeLRMod(SEXP numRowSEXP, SEXP numColSEXP, SEXP ySEXP, SEXP xlSEXP, SEXP betaSEXP, SEXP scoreSEXP, SEXP wSEXP, SEXP wInvSEXP, SEXP ypSEXP, SEXP ztSEXP, SEXP kSEXP, SEXP qlSEXP, SEXP rtlSEXP, SEXP abxSEXP, SEXP expabxSEXP, SEXP expabxp1SEXP, SEXP expitabxSEXP, SEXP logLikelihoodSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type numRow(numRowSEXP);
+    Rcpp::traits::input_parameter< int >::type numCol(numColSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type xl(xlSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type beta(betaSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type score(scoreSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type w(wSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type wInv(wInvSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type yp(ypSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type zt(ztSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type k(kSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type ql(qlSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type rtl(rtlSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type abx(abxSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type expabx(expabxSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type expabxp1(expabxp1SEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type expitabx(expitabxSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type logLikelihood(logLikelihoodSEXP);
+    rcpp_result_gen = Rcpp::wrap(InitializeLRMod(numRow, numCol, y, xl, beta, score, w, wInv, yp, zt, k, ql, rtl, abx, expabx, expabxp1, expitabx, logLikelihood));
+    return rcpp_result_gen;
+END_RCPP
+}
+// FitLRMod
+int FitLRMod(int n, int p, arma::vec& y, arma::mat& xl, arma::mat& xr, arma::vec& beta0, arma::vec& score0, arma::vec& w, arma::vec& wInv, arma::vec& yp0, arma::vec& zt0, arma::vec& k0, arma::mat& ql, arma::mat& rtl, arma::vec& abx, arma::vec& expabx, arma::vec& expabxp1, arma::vec& expitabx, arma::vec& yp, arma::vec& zt, arma::vec& k, arma::vec& bt, arma::mat& xrw, arma::vec& beta, arma::vec& score, arma::vec& zb, arma::vec& bb, arma::mat& h, arma::mat& rtr, arma::mat& t, arma::mat& qr, arma::mat& rbr, arma::vec& logLikelihood);
+RcppExport SEXP _GxEScanR_FitLRMod(SEXP nSEXP, SEXP pSEXP, SEXP ySEXP, SEXP xlSEXP, SEXP xrSEXP, SEXP beta0SEXP, SEXP score0SEXP, SEXP wSEXP, SEXP wInvSEXP, SEXP yp0SEXP, SEXP zt0SEXP, SEXP k0SEXP, SEXP qlSEXP, SEXP rtlSEXP, SEXP abxSEXP, SEXP expabxSEXP, SEXP expabxp1SEXP, SEXP expitabxSEXP, SEXP ypSEXP, SEXP ztSEXP, SEXP kSEXP, SEXP btSEXP, SEXP xrwSEXP, SEXP betaSEXP, SEXP scoreSEXP, SEXP zbSEXP, SEXP bbSEXP, SEXP hSEXP, SEXP rtrSEXP, SEXP tSEXP, SEXP qrSEXP, SEXP rbrSEXP, SEXP logLikelihoodSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< int >::type p(pSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type xl(xlSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type xr(xrSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type beta0(beta0SEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type score0(score0SEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type w(wSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type wInv(wInvSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type yp0(yp0SEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type zt0(zt0SEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type k0(k0SEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type ql(qlSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type rtl(rtlSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type abx(abxSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type expabx(expabxSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type expabxp1(expabxp1SEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type expitabx(expitabxSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type yp(ypSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type zt(ztSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type k(kSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type bt(btSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type xrw(xrwSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type beta(betaSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type score(scoreSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type zb(zbSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type bb(bbSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type h(hSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type rtr(rtrSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type t(tSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type qr(qrSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type rbr(rbrSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type logLikelihood(logLikelihoodSEXP);
+    rcpp_result_gen = Rcpp::wrap(FitLRMod(n, p, y, xl, xr, beta0, score0, w, wInv, yp0, zt0, k0, ql, rtl, abx, expabx, expabxp1, expitabx, yp, zt, k, bt, xrw, beta, score, zb, bb, h, rtr, t, qr, rbr, logLikelihood));
+    return rcpp_result_gen;
+END_RCPP
+}
+// ScanGenes
+Rcpp::List ScanGenes(int n, int p, arma::vec& y, arma::mat& xl, arma::mat& xr, int numSNPs, arma::vec& beta0, arma::vec& score0, arma::vec& w, arma::vec& wInv, arma::vec& yp0, arma::vec& zt0, arma::vec& k0, arma::mat& ql, arma::mat& rtl, arma::vec& abx, arma::vec& expabx, arma::vec& expabxp1, arma::vec& expitabx, arma::vec& yp, arma::vec& zt, arma::vec& k, arma::vec& bt, arma::mat& xrw1, arma::vec& beta1, arma::vec& score1, arma::vec& zb1, arma::vec& bb1, arma::mat& h1, arma::mat& rtr1, arma::mat& t1, arma::mat& qr1, arma::mat& rbr1, arma::vec& logLikelihood1, arma::mat& xrw2, arma::vec& beta2, arma::vec& score2, arma::vec& zb2, arma::vec& bb2, arma::mat& h2, arma::mat& rtr2, arma::mat& t2, arma::mat& qr2, arma::mat& rbr2, arma::vec& logLikelihood2);
+RcppExport SEXP _GxEScanR_ScanGenes(SEXP nSEXP, SEXP pSEXP, SEXP ySEXP, SEXP xlSEXP, SEXP xrSEXP, SEXP numSNPsSEXP, SEXP beta0SEXP, SEXP score0SEXP, SEXP wSEXP, SEXP wInvSEXP, SEXP yp0SEXP, SEXP zt0SEXP, SEXP k0SEXP, SEXP qlSEXP, SEXP rtlSEXP, SEXP abxSEXP, SEXP expabxSEXP, SEXP expabxp1SEXP, SEXP expitabxSEXP, SEXP ypSEXP, SEXP ztSEXP, SEXP kSEXP, SEXP btSEXP, SEXP xrw1SEXP, SEXP beta1SEXP, SEXP score1SEXP, SEXP zb1SEXP, SEXP bb1SEXP, SEXP h1SEXP, SEXP rtr1SEXP, SEXP t1SEXP, SEXP qr1SEXP, SEXP rbr1SEXP, SEXP logLikelihood1SEXP, SEXP xrw2SEXP, SEXP beta2SEXP, SEXP score2SEXP, SEXP zb2SEXP, SEXP bb2SEXP, SEXP h2SEXP, SEXP rtr2SEXP, SEXP t2SEXP, SEXP qr2SEXP, SEXP rbr2SEXP, SEXP logLikelihood2SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< int >::type p(pSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type xl(xlSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type xr(xrSEXP);
+    Rcpp::traits::input_parameter< int >::type numSNPs(numSNPsSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type beta0(beta0SEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type score0(score0SEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type w(wSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type wInv(wInvSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type yp0(yp0SEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type zt0(zt0SEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type k0(k0SEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type ql(qlSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type rtl(rtlSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type abx(abxSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type expabx(expabxSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type expabxp1(expabxp1SEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type expitabx(expitabxSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type yp(ypSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type zt(ztSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type k(kSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type bt(btSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type xrw1(xrw1SEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type beta1(beta1SEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type score1(score1SEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type zb1(zb1SEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type bb1(bb1SEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type h1(h1SEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type rtr1(rtr1SEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type t1(t1SEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type qr1(qr1SEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type rbr1(rbr1SEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type logLikelihood1(logLikelihood1SEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type xrw2(xrw2SEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type beta2(beta2SEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type score2(score2SEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type zb2(zb2SEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type bb2(bb2SEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type h2(h2SEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type rtr2(rtr2SEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type t2(t2SEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type qr2(qr2SEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type rbr2(rbr2SEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type logLikelihood2(logLikelihood2SEXP);
+    rcpp_result_gen = Rcpp::wrap(ScanGenes(n, p, y, xl, xr, numSNPs, beta0, score0, w, wInv, yp0, zt0, k0, ql, rtl, abx, expabx, expabxp1, expitabx, yp, zt, k, bt, xrw1, beta1, score1, zb1, bb1, h1, rtr1, t1, qr1, rbr1, logLikelihood1, xrw2, beta2, score2, zb2, bb2, h2, rtr2, t2, qr2, rbr2, logLikelihood2));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_GxEScanR_GxEScanC", (DL_FUNC) &_GxEScanR_GxEScanC, 7},
+    {"_GxEScanR_GxEScanC", (DL_FUNC) &_GxEScanR_GxEScanC, 10},
+    {"_GxEScanR_InitializeLRMod", (DL_FUNC) &_GxEScanR_InitializeLRMod, 18},
+    {"_GxEScanR_FitLRMod", (DL_FUNC) &_GxEScanR_FitLRMod, 33},
+    {"_GxEScanR_ScanGenes", (DL_FUNC) &_GxEScanR_ScanGenes, 45},
     {NULL, NULL, 0}
 };
 
