@@ -152,12 +152,79 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// GetLocations
+int GetLocations(Rcpp::IntegerVector x, Rcpp::NumericVector y, double fileSize, int bufferSize);
+RcppExport SEXP _GxEScanR_GetLocations(SEXP xSEXP, SEXP ySEXP, SEXP fileSizeSEXP, SEXP bufferSizeSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type x(xSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type y(ySEXP);
+    Rcpp::traits::input_parameter< double >::type fileSize(fileSizeSEXP);
+    Rcpp::traits::input_parameter< int >::type bufferSize(bufferSizeSEXP);
+    rcpp_result_gen = Rcpp::wrap(GetLocations(x, y, fileSize, bufferSize));
+    return rcpp_result_gen;
+END_RCPP
+}
+// WriteLocations
+int WriteLocations(Rcpp::NumericVector y);
+RcppExport SEXP _GxEScanR_WriteLocations(SEXP ySEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type y(ySEXP);
+    rcpp_result_gen = Rcpp::wrap(WriteLocations(y));
+    return rcpp_result_gen;
+END_RCPP
+}
+// GetSections
+int GetSections(Rcpp::NumericVector y, Rcpp::IntegerVector snpSection, Rcpp::NumericVector fileLocation, Rcpp::IntegerVector snpLocation, int bufferSize);
+RcppExport SEXP _GxEScanR_GetSections(SEXP ySEXP, SEXP snpSectionSEXP, SEXP fileLocationSEXP, SEXP snpLocationSEXP, SEXP bufferSizeSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type y(ySEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type snpSection(snpSectionSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type fileLocation(fileLocationSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type snpLocation(snpLocationSEXP);
+    Rcpp::traits::input_parameter< int >::type bufferSize(bufferSizeSEXP);
+    rcpp_result_gen = Rcpp::wrap(GetSections(y, snpSection, fileLocation, snpLocation, bufferSize));
+    return rcpp_result_gen;
+END_RCPP
+}
+// ReadSNP
+int ReadSNP(Rcpp::IntegerVector& snpNumber, std::string& filename, Rcpp::IntegerVector& format, int numSub, int numSNPs, int bufferSize, Rcpp::IntegerVector& buffer, int sections, Rcpp::IntegerVector& snpSection, Rcpp::NumericVector& fileLocation, Rcpp::IntegerVector& snpLocation, int currentSection, Rcpp::NumericVector& values);
+RcppExport SEXP _GxEScanR_ReadSNP(SEXP snpNumberSEXP, SEXP filenameSEXP, SEXP formatSEXP, SEXP numSubSEXP, SEXP numSNPsSEXP, SEXP bufferSizeSEXP, SEXP bufferSEXP, SEXP sectionsSEXP, SEXP snpSectionSEXP, SEXP fileLocationSEXP, SEXP snpLocationSEXP, SEXP currentSectionSEXP, SEXP valuesSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector& >::type snpNumber(snpNumberSEXP);
+    Rcpp::traits::input_parameter< std::string& >::type filename(filenameSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector& >::type format(formatSEXP);
+    Rcpp::traits::input_parameter< int >::type numSub(numSubSEXP);
+    Rcpp::traits::input_parameter< int >::type numSNPs(numSNPsSEXP);
+    Rcpp::traits::input_parameter< int >::type bufferSize(bufferSizeSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector& >::type buffer(bufferSEXP);
+    Rcpp::traits::input_parameter< int >::type sections(sectionsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector& >::type snpSection(snpSectionSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector& >::type fileLocation(fileLocationSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector& >::type snpLocation(snpLocationSEXP);
+    Rcpp::traits::input_parameter< int >::type currentSection(currentSectionSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector& >::type values(valuesSEXP);
+    rcpp_result_gen = Rcpp::wrap(ReadSNP(snpNumber, filename, format, numSub, numSNPs, bufferSize, buffer, sections, snpSection, fileLocation, snpLocation, currentSection, values));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_GxEScanR_GxEScanC", (DL_FUNC) &_GxEScanR_GxEScanC, 10},
     {"_GxEScanR_InitializeLRMod", (DL_FUNC) &_GxEScanR_InitializeLRMod, 18},
     {"_GxEScanR_FitLRMod", (DL_FUNC) &_GxEScanR_FitLRMod, 33},
     {"_GxEScanR_ScanGenes", (DL_FUNC) &_GxEScanR_ScanGenes, 45},
+    {"_GxEScanR_GetLocations", (DL_FUNC) &_GxEScanR_GetLocations, 4},
+    {"_GxEScanR_WriteLocations", (DL_FUNC) &_GxEScanR_WriteLocations, 1},
+    {"_GxEScanR_GetSections", (DL_FUNC) &_GxEScanR_GetSections, 5},
+    {"_GxEScanR_ReadSNP", (DL_FUNC) &_GxEScanR_ReadSNP, 13},
     {NULL, NULL, 0}
 };
 

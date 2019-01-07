@@ -17,3 +17,19 @@ ScanGenes <- function(n, p, y, xl, xr, numSNPs, beta0, score0, w, wInv, yp0, zt0
     .Call('_GxEScanR_ScanGenes', PACKAGE = 'GxEScanR', n, p, y, xl, xr, numSNPs, beta0, score0, w, wInv, yp0, zt0, k0, ql, rtl, abx, expabx, expabxp1, expitabx, yp, zt, k, bt, xrw1, beta1, score1, zb1, bb1, h1, rtr1, t1, qr1, rbr1, logLikelihood1, xrw2, beta2, score2, zb2, bb2, h2, rtr2, t2, qr2, rbr2, logLikelihood2)
 }
 
+GetLocations <- function(x, y, fileSize, bufferSize) {
+    .Call('_GxEScanR_GetLocations', PACKAGE = 'GxEScanR', x, y, fileSize, bufferSize)
+}
+
+WriteLocations <- function(y) {
+    .Call('_GxEScanR_WriteLocations', PACKAGE = 'GxEScanR', y)
+}
+
+GetSections <- function(y, snpSection, fileLocation, snpLocation, bufferSize) {
+    .Call('_GxEScanR_GetSections', PACKAGE = 'GxEScanR', y, snpSection, fileLocation, snpLocation, bufferSize)
+}
+
+ReadSNP <- function(snpNumber, filename, format, numSub, numSNPs, bufferSize, buffer, sections, snpSection, fileLocation, snpLocation, currentSection, values) {
+    .Call('_GxEScanR_ReadSNP', PACKAGE = 'GxEScanR', snpNumber, filename, format, numSub, numSNPs, bufferSize, buffer, sections, snpSection, fileLocation, snpLocation, currentSection, values)
+}
+
