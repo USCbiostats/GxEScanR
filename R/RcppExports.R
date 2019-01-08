@@ -29,7 +29,7 @@ GetSections <- function(y, snpSection, fileLocation, snpLocation, bufferSize) {
     .Call('_GxEScanR_GetSections', PACKAGE = 'GxEScanR', y, snpSection, fileLocation, snpLocation, bufferSize)
 }
 
-ReadSNP <- function(snpNumber, filename, format, numSub, numSNPs, bufferSize, buffer, sections, snpSection, fileLocation, snpLocation, currentSection, values) {
-    .Call('_GxEScanR_ReadSNP', PACKAGE = 'GxEScanR', snpNumber, filename, format, numSub, numSNPs, bufferSize, buffer, sections, snpSection, fileLocation, snpLocation, currentSection, values)
+ReadSNP <- function(snpNumber, subjectNumber, filename, format, numSub, numSNPs, bufferSize, buffer, sections, snpSection, fileLocation, snpLocation, currentSection, dosage, p0, p1, p2, values) {
+    .Call('_GxEScanR_ReadSNP', PACKAGE = 'GxEScanR', snpNumber, subjectNumber, filename, format, numSub, numSNPs, bufferSize, buffer, sections, snpSection, fileLocation, snpLocation, currentSection, dosage, p0, p1, p2, values)
 }
 

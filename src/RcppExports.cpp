@@ -193,12 +193,13 @@ BEGIN_RCPP
 END_RCPP
 }
 // ReadSNP
-int ReadSNP(Rcpp::IntegerVector& snpNumber, std::string& filename, Rcpp::IntegerVector& format, int numSub, int numSNPs, int bufferSize, Rcpp::IntegerVector& buffer, int sections, Rcpp::IntegerVector& snpSection, Rcpp::NumericVector& fileLocation, Rcpp::IntegerVector& snpLocation, int currentSection, Rcpp::NumericVector& values);
-RcppExport SEXP _GxEScanR_ReadSNP(SEXP snpNumberSEXP, SEXP filenameSEXP, SEXP formatSEXP, SEXP numSubSEXP, SEXP numSNPsSEXP, SEXP bufferSizeSEXP, SEXP bufferSEXP, SEXP sectionsSEXP, SEXP snpSectionSEXP, SEXP fileLocationSEXP, SEXP snpLocationSEXP, SEXP currentSectionSEXP, SEXP valuesSEXP) {
+int ReadSNP(Rcpp::IntegerVector& snpNumber, Rcpp::IntegerVector& subjectNumber, std::string& filename, Rcpp::IntegerVector& format, int numSub, int numSNPs, int bufferSize, Rcpp::IntegerVector& buffer, int sections, Rcpp::IntegerVector& snpSection, Rcpp::NumericVector& fileLocation, Rcpp::IntegerVector& snpLocation, int currentSection, Rcpp::NumericVector& dosage, Rcpp::NumericVector& p0, Rcpp::NumericVector& p1, Rcpp::NumericVector& p2, Rcpp::NumericMatrix& values);
+RcppExport SEXP _GxEScanR_ReadSNP(SEXP snpNumberSEXP, SEXP subjectNumberSEXP, SEXP filenameSEXP, SEXP formatSEXP, SEXP numSubSEXP, SEXP numSNPsSEXP, SEXP bufferSizeSEXP, SEXP bufferSEXP, SEXP sectionsSEXP, SEXP snpSectionSEXP, SEXP fileLocationSEXP, SEXP snpLocationSEXP, SEXP currentSectionSEXP, SEXP dosageSEXP, SEXP p0SEXP, SEXP p1SEXP, SEXP p2SEXP, SEXP valuesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::IntegerVector& >::type snpNumber(snpNumberSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector& >::type subjectNumber(subjectNumberSEXP);
     Rcpp::traits::input_parameter< std::string& >::type filename(filenameSEXP);
     Rcpp::traits::input_parameter< Rcpp::IntegerVector& >::type format(formatSEXP);
     Rcpp::traits::input_parameter< int >::type numSub(numSubSEXP);
@@ -210,8 +211,12 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Rcpp::NumericVector& >::type fileLocation(fileLocationSEXP);
     Rcpp::traits::input_parameter< Rcpp::IntegerVector& >::type snpLocation(snpLocationSEXP);
     Rcpp::traits::input_parameter< int >::type currentSection(currentSectionSEXP);
-    Rcpp::traits::input_parameter< Rcpp::NumericVector& >::type values(valuesSEXP);
-    rcpp_result_gen = Rcpp::wrap(ReadSNP(snpNumber, filename, format, numSub, numSNPs, bufferSize, buffer, sections, snpSection, fileLocation, snpLocation, currentSection, values));
+    Rcpp::traits::input_parameter< Rcpp::NumericVector& >::type dosage(dosageSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector& >::type p0(p0SEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector& >::type p1(p1SEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector& >::type p2(p2SEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix& >::type values(valuesSEXP);
+    rcpp_result_gen = Rcpp::wrap(ReadSNP(snpNumber, subjectNumber, filename, format, numSub, numSNPs, bufferSize, buffer, sections, snpSection, fileLocation, snpLocation, currentSection, dosage, p0, p1, p2, values));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -224,7 +229,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_GxEScanR_GetLocations", (DL_FUNC) &_GxEScanR_GetLocations, 4},
     {"_GxEScanR_WriteLocations", (DL_FUNC) &_GxEScanR_WriteLocations, 1},
     {"_GxEScanR_GetSections", (DL_FUNC) &_GxEScanR_GetSections, 5},
-    {"_GxEScanR_ReadSNP", (DL_FUNC) &_GxEScanR_ReadSNP, 13},
+    {"_GxEScanR_ReadSNP", (DL_FUNC) &_GxEScanR_ReadSNP, 18},
     {NULL, NULL, 0}
 };
 
