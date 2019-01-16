@@ -171,6 +171,14 @@ PlinkBinaryInfo <- function(geneticFile, mapFile, familyFile) {
     .Call('_GxEScanR_PlinkBinaryInfo', PACKAGE = 'GxEScanR', geneticFile, mapFile, familyFile)
 }
 
+OpenGxEOutFile <- function(filename) {
+    .Call('_GxEScanR_OpenGxEOutFile', PACKAGE = 'GxEScanR', filename)
+}
+
+AppendGxEResults <- function(filename, snpID, chromosome, location, refAllele, altAllele, numSub, numCases, logLike, estimates, length) {
+    .Call('_GxEScanR_AppendGxEResults', PACKAGE = 'GxEScanR', filename, snpID, chromosome, location, refAllele, altAllele, numSub, numCases, logLike, estimates, length)
+}
+
 InitializeLRMod <- function(numRow, numCol, y, xl, beta, score, w, wInv, yp, zt, k, ql, rtl, abx, expabx, expabxp1, expitabx, logLikelihood) {
     .Call('_GxEScanR_InitializeLRMod', PACKAGE = 'GxEScanR', numRow, numCol, y, xl, beta, score, w, wInv, yp, zt, k, ql, rtl, abx, expabx, expabxp1, expitabx, logLikelihood)
 }
@@ -179,8 +187,8 @@ FitLRMod <- function(n, p, y, xl, xr, beta0, score0, w, wInv, yp0, zt0, k0, ql, 
     .Call('_GxEScanR_FitLRMod', PACKAGE = 'GxEScanR', n, p, y, xl, xr, beta0, score0, w, wInv, yp0, zt0, k0, ql, rtl, abx, expabx, expabxp1, expitabx, yp, zt, k, bt, xrw, beta, score, zb, bb, h, rtr, t, qr, rbr, logLikelihood)
 }
 
-ScanGenes <- function(n, p, y, xl, xr, numSNPs, beta0, score0, w, wInv, yp0, zt0, k0, ql, rtl, abx, expabx, expabxp1, expitabx, yp, zt, k, bt, xrw1, beta1, score1, zb1, bb1, h1, rtr1, t1, qr1, rbr1, logLikelihood1, xrw2, beta2, score2, zb2, bb2, h2, rtr2, t2, qr2, rbr2, logLikelihood2, xr1, xr2, loglikelihoods, estimates) {
-    .Call('_GxEScanR_ScanGenes', PACKAGE = 'GxEScanR', n, p, y, xl, xr, numSNPs, beta0, score0, w, wInv, yp0, zt0, k0, ql, rtl, abx, expabx, expabxp1, expitabx, yp, zt, k, bt, xrw1, beta1, score1, zb1, bb1, h1, rtr1, t1, qr1, rbr1, logLikelihood1, xrw2, beta2, score2, zb2, bb2, h2, rtr2, t2, qr2, rbr2, logLikelihood2, xr1, xr2, loglikelihoods, estimates)
+ScanGenes <- function(n, p, y, xl, xr, numSNPs, minMAF, beta0, score0, w, wInv, yp0, zt0, k0, ql, rtl, abx, expabx, expabxp1, expitabx, yp, zt, k, bt, xrw1, beta1, score1, zb1, bb1, h1, rtr1, t1, qr1, rbr1, logLikelihood1, xrw2, beta2, score2, zb2, bb2, h2, rtr2, t2, qr2, rbr2, logLikelihood2, xr1, xr2, logLikelihood0, logLikelihoods, estimates) {
+    .Call('_GxEScanR_ScanGenes', PACKAGE = 'GxEScanR', n, p, y, xl, xr, numSNPs, minMAF, beta0, score0, w, wInv, yp0, zt0, k0, ql, rtl, abx, expabx, expabxp1, expitabx, yp, zt, k, bt, xrw1, beta1, score1, zb1, bb1, h1, rtr1, t1, qr1, rbr1, logLikelihood1, xrw2, beta2, score2, zb2, bb2, h2, rtr2, t2, qr2, rbr2, logLikelihood2, xr1, xr2, logLikelihood0, logLikelihoods, estimates)
 }
 
 GetLocations <- function(x, y, fileSize, bufferSize) {

@@ -3,6 +3,7 @@
 export(GetBinaryDosageInfo)
 export(GetBinaryDosageInformation)
 export(GetI2Info)
+export(GxEOnly)
 export(GxEScan)
 export(GxEScanC)
 export(GxEScanCSubset)
