@@ -45,7 +45,10 @@ GxEOnly <- function(subjectData, geneticData, outputFile, minMAF1 = 0.05, minMAF
   
   # This part of the routine preps the covariate and outcome data and fits the model without the gene
   ###########################################################
-  
+
+  # Standard deviation of the covariate in the interaction.
+  # Needed to adjust the beta estimate of the GxE term.
+  sigmaE = sqrt(var(subjectDataToUse[,ncol(subjectData)]))
   # Standardize the covariates
   x <- scale(as.matrix(subjectDataToUse[,3:ncol(subjectData)]))
   # Get the outcome
@@ -136,7 +139,7 @@ GxEOnly <- function(subjectData, geneticData, outputFile, minMAF1 = 0.05, minMAF
                                        p3gxe$h, p3gxe$rtr, p3gxe$t, p3gxe$qr, p3gxe$rbr, p3gxe$logLikelihood,
                                        xr1, xr2, p1$logLikelihood, loglikelihoods, estimates)
     GxEScanR:::AppendGxEResults(outputFile, snpID, chromosome, locations, refAllele, altAllele,
-                                numSub, numCases, loglikelihoods, estimates, length(firstSNP:lastSNP))
+                                numSub, numCases, loglikelihoods, estimates, length(firstSNP:lastSNP), sigmaE)
   }
   return (0)
 }

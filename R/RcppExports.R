@@ -175,8 +175,8 @@ OpenGxEOutFile <- function(filename) {
     .Call('_GxEScanR_OpenGxEOutFile', PACKAGE = 'GxEScanR', filename)
 }
 
-AppendGxEResults <- function(filename, snpID, chromosome, location, refAllele, altAllele, numSub, numCases, logLike, estimates, length) {
-    .Call('_GxEScanR_AppendGxEResults', PACKAGE = 'GxEScanR', filename, snpID, chromosome, location, refAllele, altAllele, numSub, numCases, logLike, estimates, length)
+AppendGxEResults <- function(filename, snpID, chromosome, location, refAllele, altAllele, numSub, numCases, logLike, estimates, length, sigmaE) {
+    .Call('_GxEScanR_AppendGxEResults', PACKAGE = 'GxEScanR', filename, snpID, chromosome, location, refAllele, altAllele, numSub, numCases, logLike, estimates, length, sigmaE)
 }
 
 InitializeLRMod <- function(numRow, numCol, y, xl, beta, score, w, wInv, yp, zt, k, ql, rtl, abx, expabx, expabxp1, expitabx, logLikelihood) {

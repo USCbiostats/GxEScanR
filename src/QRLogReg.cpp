@@ -17,7 +17,7 @@ int OpenGxEOutFile(std::string &filename) {
 // [[Rcpp::export]]
 int AppendGxEResults(std::string &filename, Rcpp::StringVector &snpID, Rcpp::StringVector &chromosome,
                      Rcpp::IntegerVector &location, Rcpp::StringVector &refAllele, Rcpp::StringVector &altAllele,
-                     int numSub, int numCases, arma::mat &logLike, arma::mat &estimates, int length) {
+                     int numSub, int numCases, arma::mat &logLike, arma::mat &estimates, int length, double sigmaE) {
   std::ofstream outfile;
   int i;
   
@@ -35,7 +35,7 @@ int AppendGxEResults(std::string &filename, Rcpp::StringVector &snpID, Rcpp::Str
             << altAllele[i] << '\t';
     outfile << numSub << '\t' << numCases << '\t';
     outfile << estimates(i, 0) << '\t' << logLike(i, 0) << '\t'
-            << estimates(i, 1) << '\t' << logLike(i, 1) << '\t'
+            << estimates(i, 1) / sigmaE << '\t' << logLike(i, 1) << '\t'
             << logLike(i, 2) << std::endl;
   }
   outfile.close();
