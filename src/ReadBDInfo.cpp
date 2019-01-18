@@ -141,6 +141,17 @@ int ReadSNP(Rcpp::IntegerVector &snpNumber, Rcpp::IntegerVector &subjectNumber,
   
   bptr = (char *)&buffer[0];
   fLoc = (long long *)&fileLocation[0];
+  Rcpp::Rcerr << "Reading SNPs" << std::endl;
+  Rcpp::Rcerr << "Buffer size:\t" << buffer.size() << '\t'
+              << "Buffersize:\t" << bufferSize << '\t'
+              << "SNP sections:\t" << snpSection.size() << '\t'
+              << "Current section:\t" << currentSection << '\t'
+              << "File Locations:\t" << fileLocation.size() << '\t'
+              << "Dosage size:\t" << dosage.size() << '\t'
+              << "p0 size:\t" << p0.size() << '\t'
+              << "p1 size:\t" << p1.size() << '\t'
+              << "p2 size:\t" << p2.size() << '\t'
+              << "values size:\t" << values.nrow() << '\t' << values.ncol() << std::endl;
   for (int i = 0; i < snpNumber.size(); ++i) {
     if (snpNumber[i] > numSNPs) {
       Rcpp::Rcerr << "Invalid SNP number" << std::endl;
@@ -165,7 +176,13 @@ int ReadSNP(Rcpp::IntegerVector &snpNumber, Rcpp::IntegerVector &subjectNumber,
       }
     }
     if (format[0] == 4 && format[1] == 2) {
-      ReadSNP42(bptr + snpLocation[snpNumber[i] - 1], numSub, dosage, p0, p1, p2);
+      try {
+        ReadSNP42(bptr + snpLocation[snpNumber[i] - 1], numSub, dosage, p0, p1, p2);
+      } catch (...) {
+        Rcpp::Rcerr << "Error in ReadSNP42" << std::endl;
+        infile.close();
+        return 1;
+      }
     } else {
       Rcpp::Rcerr << "Binary dosage format not supported" << std::endl;
       infile.close();
