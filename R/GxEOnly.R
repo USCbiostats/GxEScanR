@@ -71,9 +71,11 @@ GxEOnly <- function(subjectData, geneticData, outputFile, minMAF1 = 0.05, minMAF
   # Assign the betas from the glm results and assign the values
   # needed to fit the genes efficiently
   p1$beta <- rlr$coefficients
-  GxEScanR:::InitializeLRMod(p1$n, p1$p, y, x, p1$beta, p1$score, p1$w, p1$wInv, p1$yp, p1$zt, p1$k, p1$ql, p1$rtl,
-                             p2$abx, p2$expabx, p2$expabxp1, p2$expitabx, p1$logLikelihood)
-  
+  result <- GxEScanR:::InitializeLRMod(p1$n, p1$p, y, x, p1$beta, p1$score, p1$w, p1$wInv,
+                                       p1$yp, p1$zt, p1$k, p1$ql, p1$rtl,
+                                       p2$abx, p2$expabx, p2$expabxp1, p2$expitabx, p1$logLikelihood)
+  if (result == 1)
+    return (1)
   # Clear unused memory
   rm(rlrdf)
   rm(rlr)
@@ -138,6 +140,10 @@ GxEOnly <- function(subjectData, geneticData, outputFile, minMAF1 = 0.05, minMAF
                                        p3gxe$xrw, p3gxe$beta, p3gxe$score, p3gxe$zb, p3gxe$bb,
                                        p3gxe$h, p3gxe$rtr, p3gxe$t, p3gxe$qr, p3gxe$rbr, p3gxe$logLikelihood,
                                        xr1, xr2, p1$logLikelihood, loglikelihoods, estimates)
+    if (scanResult > 0) {
+      print(snpminmaf[firstSNP + scanResult - 1])
+      return (scanResult)
+    }
     GxEScanR:::AppendGxEResults(outputFile, snpID, chromosome, locations, refAllele, altAllele,
                                 numSub, numCases, loglikelihoods, estimates, length(firstSNP:lastSNP), sigmaE)
   }

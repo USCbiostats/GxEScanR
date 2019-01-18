@@ -56,10 +56,19 @@ int InitializeLRMod(int numRow, int numCol, arma::vec &y, arma::mat &xl,
   w = sqrt(expitabx % (1. - expitabx));
   wInv = 1. / w;
   xlw = xl.each_col() % w;
-  qr_econ(ql, rtl, xlw);
+  if (qr_econ(ql, rtl, xlw) == false) {
+    Rcpp::Rcerr << "Initialization QR decomposition failure" << std::endl;
+    return 1;
+  }
   yp = y - expitabx;
   zt = ql.t() * (yp % wInv);
-  k = solve(rtl, zt);
+  if (solve(k, rtl, zt)) {
+    Rcpp::Rcerr << "Initialization solve failure for k" << std::endl;
+    Rcpp::Rcerr << "k length\t" << k.n_elem << std::endl;
+    Rcpp::Rcerr << "rtl\n" << rtl << std::endl;
+    Rcpp::Rcerr << "zt\n" << zt << std::endl;
+    return 1;
+  }
   score = xl.t() * yp;
   logLikelihood[0] = sum(abx % y);
   logLikelihood[0] -= sum(log(expabxp1));
@@ -83,8 +92,20 @@ int FitLRMod(int n, int p, arma::vec &y, arma::mat &xl, arma::mat &xr,
   xrw = xr.each_col() % w;
   rtr = ql.t() * xrw;
   t = xrw - ql * rtr;
-  qr_econ(qr, rbr, t);
-  h = solve(rtl, rtr);
+  if (qr_econ(qr, rbr, t) == false) {
+    Rcpp::Rcerr << "Maximization QR failure" << std::endl;
+    Rcpp::Rcerr << "Q dimentions\t" << qr.n_rows << "\tx\t" << qr.n_cols << std::endl;
+    Rcpp::Rcerr << "R dimentions\t" << rbr.n_rows << "\tx\t" << rbr.n_cols << std::endl;
+    Rcpp::Rcerr << "T\n" << t << std::endl;
+    return 1;
+  }
+  if (solve(h, rtl, rtr) == false) {
+    Rcpp::Rcerr << "Maximization solve failure for h" << std::endl;
+    Rcpp::Rcerr << "h dimentions\t" << h.n_rows << "\tx\t" << h.n_cols << std::endl;
+    Rcpp::Rcerr << "rtl\n" << rtl << std::endl;
+    Rcpp::Rcerr << "rtr\n" << rtr << std::endl;
+    return 1;
+  }
   
   beta.zeros();
   beta.subvec(0, beta0.n_elem - 1) = beta0;
@@ -104,7 +125,13 @@ int FitLRMod(int n, int p, arma::vec &y, arma::mat &xl, arma::mat &xr,
   while (iterations < maxIterations) {
     // Update beta
     zb = qr.t() * yp;
-    bb = solve(rbr, zb);
+    if (solve(bb, rbr, zb)) {
+      Rcpp::Rcerr << "Maximization solve failure for bb" << std::endl;
+      Rcpp::Rcerr << "bb length\t" << bb.n_elem << std::endl;
+      Rcpp::Rcerr << "rbr\n" << rbr << std::endl;
+      Rcpp::Rcerr << "zb\n" << zb << std::endl;
+      return 1;
+    }
     bt = k - h * bb;
     beta.subvec(0, p - 1) += bt;
     beta.subvec(p, q - 1) += bb;
@@ -125,7 +152,13 @@ int FitLRMod(int n, int p, arma::vec &y, arma::mat &xl, arma::mat &xr,
     // Update the bits needed for the next iteration
     yp %= wInv;
     zt = ql.t() * yp;
-    k = solve(rtl, zt);
+    if (solve(k, rtl, zt) == false) {
+      Rcpp::Rcerr << "Maximization solve failure for k" << std::endl;
+      Rcpp::Rcerr << "k length\t" << k.n_elem << std::endl;
+      Rcpp::Rcerr << "rtl\n" << rtl << std::endl;
+      Rcpp::Rcerr << "zt\n" << zt << std::endl;
+      return 1;
+    }
     ++iterations;
   }
   logLikelihood[0] = sum(abx % y);
@@ -169,14 +202,16 @@ int ScanGenes(int n, int p, arma::vec &y, arma::mat &xl, arma::mat &xr, int numS
     xr2.submat(0, 0, n - 1, 0) = xr.submat(0, 4*i, n - 1, 4*i);
     xr2.submat(0, 1, n - 1, 1) = xr.submat(0, 4*i, n - 1, 4*i) % xl.submat(0, xl.n_cols - 1, n - 1, xl.n_cols - 1);
     
-    FitLRMod(n, p, y, xl, xr1,
-             beta0, score0, w, wInv, yp0, zt0, k0, ql, rtl,
-             abx, expabx, expabxp1, expitabx, yp, zt, k, bt,
-             xrw1, beta1, score1, zb1, bb1, h1, rtr1, t1, qr1, rbr1, logLikelihood1);
-    FitLRMod(n, p, y, xl, xr2,
-             beta0, score0, w, wInv, yp0, zt0, k0, ql, rtl,
-             abx, expabx, expabxp1, expitabx, yp, zt, k, bt,
-             xrw2, beta2, score2, zb2, bb2, h2, rtr2, t2, qr2, rbr2, logLikelihood2);
+    if (FitLRMod(n, p, y, xl, xr1,
+                 beta0, score0, w, wInv, yp0, zt0, k0, ql, rtl,
+                 abx, expabx, expabxp1, expitabx, yp, zt, k, bt,
+                 xrw1, beta1, score1, zb1, bb1, h1, rtr1, t1, qr1, rbr1, logLikelihood1) != 0)
+      return i + 1;
+    if (FitLRMod(n, p, y, xl, xr2,
+                 beta0, score0, w, wInv, yp0, zt0, k0, ql, rtl,
+                 abx, expabx, expabxp1, expitabx, yp, zt, k, bt,
+                 xrw2, beta2, score2, zb2, bb2, h2, rtr2, t2, qr2, rbr2, logLikelihood2) != 0)
+      return i + 1;
     logLikelihoods(i, 0) = 2 * (logLikelihood1[0] - logLikelihood0[0]);
     estimates(i, 0) = beta1(p);
     logLikelihoods(i, 1) = 2 * (logLikelihood2[0] - logLikelihood1[0]);
