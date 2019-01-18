@@ -87,82 +87,87 @@ int FitLRMod(int n, int p, arma::vec &y, arma::mat &xl, arma::mat &xr,
   int iterations;
   int q;
 
-  q = p + xr.n_cols;
-  
-  xrw = xr.each_col() % w;
-  rtr = ql.t() * xrw;
-  t = xrw - ql * rtr;
-  if (qr_econ(qr, rbr, t) == false) {
-    Rcpp::Rcerr << "Maximization QR failure" << std::endl;
-    Rcpp::Rcerr << "Q dimentions\t" << qr.n_rows << "\tx\t" << qr.n_cols << std::endl;
-    Rcpp::Rcerr << "R dimentions\t" << rbr.n_rows << "\tx\t" << rbr.n_cols << std::endl;
-    Rcpp::Rcerr << "T\n" << t << std::endl;
-    return 1;
-  }
-  if (solve(h, rtl, rtr) == false) {
-    Rcpp::Rcerr << "Maximization solve failure for h" << std::endl;
-    Rcpp::Rcerr << "h dimentions\t" << h.n_rows << "\tx\t" << h.n_cols << std::endl;
-    Rcpp::Rcerr << "rtl\n" << rtl << std::endl;
-    Rcpp::Rcerr << "rtr\n" << rtr << std::endl;
-    return 1;
-  }
-  
-  beta.zeros();
-  beta.subvec(0, beta0.n_elem - 1) = beta0;
-
-  yp = yp0;
-  score.subvec(0, score0.n_elem - 1) = score0;
-  score.subvec(p, q - 1) = xr.t() * yp;
-//  Rcpp::Rcout << max(abs(score)) << std::endl;
-  // Check for convergence
-  if (max(abs(score)) < 1e-6)
-    return 0;
-  yp %= wInv;
-  zt = zt0;
-  k = k0;
-
-  iterations = 0;
-  while (iterations < maxIterations) {
-    // Update beta
-    zb = qr.t() * yp;
-    if (solve(bb, rbr, zb) == false) {
-      Rcpp::Rcerr << "Maximization solve failure for bb" << std::endl;
-      Rcpp::Rcerr << "bb length\t" << bb.n_elem << std::endl;
-      Rcpp::Rcerr << "rbr\n" << rbr << std::endl;
-      Rcpp::Rcerr << "zb\n" << zb << std::endl;
+  try {
+    q = p + xr.n_cols;
+    
+    xrw = xr.each_col() % w;
+    rtr = ql.t() * xrw;
+    t = xrw - ql * rtr;
+    if (qr_econ(qr, rbr, t) == false) {
+      Rcpp::Rcerr << "Maximization QR failure" << std::endl;
+      Rcpp::Rcerr << "Q dimentions\t" << qr.n_rows << "\tx\t" << qr.n_cols << std::endl;
+      Rcpp::Rcerr << "R dimentions\t" << rbr.n_rows << "\tx\t" << rbr.n_cols << std::endl;
+      Rcpp::Rcerr << "T\n" << t << std::endl;
       return 1;
     }
-    bt = k - h * bb;
-    beta.subvec(0, p - 1) += bt;
-    beta.subvec(p, q - 1) += bb;
+    if (solve(h, rtl, rtr) == false) {
+      Rcpp::Rcerr << "Maximization solve failure for h" << std::endl;
+      Rcpp::Rcerr << "h dimentions\t" << h.n_rows << "\tx\t" << h.n_cols << std::endl;
+      Rcpp::Rcerr << "rtl\n" << rtl << std::endl;
+      Rcpp::Rcerr << "rtr\n" << rtr << std::endl;
+      return 1;
+    }
     
-    // Calculate the score
-    abx = xl * beta.subvec(0, p - 1) + xr * beta.subvec(p, q - 1);  
-    expabx = exp(abx);
-    expabxp1 = expabx + 1.;
-    expitabx = expabx / expabxp1;
-    yp = y - expitabx;
-    score.subvec(0, p - 1) = xl.t() * yp;
+    beta.zeros();
+    beta.subvec(0, beta0.n_elem - 1) = beta0;
+    
+    yp = yp0;
+    score.subvec(0, score0.n_elem - 1) = score0;
     score.subvec(p, q - 1) = xr.t() * yp;
-//    Rcpp::Rcout << max(abs(score)) << std::endl;
+    //  Rcpp::Rcout << max(abs(score)) << std::endl;
     // Check for convergence
     if (max(abs(score)) < 1e-6)
-      break;
-    
-    // Update the bits needed for the next iteration
+      return 0;
     yp %= wInv;
-    zt = ql.t() * yp;
-    if (solve(k, rtl, zt) == false) {
-      Rcpp::Rcerr << "Maximization solve failure for k" << std::endl;
-      Rcpp::Rcerr << "k length\t" << k.n_elem << std::endl;
-      Rcpp::Rcerr << "rtl\n" << rtl << std::endl;
-      Rcpp::Rcerr << "zt\n" << zt << std::endl;
-      return 1;
+    zt = zt0;
+    k = k0;
+    
+    iterations = 0;
+    while (iterations < maxIterations) {
+      // Update beta
+      zb = qr.t() * yp;
+      if (solve(bb, rbr, zb) == false) {
+        Rcpp::Rcerr << "Maximization solve failure for bb" << std::endl;
+        Rcpp::Rcerr << "bb length\t" << bb.n_elem << std::endl;
+        Rcpp::Rcerr << "rbr\n" << rbr << std::endl;
+        Rcpp::Rcerr << "zb\n" << zb << std::endl;
+        return 1;
+      }
+      bt = k - h * bb;
+      beta.subvec(0, p - 1) += bt;
+      beta.subvec(p, q - 1) += bb;
+      
+      // Calculate the score
+      abx = xl * beta.subvec(0, p - 1) + xr * beta.subvec(p, q - 1);  
+      expabx = exp(abx);
+      expabxp1 = expabx + 1.;
+      expitabx = expabx / expabxp1;
+      yp = y - expitabx;
+      score.subvec(0, p - 1) = xl.t() * yp;
+      score.subvec(p, q - 1) = xr.t() * yp;
+      //    Rcpp::Rcout << max(abs(score)) << std::endl;
+      // Check for convergence
+      if (max(abs(score)) < 1e-6)
+        break;
+      
+      // Update the bits needed for the next iteration
+      yp %= wInv;
+      zt = ql.t() * yp;
+      if (solve(k, rtl, zt) == false) {
+        Rcpp::Rcerr << "Maximization solve failure for k" << std::endl;
+        Rcpp::Rcerr << "k length\t" << k.n_elem << std::endl;
+        Rcpp::Rcerr << "rtl\n" << rtl << std::endl;
+        Rcpp::Rcerr << "zt\n" << zt << std::endl;
+        return 1;
+      }
+      ++iterations;
     }
-    ++iterations;
+    logLikelihood[0] = sum(abx % y);
+    logLikelihood[0] -= sum(log(expabxp1));
+  } catch (...) {
+    Rcpp::Rcerr << "Error caught in FItLRMod" << std::endl;
+    return 1;
   }
-  logLikelihood[0] = sum(abx % y);
-  logLikelihood[0] -= sum(log(expabxp1));
 //  Rcpp::Rcout << std::setprecision(10) << sum(abx % y) << '\t' << std::setprecision(10) << sum(log(expabxp1)) << std::endl;
 //  Rcpp::Rcout << std::setprecision(10) << logLikelihood[0] << std::endl;
 //  Rcpp::Rcout << min(abs(log(expabxp1))) << '\t' << max(abs(log(expabxp1))) << std::endl;
@@ -180,44 +185,48 @@ int ScanGenes(int n, int p, arma::vec &y, arma::mat &xl, arma::mat &xr, int numS
               arma::mat &xrw2, arma::vec &beta2, arma::vec &score2, arma::vec &zb2, arma::vec &bb2,
               arma::mat &h2, arma::mat &rtr2, arma::mat &t2, arma::mat &qr2, arma::mat &rbr2, arma::vec &logLikelihood2,
               arma::mat &xr1, arma::mat &xr2, arma::vec logLikelihood0, arma::mat &logLikelihoods, arma::mat &estimates) {
-  int i;
+  int i = 0;
   double maf;
   
 //  Rcpp::Rcout << "Entering" << std::endl;
-
-  for (i = 0; i < numSNPs; ++i) {
-//    Rcpp::Rcout << i << '\t';
-    xr1.submat(0, 0, n - 1, 0) = xr.submat(0, 4*i, n - 1, 4*i);
-    maf = mean(xr1.col(0)) / 2.;
-    if (maf < minMAF || (1. - maf) < minMAF) {
-//      Rcpp::Rcout << "Skipping\t" << i << "\tMAF\t" << maf << '\t' << minMAF << std::endl;
-      logLikelihoods(i,0) = NA_REAL;
-      logLikelihoods(i,1) = NA_REAL;
-      logLikelihoods(i,2) = NA_REAL;
-      estimates(i, 0) = NA_REAL;
-      estimates(i, 1) = NA_REAL;
-      continue;
-    }
-    
-    xr2.submat(0, 0, n - 1, 0) = xr.submat(0, 4*i, n - 1, 4*i);
-    xr2.submat(0, 1, n - 1, 1) = xr.submat(0, 4*i, n - 1, 4*i) % xl.submat(0, xl.n_cols - 1, n - 1, xl.n_cols - 1);
-    
-    if (FitLRMod(n, p, y, xl, xr1,
-                 beta0, score0, w, wInv, yp0, zt0, k0, ql, rtl,
-                 abx, expabx, expabxp1, expitabx, yp, zt, k, bt,
-                 xrw1, beta1, score1, zb1, bb1, h1, rtr1, t1, qr1, rbr1, logLikelihood1) != 0)
-      return i + 1;
-    if (FitLRMod(n, p, y, xl, xr2,
-                 beta0, score0, w, wInv, yp0, zt0, k0, ql, rtl,
-                 abx, expabx, expabxp1, expitabx, yp, zt, k, bt,
-                 xrw2, beta2, score2, zb2, bb2, h2, rtr2, t2, qr2, rbr2, logLikelihood2) != 0)
-      return i + 1;
-    logLikelihoods(i, 0) = 2 * (logLikelihood1[0] - logLikelihood0[0]);
-    estimates(i, 0) = beta1(p);
-    logLikelihoods(i, 1) = 2 * (logLikelihood2[0] - logLikelihood1[0]);
-    estimates(i, 1) = beta2(p + 1);
-    logLikelihoods(i, 2) = 2 * (logLikelihood2[0] - logLikelihood0[0]);
-  }  
+  try {
+    for (i = 0; i < numSNPs; ++i) {
+      Rcpp::Rcerr << i << std::endl;
+      xr1.submat(0, 0, n - 1, 0) = xr.submat(0, 4*i, n - 1, 4*i);
+      maf = mean(xr1.col(0)) / 2.;
+      if (maf < minMAF || (1. - maf) < minMAF) {
+        //      Rcpp::Rcout << "Skipping\t" << i << "\tMAF\t" << maf << '\t' << minMAF << std::endl;
+        logLikelihoods(i,0) = NA_REAL;
+        logLikelihoods(i,1) = NA_REAL;
+        logLikelihoods(i,2) = NA_REAL;
+        estimates(i, 0) = NA_REAL;
+        estimates(i, 1) = NA_REAL;
+        continue;
+      }
+      
+      xr2.submat(0, 0, n - 1, 0) = xr.submat(0, 4*i, n - 1, 4*i);
+      xr2.submat(0, 1, n - 1, 1) = xr.submat(0, 4*i, n - 1, 4*i) % xl.submat(0, xl.n_cols - 1, n - 1, xl.n_cols - 1);
+      
+      if (FitLRMod(n, p, y, xl, xr1,
+                   beta0, score0, w, wInv, yp0, zt0, k0, ql, rtl,
+                   abx, expabx, expabxp1, expitabx, yp, zt, k, bt,
+                   xrw1, beta1, score1, zb1, bb1, h1, rtr1, t1, qr1, rbr1, logLikelihood1) != 0)
+        return i + 1;
+      if (FitLRMod(n, p, y, xl, xr2,
+                   beta0, score0, w, wInv, yp0, zt0, k0, ql, rtl,
+                   abx, expabx, expabxp1, expitabx, yp, zt, k, bt,
+                   xrw2, beta2, score2, zb2, bb2, h2, rtr2, t2, qr2, rbr2, logLikelihood2) != 0)
+        return i + 1;
+      logLikelihoods(i, 0) = 2 * (logLikelihood1[0] - logLikelihood0[0]);
+      estimates(i, 0) = beta1(p);
+      logLikelihoods(i, 1) = 2 * (logLikelihood2[0] - logLikelihood1[0]);
+      estimates(i, 1) = beta2(p + 1);
+      logLikelihoods(i, 2) = 2 * (logLikelihood2[0] - logLikelihood0[0]);
+    }  
+  } catch (...) {
+    Rcpp::Rcerr << "Error caught in ScanGenes" << std::endl;
+    return i + 1;
+  }
 //  Rcpp::Rcout << "Exiting" << std::endl;
   return 0;
 }
