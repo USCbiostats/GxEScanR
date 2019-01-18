@@ -141,17 +141,17 @@ int ReadSNP(Rcpp::IntegerVector &snpNumber, Rcpp::IntegerVector &subjectNumber,
   
   bptr = (char *)&buffer[0];
   fLoc = (long long *)&fileLocation[0];
-  Rcpp::Rcerr << "Reading SNPs" << std::endl;
-  Rcpp::Rcerr << "Buffer size:\t" << buffer.size() << '\t'
-              << "Buffersize:\t" << bufferSize << '\t'
-              << "SNP sections:\t" << snpSection.size() << '\t'
-              << "Current section:\t" << currentSection << '\t'
-              << "File Locations:\t" << fileLocation.size() << '\t'
-              << "Dosage size:\t" << dosage.size() << '\t'
-              << "p0 size:\t" << p0.size() << '\t'
-              << "p1 size:\t" << p1.size() << '\t'
-              << "p2 size:\t" << p2.size() << '\t'
-              << "values size:\t" << values.nrow() << '\t' << values.ncol() << std::endl;
+//  Rcpp::Rcerr << "Reading SNPs" << std::endl;
+//  Rcpp::Rcerr << "Buffer size:\t" << buffer.size() << '\t'
+//              << "Buffersize:\t" << bufferSize << '\t'
+//              << "SNP sections:\t" << snpSection.size() << '\t'
+//              << "Current section:\t" << currentSection << '\t'
+//              << "File Locations:\t" << fileLocation.size() << '\t'
+//              << "Dosage size:\t" << dosage.size() << '\t'
+//              << "p0 size:\t" << p0.size() << '\t'
+//              << "p1 size:\t" << p1.size() << '\t'
+//              << "p2 size:\t" << p2.size() << '\t'
+//              << "values size:\t" << values.nrow() << '\t' << values.ncol() << std::endl;
   for (int i = 0; i < snpNumber.size(); ++i) {
     if (snpNumber[i] > numSNPs) {
       Rcpp::Rcerr << "Invalid SNP number" << std::endl;
@@ -165,6 +165,9 @@ int ReadSNP(Rcpp::IntegerVector &snpNumber, Rcpp::IntegerVector &subjectNumber,
           return 1;
         }
       }
+      Rcpp::Rcerr << "Reading from section:\t" << snpSection[snpNumber[i] - 1] << '\t'
+                  << "Start:\t" << fLoc[snpSection[snpNumber[i]]] << '\t'
+                  << "Size:\t" << fLoc[snpSection[snpNumber[i] - 1] + 1] - fLoc[snpSection[snpNumber[i] - 1]] << std::endl;
       infile.seekg(fLoc[snpSection[snpNumber[i]]]);
       infile.read((char *)&buffer[0], fLoc[snpSection[snpNumber[i] - 1] + 1] - fLoc[snpSection[snpNumber[i] - 1]]);
       if (infile.fail()) {
@@ -174,6 +177,7 @@ int ReadSNP(Rcpp::IntegerVector &snpNumber, Rcpp::IntegerVector &subjectNumber,
         infile.close();
         return 1;
       }
+      currentSection = snpSection[snpNumber[i] - 1];
     }
     if (format[0] == 4 && format[1] == 2) {
       try {
