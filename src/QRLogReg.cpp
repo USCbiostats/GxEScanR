@@ -62,7 +62,7 @@ int InitializeLRMod(int numRow, int numCol, arma::vec &y, arma::mat &xl,
   }
   yp = y - expitabx;
   zt = ql.t() * (yp % wInv);
-  if (solve(k, rtl, zt)) {
+  if (solve(k, rtl, zt) == false) {
     Rcpp::Rcerr << "Initialization solve failure for k" << std::endl;
     Rcpp::Rcerr << "k length\t" << k.n_elem << std::endl;
     Rcpp::Rcerr << "rtl\n" << rtl << std::endl;
@@ -125,7 +125,7 @@ int FitLRMod(int n, int p, arma::vec &y, arma::mat &xl, arma::mat &xr,
   while (iterations < maxIterations) {
     // Update beta
     zb = qr.t() * yp;
-    if (solve(bb, rbr, zb)) {
+    if (solve(bb, rbr, zb) == false) {
       Rcpp::Rcerr << "Maximization solve failure for bb" << std::endl;
       Rcpp::Rcerr << "bb length\t" << bb.n_elem << std::endl;
       Rcpp::Rcerr << "rbr\n" << rbr << std::endl;
