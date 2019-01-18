@@ -120,10 +120,15 @@ GxEOnly <- function(subjectData, geneticData, outputFile, minMAF1 = 0.05, minMAF
     lastSNP = min(firstSNP + 99, length(snpminmaf))
     # print(lastSNP)
     # Read in 100 SNPs
-    GxEScanR:::ReadSNP(snpminmaf[firstSNP:lastSNP], 1L:length(SubjectToGene), readInfo$filename, readInfo$format, readInfo$numSub, readInfo$numSNPs,
-                       readInfo$bufferSize, readInfo$buffer, readInfo$sections, readInfo$snpSection,
-                       readInfo$fileLocation, readInfo$snpLocation, readInfo$currentSection,
-                       readInfo$dosage, readInfo$p0, readInfo$p1, readInfo$p2, snpSet)
+    readResult <- GxEScanR:::ReadSNP(snpminmaf[firstSNP:lastSNP], 1L:length(SubjectToGene), readInfo$filename, readInfo$format, readInfo$numSub, readInfo$numSNPs,
+                                     readInfo$bufferSize, readInfo$buffer, readInfo$sections, readInfo$snpSection,
+                                     readInfo$fileLocation, readInfo$snpLocation, readInfo$currentSection,
+                                     readInfo$dosage, readInfo$p0, readInfo$p1, readInfo$p2, snpSet)
+    if (readResult == 1) {
+      print("Error reading SNP group")
+      print(i)
+      return (i)
+    }
     snpID[1:length(firstSNP:lastSNP)] <- geneticData$SNPs$SNPID[snpminmaf[firstSNP:lastSNP]]
     chromosome[1:length(firstSNP:lastSNP)] <- geneticData$SNPs$Chromosome[snpminmaf[firstSNP:lastSNP]]
     locations[1:length(firstSNP:lastSNP)] <- geneticData$SNPs$Location[snpminmaf[firstSNP:lastSNP]]
@@ -141,6 +146,7 @@ GxEOnly <- function(subjectData, geneticData, outputFile, minMAF1 = 0.05, minMAF
                                        p3gxe$h, p3gxe$rtr, p3gxe$t, p3gxe$qr, p3gxe$rbr, p3gxe$logLikelihood,
                                        xr1, xr2, p1$logLikelihood, loglikelihoods, estimates)
     if (scanResult > 0) {
+      print("Error maximizing for SNP")
       print(snpminmaf[firstSNP + scanResult - 1])
       return (scanResult)
     }

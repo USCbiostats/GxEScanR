@@ -191,7 +191,7 @@ int ScanGenes(int n, int p, arma::vec &y, arma::mat &xl, arma::mat &xr, int numS
 //  Rcpp::Rcout << "Entering" << std::endl;
   try {
     for (i = 0; i < numSNPs; ++i) {
-      Rcpp::Rcerr << i << std::endl;
+//      Rcpp::Rcerr << i << std::endl;
       xr1.submat(0, 0, n - 1, 0) = xr.submat(0, 4*i, n - 1, 4*i);
       maf = mean(xr1.col(0)) / 2.;
       if (maf < minMAF || (1. - maf) < minMAF) {

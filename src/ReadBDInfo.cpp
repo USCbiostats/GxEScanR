@@ -142,21 +142,32 @@ int ReadSNP(Rcpp::IntegerVector &snpNumber, Rcpp::IntegerVector &subjectNumber,
   bptr = (char *)&buffer[0];
   fLoc = (long long *)&fileLocation[0];
   for (int i = 0; i < snpNumber.size(); ++i) {
-    if (snpNumber[i] > numSNPs)
+    if (snpNumber[i] > numSNPs) {
+      Rcpp::Rcerr << "Invalid SNP number" << std::endl;
       return 1;
+    }
     if (snpSection[snpNumber[i] - 1] != currentSection) {
       if (!infile.is_open()) {
         infile.open(filename.c_str(), std::ios_base::in | std::ios_base::binary);
-        if (!infile.good())
+        if (!infile.good()) {
+          Rcpp::Rcerr << "Error opeing binary dosage file " << filename << std::endl;
           return 1;
+        }
+      }
+      infile.seekg(fLoc[snpSection[snpNumber[i]]]);
+      infile.read((char *)&buffer[0], fLoc[snpSection[snpNumber[i] - 1] + 1] - fLoc[snpSection[snpNumber[i] - 1]]);
+      if (infile.fail()) {
+        Rcpp::Rcerr << "Error reading from file" << std::endl
+                    << "Start:\t" << fLoc[snpSection[snpNumber[i]]] << std::endl
+                    << "Size:\t" << fLoc[snpSection[snpNumber[i] - 1] + 1] - fLoc[snpSection[snpNumber[i] - 1]] << std::endl;
+        infile.close();
+        return 1;
       }
     }
-    infile.seekg(fLoc[snpSection[snpNumber[i]]]);
-    //    Rcpp::Rcout << "Size to read in\t" << fLoc[snpSection[snpNumber[i]] + 1] - fLoc[snpSection[snpNumber[i]]] << std::endl;
-    infile.read((char *)&buffer[0], fLoc[snpSection[snpNumber[i] - 1] + 1] - fLoc[snpSection[snpNumber[i] - 1]]);
     if (format[0] == 4 && format[1] == 2) {
       ReadSNP42(bptr + snpLocation[snpNumber[i] - 1], numSub, dosage, p0, p1, p2);
     } else {
+      Rcpp::Rcerr << "Binary dosage format not supported" << std::endl;
       infile.close();
       return 1;
     }
