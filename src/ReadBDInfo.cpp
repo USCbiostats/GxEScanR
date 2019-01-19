@@ -131,7 +131,7 @@ int ReadSNP(Rcpp::IntegerVector &snpNumber, Rcpp::IntegerVector &subjectNumber,
             std::string &filename, Rcpp::IntegerVector &format,
             int numSub, int numSNPs, int bufferSize, Rcpp::IntegerVector &buffer,
             int sections, Rcpp::IntegerVector &snpSection, Rcpp::NumericVector &fileLocation,
-            Rcpp::IntegerVector &snpLocation, int currentSection, Rcpp::NumericVector &dosage,
+            Rcpp::IntegerVector &snpLocation, Rcpp::IntegerVector &currentSection, Rcpp::NumericVector &dosage,
             Rcpp::NumericVector &p0, Rcpp::NumericVector &p1, Rcpp::NumericVector &p2,
             Rcpp::NumericMatrix &values) {
   
@@ -157,7 +157,7 @@ int ReadSNP(Rcpp::IntegerVector &snpNumber, Rcpp::IntegerVector &subjectNumber,
       Rcpp::Rcerr << "Invalid SNP number" << std::endl;
       return 1;
     }
-    if (snpSection[snpNumber[i] - 1] != currentSection) {
+    if (snpSection[snpNumber[i] - 1] != currentSection[0]) {
       if (!infile.is_open()) {
         infile.open(filename.c_str(), std::ios_base::in | std::ios_base::binary);
         if (!infile.good()) {
@@ -177,7 +177,7 @@ int ReadSNP(Rcpp::IntegerVector &snpNumber, Rcpp::IntegerVector &subjectNumber,
         infile.close();
         return 1;
       }
-      currentSection = snpSection[snpNumber[i] - 1];
+      currentSection[0] = snpSection[snpNumber[i] - 1];
     }
     if (format[0] == 4 && format[1] == 2) {
       try {

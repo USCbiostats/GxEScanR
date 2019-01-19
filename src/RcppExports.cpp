@@ -321,7 +321,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // ReadSNP
-int ReadSNP(Rcpp::IntegerVector& snpNumber, Rcpp::IntegerVector& subjectNumber, std::string& filename, Rcpp::IntegerVector& format, int numSub, int numSNPs, int bufferSize, Rcpp::IntegerVector& buffer, int sections, Rcpp::IntegerVector& snpSection, Rcpp::NumericVector& fileLocation, Rcpp::IntegerVector& snpLocation, int currentSection, Rcpp::NumericVector& dosage, Rcpp::NumericVector& p0, Rcpp::NumericVector& p1, Rcpp::NumericVector& p2, Rcpp::NumericMatrix& values);
+int ReadSNP(Rcpp::IntegerVector& snpNumber, Rcpp::IntegerVector& subjectNumber, std::string& filename, Rcpp::IntegerVector& format, int numSub, int numSNPs, int bufferSize, Rcpp::IntegerVector& buffer, int sections, Rcpp::IntegerVector& snpSection, Rcpp::NumericVector& fileLocation, Rcpp::IntegerVector& snpLocation, Rcpp::IntegerVector& currentSection, Rcpp::NumericVector& dosage, Rcpp::NumericVector& p0, Rcpp::NumericVector& p1, Rcpp::NumericVector& p2, Rcpp::NumericMatrix& values);
 RcppExport SEXP _GxEScanR_ReadSNP(SEXP snpNumberSEXP, SEXP subjectNumberSEXP, SEXP filenameSEXP, SEXP formatSEXP, SEXP numSubSEXP, SEXP numSNPsSEXP, SEXP bufferSizeSEXP, SEXP bufferSEXP, SEXP sectionsSEXP, SEXP snpSectionSEXP, SEXP fileLocationSEXP, SEXP snpLocationSEXP, SEXP currentSectionSEXP, SEXP dosageSEXP, SEXP p0SEXP, SEXP p1SEXP, SEXP p2SEXP, SEXP valuesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -338,7 +338,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Rcpp::IntegerVector& >::type snpSection(snpSectionSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericVector& >::type fileLocation(fileLocationSEXP);
     Rcpp::traits::input_parameter< Rcpp::IntegerVector& >::type snpLocation(snpLocationSEXP);
-    Rcpp::traits::input_parameter< int >::type currentSection(currentSectionSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector& >::type currentSection(currentSectionSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericVector& >::type dosage(dosageSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericVector& >::type p0(p0SEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericVector& >::type p1(p1SEXP);
