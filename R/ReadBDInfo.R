@@ -18,7 +18,7 @@ ReadBDInfo <- function(bdInfo) {
   fileLocation <- numeric(sections + 1)
   snpLocation <- integer(numSNPs)
   GetSections(locations, snpSection, fileLocation, snpLocation, bufferSize)
-  currectSection <- integer(1)
+  currentSection <- integer(1)
   currentSection[1] <- -1L
   dosage <- numeric(numSub)
   p0 <- numeric(numSub)
