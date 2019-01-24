@@ -3,11 +3,11 @@
 #include "Rcpp.h"
 
 // [[Rcpp::export]]
-int GetLocations(Rcpp::IntegerVector x, Rcpp::NumericVector y, double fileSize, int bufferSize) {
+int GetLocations(Rcpp::IntegerVector &x, Rcpp::NumericVector &y, double fileSize, Rcpp::IntegerVector &bufferSize) {
   int *xi;
   long long *loc;
   long long currentSectionStart;
-  long long bufSize = bufferSize;
+  long long bufSize = bufferSize[0];
   int numSections;
   
   xi = &x[0];
@@ -35,24 +35,22 @@ int GetLocations(Rcpp::IntegerVector x, Rcpp::NumericVector y, double fileSize, 
 }
 
 // [[Rcpp::export]]
-int WriteLocations(Rcpp::NumericVector y) {
+int WriteLocations(Rcpp::NumericVector &y, Rcpp::IntegerVector &x) {
   long long *loc;
   
   loc = (long long *)&y[0];
-  for (int i = 0; i < 5; ++i, ++loc)
-    Rcpp::Rcout << *loc << '\t';
-  loc = (long long *)&y[0];
-  Rcpp::Rcout << std::endl
-              << *(loc + y.size() - 5) << '\t' << *(loc + y.size() - 4) << '\t'
-              << *(loc + y.size() - 3) << '\t' << *(loc + y.size() - 2) << '\t' <<  *(loc + y.size() - 1) << std::endl;
+  for (int i = 0; i < x.length(); ++i) {
+    Rcpp::Rcout << loc[x[i]] << '\t';
+  }
+  Rcpp::Rcout << std::endl;
   return 0;
 }
 
 // [[Rcpp::export]]
-int GetSections(Rcpp::NumericVector y, Rcpp::IntegerVector snpSection, Rcpp::NumericVector fileLocation, Rcpp::IntegerVector snpLocation, int bufferSize) {
+int GetSections(Rcpp::NumericVector &y, Rcpp::IntegerVector &snpSection, Rcpp::NumericVector &fileLocation, Rcpp::IntegerVector &snpLocation, Rcpp::IntegerVector &bufferSize) {
   long long *loc, *fileLoc;
   long long currentSectionStart;
-  long long bufSize = bufferSize;
+  long long bufSize = bufferSize[0];
   int *snpSec, *snpLoc;
   int currentSection;
   

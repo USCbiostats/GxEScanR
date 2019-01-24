@@ -195,8 +195,8 @@ GetLocations <- function(x, y, fileSize, bufferSize) {
     .Call('_GxEScanR_GetLocations', PACKAGE = 'GxEScanR', x, y, fileSize, bufferSize)
 }
 
-WriteLocations <- function(y) {
-    .Call('_GxEScanR_WriteLocations', PACKAGE = 'GxEScanR', y)
+WriteLocations <- function(y, x) {
+    .Call('_GxEScanR_WriteLocations', PACKAGE = 'GxEScanR', y, x)
 }
 
 GetSections <- function(y, snpSection, fileLocation, snpLocation, bufferSize) {

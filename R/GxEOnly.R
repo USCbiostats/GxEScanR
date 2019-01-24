@@ -116,8 +116,8 @@ GxEOnly <- function(subjectData, geneticData, outputFile, minMAF1 = 0.05, minMAF
   # Loop over the groups of SNPs
   GxEScanR:::OpenGxEOutFile(outputFile)
   for (i in 1:numGroups) {
-    firstSNP = (i - 1) * 100 + 1
-    lastSNP = min(firstSNP + 99, length(snpminmaf))
+    firstSNP <- (i - 1) * 100 + 1
+    lastSNP <- min(firstSNP + 99, length(snpminmaf))
     # print(lastSNP)
     # Read in 100 SNPs
     readResult <- GxEScanR:::ReadSNP(snpminmaf[firstSNP:lastSNP], 1L:length(SubjectToGene), readInfo$filename, readInfo$format, readInfo$numSub, readInfo$numSNPs,

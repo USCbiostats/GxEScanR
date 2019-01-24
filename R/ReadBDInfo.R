@@ -9,9 +9,10 @@ ReadBDInfo <- function(bdInfo) {
   numSNPs <- bdInfo$NumSNPs
   bufferSize <- integer(1)
   bufferSize <- 100000001L
-  buffer <- integer(bufferSize / 4)
+  buffer <- integer((bufferSize / 4) + 1)
   sections <- integer(1)
   filesize <- file.info(filename)$size
+#  filesize <- 264829483501
   locations <- numeric(numSNPs + 1)
   sections <- GetLocations(bdInfo$Indices, locations, filesize, bufferSize)
   snpSection <- integer(numSNPs)
