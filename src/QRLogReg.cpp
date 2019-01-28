@@ -201,6 +201,11 @@ int ScanGenes(int n, int p, arma::vec &y, arma::mat &xl, arma::mat &xr, int numS
         logLikelihoods(i,2) = NA_REAL;
         estimates(i, 0) = NA_REAL;
         estimates(i, 1) = NA_REAL;
+//        logLikelihoods(i,0) = -maf;
+//        logLikelihoods(i,1) = 0.;
+//        logLikelihoods(i,2) = 0.;
+//        estimates(i, 0) = 0.;
+//        estimates(i, 1) = 0.;
         continue;
       }
       

@@ -120,7 +120,7 @@ GxEOnly <- function(subjectData, geneticData, outputFile, minMAF1 = 0.05, minMAF
     lastSNP <- min(firstSNP + 99, length(snpminmaf))
     # print(lastSNP)
     # Read in 100 SNPs
-    readResult <- GxEScanR:::ReadSNP(snpminmaf[firstSNP:lastSNP], 1L:length(SubjectToGene), readInfo$filename, readInfo$format, readInfo$numSub, readInfo$numSNPs,
+    readResult <- GxEScanR:::ReadSNP(snpminmaf[firstSNP:lastSNP], SubjectToGene, readInfo$filename, readInfo$format, readInfo$numSub, readInfo$numSNPs,
                                      readInfo$bufferSize, readInfo$buffer, readInfo$sections, readInfo$snpSection,
                                      readInfo$fileLocation, readInfo$snpLocation, readInfo$currentSection,
                                      readInfo$dosage, readInfo$p0, readInfo$p1, readInfo$p2, snpSet)

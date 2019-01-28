@@ -113,8 +113,8 @@ int ReadSNP42(char *bptr, int numSub, Rcpp::NumericVector &dosage, Rcpp::Numeric
       *pd = *ud / 10000.;
       if (*pd > 1.) {
         *pp0 = 0.;
-        *pp1 = *pd - 1.;
-        *pp2 = 1. - *pp1;
+        *pp2 = *pd - 1.;
+        *pp1 = 1. - *pp2;
       } else {
         *pp1 = *pd;
         *pp0 = 1. - *pp1;
@@ -164,13 +164,20 @@ int ReadSNP(Rcpp::IntegerVector &snpNumber, Rcpp::IntegerVector &subjectNumber,
         }
       }
       Rcpp::Rcerr << "Reading from section:\t" << snpSection[snpNumber[i] - 1] << '\t'
-                  << "Start:\t" << fLoc[snpSection[snpNumber[i]]] << '\t'
+                  << "SNP:\t" << snpNumber[i] << '\t'
+                  << "Start:\t" << fLoc[snpSection[snpNumber[i] - 1]] << '\t'
                   << "Size:\t" << fLoc[snpSection[snpNumber[i] - 1] + 1] - fLoc[snpSection[snpNumber[i] - 1]] << std::endl;
-      infile.seekg(fLoc[snpSection[snpNumber[i]]]);
+      infile.seekg(fLoc[snpSection[snpNumber[i] - 1]]);
+      if (!infile.good()) {
+        Rcpp::Rcerr << "Error seeking from file" << std::endl
+                    << "Location:\t" << fLoc[snpSection[snpNumber[i] - 1]] << std::endl;
+        infile.close();
+        return 1;
+      }
       infile.read((char *)&buffer[0], fLoc[snpSection[snpNumber[i] - 1] + 1] - fLoc[snpSection[snpNumber[i] - 1]]);
       if (infile.fail()) {
         Rcpp::Rcerr << "Error reading from file" << std::endl
-                    << "Start:\t" << fLoc[snpSection[snpNumber[i]]] << std::endl
+                    << "Start:\t" << fLoc[snpSection[snpNumber[i] - 1]] << std::endl
                     << "Size:\t" << fLoc[snpSection[snpNumber[i] - 1] + 1] - fLoc[snpSection[snpNumber[i] - 1]] << std::endl;
         infile.close();
         return 1;
