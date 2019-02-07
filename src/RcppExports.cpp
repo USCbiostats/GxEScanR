@@ -19,6 +19,77 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// IntializeGELinReg
+int IntializeGELinReg(arma::mat& xl, arma::mat& xr, arma::mat& ql, arma::mat& qr, arma::mat& rtl, arma::mat& rtr, arma::mat& rbr);
+RcppExport SEXP _GxEScanR_IntializeGELinReg(SEXP xlSEXP, SEXP xrSEXP, SEXP qlSEXP, SEXP qrSEXP, SEXP rtlSEXP, SEXP rtrSEXP, SEXP rbrSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat& >::type xl(xlSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type xr(xrSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type ql(qlSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type qr(qrSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type rtl(rtlSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type rtr(rtrSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type rbr(rbrSEXP);
+    rcpp_result_gen = Rcpp::wrap(IntializeGELinReg(xl, xr, ql, qr, rtl, rtr, rbr));
+    return rcpp_result_gen;
+END_RCPP
+}
+// GELinReg
+int GELinReg(arma::vec& y, arma::mat& xl, arma::mat& xr, arma::vec& betaT, arma::vec& betaB, arma::mat& qL, arma::mat& qR, arma::mat& rTL, arma::mat& rTR, arma::mat& rBR, arma::vec& sigma2, arma::vec& logLike);
+RcppExport SEXP _GxEScanR_GELinReg(SEXP ySEXP, SEXP xlSEXP, SEXP xrSEXP, SEXP betaTSEXP, SEXP betaBSEXP, SEXP qLSEXP, SEXP qRSEXP, SEXP rTLSEXP, SEXP rTRSEXP, SEXP rBRSEXP, SEXP sigma2SEXP, SEXP logLikeSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::vec& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type xl(xlSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type xr(xrSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type betaT(betaTSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type betaB(betaBSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type qL(qLSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type qR(qRSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type rTL(rTLSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type rTR(rTRSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type rBR(rBRSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type sigma2(sigma2SEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type logLike(logLikeSEXP);
+    rcpp_result_gen = Rcpp::wrap(GELinReg(y, xl, xr, betaT, betaB, qL, qR, rTL, rTR, rBR, sigma2, logLike));
+    return rcpp_result_gen;
+END_RCPP
+}
+// GELogReg
+int GELogReg(arma::vec& y, arma::mat& xl, arma::mat& xr, arma::vec& yp, arma::mat& xlw, arma::vec& z, arma::vec& beta, arma::vec& betaT, arma::vec& betaB, arma::mat& qL, arma::mat& qR, arma::mat& rTL, arma::mat& rTR, arma::mat& rBR, arma::vec& abx, arma::vec& expabx, arma::vec& expabxp1, arma::vec& expitabx, arma::vec& w, arma::vec& wInv, arma::vec& score, arma::vec& logLike);
+RcppExport SEXP _GxEScanR_GELogReg(SEXP ySEXP, SEXP xlSEXP, SEXP xrSEXP, SEXP ypSEXP, SEXP xlwSEXP, SEXP zSEXP, SEXP betaSEXP, SEXP betaTSEXP, SEXP betaBSEXP, SEXP qLSEXP, SEXP qRSEXP, SEXP rTLSEXP, SEXP rTRSEXP, SEXP rBRSEXP, SEXP abxSEXP, SEXP expabxSEXP, SEXP expabxp1SEXP, SEXP expitabxSEXP, SEXP wSEXP, SEXP wInvSEXP, SEXP scoreSEXP, SEXP logLikeSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::vec& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type xl(xlSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type xr(xrSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type yp(ypSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type xlw(xlwSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type z(zSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type beta(betaSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type betaT(betaTSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type betaB(betaBSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type qL(qLSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type qR(qRSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type rTL(rTLSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type rTR(rTRSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type rBR(rBRSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type abx(abxSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type expabx(expabxSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type expabxp1(expabxp1SEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type expitabx(expitabxSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type w(wSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type wInv(wInvSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type score(scoreSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type logLike(logLikeSEXP);
+    rcpp_result_gen = Rcpp::wrap(GELogReg(y, xl, xr, yp, xlw, z, beta, betaT, betaB, qL, qR, rTL, rTR, rBR, abx, expabx, expabxp1, expitabx, w, wInv, score, logLike));
+    return rcpp_result_gen;
+END_RCPP
+}
 // GxEScanC
 int GxEScanC(Rcpp::List subjectData, Rcpp::List geneticInfo, std::string outputFilename, std::string skippedFilename, double minMaf, double geCutoff);
 RcppExport SEXP _GxEScanR_GxEScanC(SEXP subjectDataSEXP, SEXP geneticInfoSEXP, SEXP outputFilenameSEXP, SEXP skippedFilenameSEXP, SEXP minMafSEXP, SEXP geCutoffSEXP) {
@@ -352,6 +423,9 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_GxEScanR_GetBinaryDosageInformation", (DL_FUNC) &_GxEScanR_GetBinaryDosageInformation, 3},
+    {"_GxEScanR_IntializeGELinReg", (DL_FUNC) &_GxEScanR_IntializeGELinReg, 7},
+    {"_GxEScanR_GELinReg", (DL_FUNC) &_GxEScanR_GELinReg, 12},
+    {"_GxEScanR_GELogReg", (DL_FUNC) &_GxEScanR_GELogReg, 22},
     {"_GxEScanR_GxEScanC", (DL_FUNC) &_GxEScanR_GxEScanC, 6},
     {"_GxEScanR_GxEScanCSubset", (DL_FUNC) &_GxEScanR_GxEScanCSubset, 7},
     {"_GxEScanR_GxETest", (DL_FUNC) &_GxEScanR_GxETest, 0},

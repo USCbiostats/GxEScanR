@@ -20,6 +20,18 @@ GetBinaryDosageInformation <- function(binaryDosageFilename, snSub, snSNPs) {
     .Call('_GxEScanR_GetBinaryDosageInformation', PACKAGE = 'GxEScanR', binaryDosageFilename, snSub, snSNPs)
 }
 
+IntializeGELinReg <- function(xl, xr, ql, qr, rtl, rtr, rbr) {
+    .Call('_GxEScanR_IntializeGELinReg', PACKAGE = 'GxEScanR', xl, xr, ql, qr, rtl, rtr, rbr)
+}
+
+GELinReg <- function(y, xl, xr, betaT, betaB, qL, qR, rTL, rTR, rBR, sigma2, logLike) {
+    .Call('_GxEScanR_GELinReg', PACKAGE = 'GxEScanR', y, xl, xr, betaT, betaB, qL, qR, rTL, rTR, rBR, sigma2, logLike)
+}
+
+GELogReg <- function(y, xl, xr, yp, xlw, z, beta, betaT, betaB, qL, qR, rTL, rTR, rBR, abx, expabx, expabxp1, expitabx, w, wInv, score, logLike) {
+    .Call('_GxEScanR_GELogReg', PACKAGE = 'GxEScanR', y, xl, xr, yp, xlw, z, beta, betaT, betaB, qL, qR, rTL, rTR, rBR, abx, expabx, expabxp1, expitabx, w, wInv, score, logLike)
+}
+
 #' Function to fit models scanning over genotypes
 #' 
 #' Function to fit selected models over genotypes. Results from
