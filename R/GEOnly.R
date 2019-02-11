@@ -105,7 +105,7 @@ GEOnly <- function(subjectData, geneticData, outputFile, minMAF1 = 0.05, minMAF2
   numGroups = ceiling(length(snpminmaf) / 100)
   # Loop over the groups of SNPs
   GxEScanR:::OpenGEOutFile(outputFile)
-  for (i in 1:5) {
+  for (i in 1:numGroups) {
     firstSNP <- (i - 1) * 100 + 1
     lastSNP <- min(firstSNP + 99, length(snpminmaf))
     # print(lastSNP)
