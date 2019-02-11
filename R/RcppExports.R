@@ -20,12 +20,36 @@ GetBinaryDosageInformation <- function(binaryDosageFilename, snSub, snSNPs) {
     .Call('_GxEScanR_GetBinaryDosageInformation', PACKAGE = 'GxEScanR', binaryDosageFilename, snSub, snSNPs)
 }
 
+OpenGEOutFile <- function(filename) {
+    .Call('_GxEScanR_OpenGEOutFile', PACKAGE = 'GxEScanR', filename)
+}
+
+AppendGEResults <- function(filename, snpID, chromosome, location, refAllele, altAllele, numSub, numCases, logLike, estimates, length, sigmaE) {
+    .Call('_GxEScanR_AppendGEResults', PACKAGE = 'GxEScanR', filename, snpID, chromosome, location, refAllele, altAllele, numSub, numCases, logLike, estimates, length, sigmaE)
+}
+
 IntializeGELinReg <- function(xl, xr, ql, qr, rtl, rtr, rbr) {
     .Call('_GxEScanR_IntializeGELinReg', PACKAGE = 'GxEScanR', xl, xr, ql, qr, rtl, rtr, rbr)
 }
 
 GELinReg <- function(y, xl, xr, betaT, betaB, qL, qR, rTL, rTR, rBR, sigma2, logLike) {
     .Call('_GxEScanR_GELinReg', PACKAGE = 'GxEScanR', y, xl, xr, betaT, betaB, qL, qR, rTL, rTR, rBR, sigma2, logLike)
+}
+
+GELogRegStep1 <- function(y, xl, xr, yp, xlw, z, beta, betaT, betaB, qL, qR, rTL, rTR, rBR, abx, expabx, expabxp1, expitabx, w, wInv, score, logLike) {
+    .Call('_GxEScanR_GELogRegStep1', PACKAGE = 'GxEScanR', y, xl, xr, yp, xlw, z, beta, betaT, betaB, qL, qR, rTL, rTR, rBR, abx, expabx, expabxp1, expitabx, w, wInv, score, logLike)
+}
+
+GELogRegStep2 <- function(y, xl, xr, yp, xlw, z, beta, betaT, betaB, qL, qR, rTL, rTR, rBR, abx, expabx, expabxp1, expitabx, w, wInv, score, logLike) {
+    .Call('_GxEScanR_GELogRegStep2', PACKAGE = 'GxEScanR', y, xl, xr, yp, xlw, z, beta, betaT, betaB, qL, qR, rTL, rTR, rBR, abx, expabx, expabxp1, expitabx, w, wInv, score, logLike)
+}
+
+GELogRegStep3 <- function(y, xl, xr, yp, xlw, z, beta, betaT, betaB, qL, qR, rTL, rTR, rBR, abx, expabx, expabxp1, expitabx, w, wInv, score, logLike) {
+    .Call('_GxEScanR_GELogRegStep3', PACKAGE = 'GxEScanR', y, xl, xr, yp, xlw, z, beta, betaT, betaB, qL, qR, rTL, rTR, rBR, abx, expabx, expabxp1, expitabx, w, wInv, score, logLike)
+}
+
+GELogRegStep4 <- function(y, xl, xr, yp, xlw, z, beta, betaT, betaB, qL, qR, rTL, rTR, rBR, abx, expabx, expabxp1, expitabx, w, wInv, score, logLike) {
+    .Call('_GxEScanR_GELogRegStep4', PACKAGE = 'GxEScanR', y, xl, xr, yp, xlw, z, beta, betaT, betaB, qL, qR, rTL, rTR, rBR, abx, expabx, expabxp1, expitabx, w, wInv, score, logLike)
 }
 
 GELogReg <- function(y, xl, xr, yp, xlw, z, beta, betaT, betaB, qL, qR, rTL, rTR, rBR, abx, expabx, expabxp1, expitabx, w, wInv, score, logLike) {
