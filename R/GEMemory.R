@@ -1,4 +1,5 @@
 GELinRegMemory <- function(n, p, q) {
+  betaT0 <- numeric(p)
   betaT <- numeric(p)
   betaB <- numeric(q)
   qL <- matrix(0., n, p)
@@ -8,7 +9,8 @@ GELinRegMemory <- function(n, p, q) {
   rBR <- matrix(0., q, q)
   sigma2 <- numeric(2)
   logLikelihood <- numeric(2)
-  return (list(betaT = betaT,
+  return (list(betaT0 = betaT0,
+               betaT = betaT,
                betaB = betaB,
                qL = qL,
                qR = qR,
@@ -22,8 +24,15 @@ GELinRegMemory <- function(n, p, q) {
 GELogRegMemory <- function(n, p, q) {
   yp <- numeric(n)
   xlw <- matrix(0., n, p)
-  z <- numeric(p)
+  xrw <- matrix(0., n, q)
+  zt <- numeric(p)
+  zb <- numeric(q)
+  k <- numeric(p)
+  t <- matrix(0., n, q)
+  h <- matrix(0., p, q)
   beta <- numeric(p + q)
+  beta0 <- numeric(p)
+  beta0diff <- numeric(p)
   betaT <- numeric(p)
   betaB <- numeric(q)
   qL <- matrix(0., n, p)
@@ -41,7 +50,14 @@ GELogRegMemory <- function(n, p, q) {
   loglikelihood <- numeric(2)
   return (list(yp = yp,
                xlw = xlw,
-               z = z,
+               xrw = xrw,
+               zt = zt,
+               zb = zb,
+               k = k,
+               t = t,
+               h = h,
+               beta0 = beta0,
+               beta0diff = beta0diff,
                beta = beta,
                betaT = betaT,
                betaB = betaB,
