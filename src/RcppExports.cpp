@@ -19,20 +19,20 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// OpenGEOutFile
-int OpenGEOutFile(std::string& filename);
-RcppExport SEXP _GxEScanR_OpenGEOutFile(SEXP filenameSEXP) {
+// OpenEGOutFile
+int OpenEGOutFile(std::string& filename);
+RcppExport SEXP _GxEScanR_OpenEGOutFile(SEXP filenameSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< std::string& >::type filename(filenameSEXP);
-    rcpp_result_gen = Rcpp::wrap(OpenGEOutFile(filename));
+    rcpp_result_gen = Rcpp::wrap(OpenEGOutFile(filename));
     return rcpp_result_gen;
 END_RCPP
 }
-// AppendGEResults
-int AppendGEResults(std::string& filename, Rcpp::StringVector& snpID, Rcpp::StringVector& chromosome, Rcpp::IntegerVector& location, Rcpp::StringVector& refAllele, Rcpp::StringVector& altAllele, int numSub, int numCases, arma::mat& logLike, arma::mat& estimates, int length, double sigmaE, double sigmaEcase, double sigmaEcontrol);
-RcppExport SEXP _GxEScanR_AppendGEResults(SEXP filenameSEXP, SEXP snpIDSEXP, SEXP chromosomeSEXP, SEXP locationSEXP, SEXP refAlleleSEXP, SEXP altAlleleSEXP, SEXP numSubSEXP, SEXP numCasesSEXP, SEXP logLikeSEXP, SEXP estimatesSEXP, SEXP lengthSEXP, SEXP sigmaESEXP, SEXP sigmaEcaseSEXP, SEXP sigmaEcontrolSEXP) {
+// AppendEGResults
+int AppendEGResults(std::string& filename, Rcpp::StringVector& snpID, Rcpp::StringVector& chromosome, Rcpp::IntegerVector& location, Rcpp::StringVector& refAllele, Rcpp::StringVector& altAllele, int numSub, int numCases, arma::mat& logLike, arma::mat& estimates, int length, double sigmaE, double sigmaEcase, double sigmaEcontrol);
+RcppExport SEXP _GxEScanR_AppendEGResults(SEXP filenameSEXP, SEXP snpIDSEXP, SEXP chromosomeSEXP, SEXP locationSEXP, SEXP refAlleleSEXP, SEXP altAlleleSEXP, SEXP numSubSEXP, SEXP numCasesSEXP, SEXP logLikeSEXP, SEXP estimatesSEXP, SEXP lengthSEXP, SEXP sigmaESEXP, SEXP sigmaEcaseSEXP, SEXP sigmaEcontrolSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -50,30 +50,30 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type sigmaE(sigmaESEXP);
     Rcpp::traits::input_parameter< double >::type sigmaEcase(sigmaEcaseSEXP);
     Rcpp::traits::input_parameter< double >::type sigmaEcontrol(sigmaEcontrolSEXP);
-    rcpp_result_gen = Rcpp::wrap(AppendGEResults(filename, snpID, chromosome, location, refAllele, altAllele, numSub, numCases, logLike, estimates, length, sigmaE, sigmaEcase, sigmaEcontrol));
+    rcpp_result_gen = Rcpp::wrap(AppendEGResults(filename, snpID, chromosome, location, refAllele, altAllele, numSub, numCases, logLike, estimates, length, sigmaE, sigmaEcase, sigmaEcontrol));
     return rcpp_result_gen;
 END_RCPP
 }
-// IntializeGELinReg
-int IntializeGELinReg(arma::mat& xl, arma::mat& xr, arma::mat& ql, arma::mat& qr, arma::mat& rtl, arma::mat& rtr, arma::mat& rbr);
-RcppExport SEXP _GxEScanR_IntializeGELinReg(SEXP xlSEXP, SEXP xrSEXP, SEXP qlSEXP, SEXP qrSEXP, SEXP rtlSEXP, SEXP rtrSEXP, SEXP rbrSEXP) {
+// IntializeEGLinReg
+int IntializeEGLinReg(arma::vec& y, arma::mat& xl, arma::mat& xr, arma::mat& ql, arma::mat& qr, arma::mat& rtl, double& logLike);
+RcppExport SEXP _GxEScanR_IntializeEGLinReg(SEXP ySEXP, SEXP xlSEXP, SEXP xrSEXP, SEXP qlSEXP, SEXP qrSEXP, SEXP rtlSEXP, SEXP logLikeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::vec& >::type y(ySEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type xl(xlSEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type xr(xrSEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type ql(qlSEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type qr(qrSEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type rtl(rtlSEXP);
-    Rcpp::traits::input_parameter< arma::mat& >::type rtr(rtrSEXP);
-    Rcpp::traits::input_parameter< arma::mat& >::type rbr(rbrSEXP);
-    rcpp_result_gen = Rcpp::wrap(IntializeGELinReg(xl, xr, ql, qr, rtl, rtr, rbr));
+    Rcpp::traits::input_parameter< double& >::type logLike(logLikeSEXP);
+    rcpp_result_gen = Rcpp::wrap(IntializeEGLinReg(y, xl, xr, ql, qr, rtl, logLike));
     return rcpp_result_gen;
 END_RCPP
 }
-// GELinReg
-int GELinReg(arma::vec& y, arma::mat& xl, arma::mat& xr, arma::vec& betaT0, arma::vec& betaT, arma::vec& betaB, arma::mat& qL, arma::mat& qR, arma::mat& rTL, arma::mat& rTR, arma::mat& rBR, arma::vec& sigma2, arma::vec& logLike);
-RcppExport SEXP _GxEScanR_GELinReg(SEXP ySEXP, SEXP xlSEXP, SEXP xrSEXP, SEXP betaT0SEXP, SEXP betaTSEXP, SEXP betaBSEXP, SEXP qLSEXP, SEXP qRSEXP, SEXP rTLSEXP, SEXP rTRSEXP, SEXP rBRSEXP, SEXP sigma2SEXP, SEXP logLikeSEXP) {
+// EGLinReg
+int EGLinReg(arma::vec& y, arma::mat& xl, arma::mat& xr, arma::vec& betaT0, arma::vec& betaT, arma::vec& betaB, arma::mat& qL, arma::mat& qR, arma::mat& rTL, arma::mat& rTR, arma::mat& rBR, arma::vec& sigma2, arma::vec& logLike);
+RcppExport SEXP _GxEScanR_EGLinReg(SEXP ySEXP, SEXP xlSEXP, SEXP xrSEXP, SEXP betaT0SEXP, SEXP betaTSEXP, SEXP betaBSEXP, SEXP qLSEXP, SEXP qRSEXP, SEXP rTLSEXP, SEXP rTRSEXP, SEXP rBRSEXP, SEXP sigma2SEXP, SEXP logLikeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -90,7 +90,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::mat& >::type rBR(rBRSEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type sigma2(sigma2SEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type logLike(logLikeSEXP);
-    rcpp_result_gen = Rcpp::wrap(GELinReg(y, xl, xr, betaT0, betaT, betaB, qL, qR, rTL, rTR, rBR, sigma2, logLike));
+    rcpp_result_gen = Rcpp::wrap(EGLinReg(y, xl, xr, betaT0, betaT, betaB, qL, qR, rTL, rTR, rBR, sigma2, logLike));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -649,10 +649,10 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_GxEScanR_GetBinaryDosageInformation", (DL_FUNC) &_GxEScanR_GetBinaryDosageInformation, 3},
-    {"_GxEScanR_OpenGEOutFile", (DL_FUNC) &_GxEScanR_OpenGEOutFile, 1},
-    {"_GxEScanR_AppendGEResults", (DL_FUNC) &_GxEScanR_AppendGEResults, 14},
-    {"_GxEScanR_IntializeGELinReg", (DL_FUNC) &_GxEScanR_IntializeGELinReg, 7},
-    {"_GxEScanR_GELinReg", (DL_FUNC) &_GxEScanR_GELinReg, 13},
+    {"_GxEScanR_OpenEGOutFile", (DL_FUNC) &_GxEScanR_OpenEGOutFile, 1},
+    {"_GxEScanR_AppendEGResults", (DL_FUNC) &_GxEScanR_AppendEGResults, 14},
+    {"_GxEScanR_IntializeEGLinReg", (DL_FUNC) &_GxEScanR_IntializeEGLinReg, 7},
+    {"_GxEScanR_EGLinReg", (DL_FUNC) &_GxEScanR_EGLinReg, 13},
     {"_GxEScanR_GELogRegStep1", (DL_FUNC) &_GxEScanR_GELogRegStep1, 24},
     {"_GxEScanR_GELogRegStep2", (DL_FUNC) &_GxEScanR_GELogRegStep2, 24},
     {"_GxEScanR_GELogRegStep3", (DL_FUNC) &_GxEScanR_GELogRegStep3, 24},

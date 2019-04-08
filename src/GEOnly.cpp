@@ -3,21 +3,20 @@
 #include "RcppArmadillo.h"
 
 // [[Rcpp::export]]
-int OpenGEOutFile(std::string &filename) {
+int OpenEGOutFile(std::string &filename) {
   std::ofstream outfile;
   
   outfile.open(filename.c_str(), std::ios_base::out | std::ios_base::trunc);
   if (!outfile.good())
     return 1;
   outfile << "SNP\tChromosome\tLocation\tReference\tAlternate\tSubjects\tCases\t";
-  outfile << "betaGELin\tchiSqGELin\tbetaCaseLin\tChiSqCaseLin\tbetaControlLin\tchiSqControlLin";
-  outfile << "\tbetaGELog\tchiSqGELog\tbetaCaseLog\tChiSqCaseLog\tbetaControlLog\tchiSqControlLog" << std::endl;
+  outfile << "betaEG\tchiSqEG\tbetaCaseOnly\tChiSqCaseOnly\tbetaControlOnly\tchiSqControlOnly" << std::endl;
   outfile.close();
   return 0;
 }
 
 // [[Rcpp::export]]
-int AppendGEResults(std::string &filename, Rcpp::StringVector &snpID, Rcpp::StringVector &chromosome,
+int AppendEGResults(std::string &filename, Rcpp::StringVector &snpID, Rcpp::StringVector &chromosome,
                      Rcpp::IntegerVector &location, Rcpp::StringVector &refAllele, Rcpp::StringVector &altAllele,
                      int numSub, int numCases, arma::mat &logLike, arma::mat &estimates, int length,
                      double sigmaE, double sigmaEcase, double sigmaEcontrol) {
@@ -37,32 +36,27 @@ int AppendGEResults(std::string &filename, Rcpp::StringVector &snpID, Rcpp::Stri
             << refAllele[i] << '\t'
             << altAllele[i] << '\t';
     outfile << numSub << '\t' << numCases << '\t';
-    outfile << estimates(i, 0) / sigmaE << '\t' << logLike(i, 0) << '\t'
-            << estimates(i, 1) / sigmaEcase << '\t' << logLike(i, 1) << '\t'
-            << estimates(i, 2) / sigmaEcontrol << '\t' << logLike(i, 2) << '\t'
-            << estimates(i, 3) / sigmaE << '\t' << logLike(i, 3) << '\t'
-            << estimates(i, 4) / sigmaEcase << '\t' << logLike(i, 4) << '\t'
-            << estimates(i, 5) / sigmaEcontrol << '\t' << logLike(i, 5) << '\t'
+    outfile << estimates(i, 0) * sigmaE << '\t' << logLike(i, 0) << '\t'
+            << estimates(i, 1) * sigmaEcase << '\t' << logLike(i, 1) << '\t'
+            << estimates(i, 2) * sigmaEcontrol << '\t' << logLike(i, 2)
             << std::endl;
   }
   outfile.close();
   return 0;
 }
 // [[Rcpp::export]]
-int IntializeGELinReg(arma::mat &xl, arma::mat &xr, arma::mat &ql, arma::mat &qr,
-                      arma::mat &rtl, arma::mat &rtr, arma::mat &rbr) {
+int IntializeEGLinReg(arma::vec &y,arma::mat &xl, arma::mat &xr,
+                      arma::mat &ql, arma::mat &qr, arma::mat &rtl,
+                      double &logLike) {
   arma::mat t;
   if (qr_econ(ql, rtl, xl) == false)
     return 1;
-  rtr = ql.t() * xr;
-  t = xr - ql * rtr;
-  if (qr_econ(qr, rbr, t) == false)
-    return 1;
+
   return 0;
 }
 
 // [[Rcpp::export]]
-int GELinReg(arma::vec &y, arma::mat &xl, arma::mat &xr,
+int EGLinReg(arma::vec &y, arma::mat &xl, arma::mat &xr,
              arma::vec &betaT0, arma::vec &betaT, arma::vec &betaB,
              arma::mat &qL, arma::mat &qR,
              arma::mat &rTL, arma::mat &rTR, arma::mat &rBR,

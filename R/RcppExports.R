@@ -20,20 +20,20 @@ GetBinaryDosageInformation <- function(binaryDosageFilename, snSub, snSNPs) {
     .Call('_GxEScanR_GetBinaryDosageInformation', PACKAGE = 'GxEScanR', binaryDosageFilename, snSub, snSNPs)
 }
 
-OpenGEOutFile <- function(filename) {
-    .Call('_GxEScanR_OpenGEOutFile', PACKAGE = 'GxEScanR', filename)
+OpenEGOutFile <- function(filename) {
+    .Call('_GxEScanR_OpenEGOutFile', PACKAGE = 'GxEScanR', filename)
 }
 
-AppendGEResults <- function(filename, snpID, chromosome, location, refAllele, altAllele, numSub, numCases, logLike, estimates, length, sigmaE, sigmaEcase, sigmaEcontrol) {
-    .Call('_GxEScanR_AppendGEResults', PACKAGE = 'GxEScanR', filename, snpID, chromosome, location, refAllele, altAllele, numSub, numCases, logLike, estimates, length, sigmaE, sigmaEcase, sigmaEcontrol)
+AppendEGResults <- function(filename, snpID, chromosome, location, refAllele, altAllele, numSub, numCases, logLike, estimates, length, sigmaE, sigmaEcase, sigmaEcontrol) {
+    .Call('_GxEScanR_AppendEGResults', PACKAGE = 'GxEScanR', filename, snpID, chromosome, location, refAllele, altAllele, numSub, numCases, logLike, estimates, length, sigmaE, sigmaEcase, sigmaEcontrol)
 }
 
-IntializeGELinReg <- function(xl, xr, ql, qr, rtl, rtr, rbr) {
-    .Call('_GxEScanR_IntializeGELinReg', PACKAGE = 'GxEScanR', xl, xr, ql, qr, rtl, rtr, rbr)
+IntializeEGLinReg <- function(y, xl, xr, ql, qr, rtl, logLike) {
+    .Call('_GxEScanR_IntializeEGLinReg', PACKAGE = 'GxEScanR', y, xl, xr, ql, qr, rtl, logLike)
 }
 
-GELinReg <- function(y, xl, xr, betaT0, betaT, betaB, qL, qR, rTL, rTR, rBR, sigma2, logLike) {
-    .Call('_GxEScanR_GELinReg', PACKAGE = 'GxEScanR', y, xl, xr, betaT0, betaT, betaB, qL, qR, rTL, rTR, rBR, sigma2, logLike)
+EGLinReg <- function(y, xl, xr, betaT0, betaT, betaB, qL, qR, rTL, rTR, rBR, sigma2, logLike) {
+    .Call('_GxEScanR_EGLinReg', PACKAGE = 'GxEScanR', y, xl, xr, betaT0, betaT, betaB, qL, qR, rTL, rTR, rBR, sigma2, logLike)
 }
 
 GELogRegStep1 <- function(y, xl, xr, yp, xlw, z, beta0, beta0diff, beta, betaT, betaB, qL, qR, rTL, rTR, rBR, abx, expabx, expabxp1, expitabx, w, wInv, score, logLike) {
