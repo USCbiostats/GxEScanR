@@ -2,10 +2,10 @@
 % Please edit documentation in R/GxEScan.R
 \name{GxEScan}
 \alias{GxEScan}
-\title{Function to test format of subject data table passed to GxEScan}
+\title{GxEScan - Perform a genomewide interaction scan}
 \usage{
 GxEScan(subjectData, geneticData, outputFile, skippedFilename = "",
-  minMaf = 0.05, geCutoff = 0.001, snps)
+  popminMaf = 0.01, sampleminMaf = 0.05, snps)
 }
 \arguments{
 \item{subjectData}{Data frame with subject data
@@ -20,7 +20,7 @@ values. The covariate in the last column is the covariate interacting
 with the gene.}
 
 \item{geneticData}{List with information on reading genetic data
-This is returned from GetGeneticInfo}
+This is returned from BianryDosage::GetGeneticInfo}
 
 \item{outputFile}{Name of file to write the results to}
 
@@ -28,20 +28,20 @@ This is returned from GetGeneticInfo}
 no file is written. If this is the same as outputFilename, the skipped SNPs
 are written to the output file along with NA for all tests.}
 
-\item{minMaf}{Minimum minor allele frequency. Has to be a value between 0.0001 and 0.25.
-Default value is 0.05.}
+\item{popminMaf}{Population minimum allele frequency}
 
-\item{geCutoff}{p-value cut off for fitting polytomous logistic regression models given the results
-from the the logistic model assuming Hardy-Weinberg equilibrium. Must be a
-value fromm 0 to 1. Default value is 0.001.}
+\item{sampleminMaf}{Sample minimum allele frequency}
 
-\item{snps}{Subset of SNPs to use. This can be a character vector of SNP names or an
-integer vector of locations in the snps data frame in the genetic data list}
+\item{snps}{Vector of snps to be tested. Can either me a character vector of SNP names
+or a vector of indices.}
 }
 \value{
 0 - success
 1 - failure
 }
 \description{
-Function to test format of subject data table passed to GxEScan
+GxEScan - Perform a genomewide interaction scan
+}
+\examples{
+GxEScan(subjectData = simSubjectData, geneticData = simGeneticData, outputFile = "NoOutput")
 }

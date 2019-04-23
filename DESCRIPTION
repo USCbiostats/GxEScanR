@@ -1,16 +1,28 @@
 Package: GxEScanR
-Type: Package
-Title: Tools for analyzing Genome-Environment Wide Interaction Studies (GEWIS)
-Version: 1.0
-Date: 2017-11-28
-Author: John Morrison
-Maintainer: John Morrison <jmorr@usc.edu>
-Description: A program to perform Genome-Environment wide interaction scans
-    using several one and two step procedures. An Excel spreadsheet is produced
-    showing the results of all the requested procedures. The output included
-    Manhattan and qq plots. Tools are provided to read data that are in plink.
+Title: Tools to analyze genomewide interaction studies (GWIS)
+Version: 0.0.0.9000
+Authors@R: 
+    person(given = "John",
+           family = "Morrison",
+           role = c("aut", "cre"),
+           email = "jmorr@usc.edu")
+Description: This package is a group of tools that can be
+    used to analyze genomewide interaction studies (GWIS). The tools
+    perform multiple tests for gene-environent interactions that can be
+    used in either one or two step analyses.
 License: GPL-3
-Imports: Rcpp (>= 0.12.18)
-LinkingTo: Rcpp, RcppArmadillo
 Encoding: UTF-8
-RoxygenNote: 6.1.0
+LazyData: true
+Depends:
+    R (>= 3.0.1)
+Suggests: 
+    knitr,
+    rmarkdown,
+    testthat
+VignetteBuilder: knitr
+RoxygenNote: 6.1.1
+Imports:
+    Rcpp
+LinkingTo: 
+    Rcpp,
+    RcppArmadillo
