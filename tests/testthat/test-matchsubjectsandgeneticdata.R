@@ -27,4 +27,20 @@ test_that("Matching subjects with genetic data", {
   expect_equal(all(matchedSubjects$indices == c(1:49,51:100)), TRUE)
   expect_equal(all(matchedSubjects$phenotype == simSubjectData2[1:99,3]), TRUE)
   expect_equal(all(matchedSubjects$covariates == simSubjectData2[1:99,4:5]), TRUE)
+  
+  processedSubjects$phenotype[1] = 2
+  expect_error(MatchSubjectsAndGeneticData(subjectData = processedSubjects,
+                                           geneticData = simGeneticData2),
+               "There are more than 2 values for the phenotype")
+  
+  processedSubjects$phenotype[1] = 0
+  processedSubjects$phenotype = processedSubjects$phenotype + 1
+  expect_error(MatchSubjectsAndGeneticData(subjectData = processedSubjects,
+                                           geneticData = simGeneticData2),
+               "Phenotype values must be coded as 0, 1")
+  
+  processedSubjects$phenotype = rep(0, nrow(processedSubjects$subjects))
+  expect_error(MatchSubjectsAndGeneticData(subjectData = processedSubjects,
+                                           geneticData = simGeneticData2),
+               "All subjects have the same phenotype")
 })

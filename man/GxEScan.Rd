@@ -43,5 +43,13 @@ or a vector of indices.}
 GxEScan - Perform a genomewide interaction scan
 }
 \examples{
-GxEScan(subjectData = simSubjectData, geneticData = simGeneticData, outputFile = "NoOutput")
+subjectData <- simSubjectData
+geneticData <- simGeneticData
+geneticData$filename <- system.file("extdata", simGeneticData$filename, package = "GxEScanR")
+outfile = "RTerminal"
+skippedFile = ""
+popminMaf = 0.05
+sampleminMaf = 0.1
+snps = 1L:110L
+GxEScan(subjectData, geneticData, outfile, skippedFile, popminMaf, sampleminMaf, snps)
 }

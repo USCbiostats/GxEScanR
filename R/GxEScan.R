@@ -109,6 +109,13 @@ MatchSubjectsAndGeneticData <- function(subjectData, geneticData) {
   if (length(indices) == 0)
     stop("No subjects in subject data line up with subjects in genetic data")
   phenotype <- subjectData$phenotype[complete.cases(m1)]
+  uniquePhenotypes <- sort(unique(phenotype))
+  if (length(uniquePhenotypes) > 2)
+    stop("There are more than 2 values for the phenotype")
+  if (length(uniquePhenotypes) == 1)
+    stop("All subjects have the same phenotype")
+  if(all(uniquePhenotypes == c(0., 1.)) != TRUE)
+    stop("Phenotype values must be coded as 0, 1")
   covariates <- as.matrix(subjectData$covariates[complete.cases(m1),])
   return (list(phenotype = phenotype,
                covariates = covariates,
@@ -207,7 +214,15 @@ GetBDFileInfo <- function(bdInfo) {
 #' 1 - failure
 #' @export
 #' @examples
-#' GxEScan(subjectData = simSubjectData, geneticData = simGeneticData, outputFile = "NoOutput")
+#' subjectData <- simSubjectData
+#' geneticData <- simGeneticData
+#' geneticData$filename <- system.file("extdata", simGeneticData$filename, package = "GxEScanR")
+#' outfile = "RTerminal"
+#' skippedFile = ""
+#' popminMaf = 0.05
+#' sampleminMaf = 0.1
+#' snps = 1L:110L
+#' GxEScan(subjectData, geneticData, outfile, skippedFile, popminMaf, sampleminMaf, snps)
 GxEScan <- function(subjectData, geneticData, outputFile, skippedFilename = "", popminMaf = 0.01, sampleminMaf = 0.05, snps) {
   if (missing(subjectData) == TRUE)
     stop("No subject data specified")
