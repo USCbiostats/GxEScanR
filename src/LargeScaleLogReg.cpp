@@ -1,5 +1,7 @@
 #include <RcppArmadillo.h>
 
+int WriteOutput(const std::string &filename, const std::string &outstring);
+
 // [[Rcpp::export]]
 int InitializeLRMod(int numRow, int numCol, arma::vec &y, arma::mat &xl,
                     arma::vec &beta, arma::vec &score, arma::vec &w, arma::vec &wInv,
@@ -142,38 +144,39 @@ int FitLRMod(int n, int p,
 }
 
 // [[Rcpp::export]]
-int ScanGenes(int n, int p,
-              arma::vec &y, arma::mat &xl, arma::mat &xr,
-              Rcpp::StringVector &snpID,
-              int numSNPs, double minMAF,
-              arma::vec &beta0, arma::vec &score0,
-              arma::vec &w, arma::vec &wInv,
-              arma::vec &yp0, arma::vec &zt0, arma::vec &k0,
-              arma::mat &ql, arma::mat &rtl,
-              arma::vec &abx, arma::vec &expabx,
-              arma::vec &expabxp1, arma::vec &expitabx,
-              arma::vec &yp, arma::vec &zt, arma::vec &k, arma::vec &bt,
-              arma::mat &xrw1, arma::vec &beta1, arma::vec &score1,
-              arma::vec &zb1, arma::vec &bb1,
-              arma::mat &h1, arma::mat &rtr1, arma::mat &t1,
-              arma::mat &qr1, arma::mat &rbr1,
-              arma::vec &logLikelihood1,
-              arma::mat &xrw2, arma::vec &beta2, arma::vec &score2,
-              arma::vec &zb2, arma::vec &bb2,
-              arma::mat &h2, arma::mat &rtr2, arma::mat &t2,
-              arma::mat &qr2, arma::mat &rbr2,
-              arma::vec &logLikelihood2,
-              arma::mat &xr1, arma::mat &xr2,
-              arma::vec logLikelihood0, arma::mat &logLikelihoods,
-              arma::mat &estimates,
-              Rcpp::StringVector &skipOut) {
+int ScanDisease(int n, int p,
+                arma::vec &y, arma::mat &xl, arma::mat &xr,
+                Rcpp::StringVector &snpID,
+                int numSNPs, double minMAF,
+                arma::vec &beta0, arma::vec &score0,
+                arma::vec &w, arma::vec &wInv,
+                arma::vec &yp0, arma::vec &zt0, arma::vec &k0,
+                arma::mat &ql, arma::mat &rtl,
+                arma::vec &abx, arma::vec &expabx,
+                arma::vec &expabxp1, arma::vec &expitabx,
+                arma::vec &yp, arma::vec &zt, arma::vec &k, arma::vec &bt,
+                arma::mat &xrw1, arma::vec &beta1, arma::vec &score1,
+                arma::vec &zb1, arma::vec &bb1,
+                arma::mat &h1, arma::mat &rtr1, arma::mat &t1,
+                arma::mat &qr1, arma::mat &rbr1,
+                arma::vec &logLikelihood1,
+                arma::mat &xrw2, arma::vec &beta2, arma::vec &score2,
+                arma::vec &zb2, arma::vec &bb2,
+                arma::mat &h2, arma::mat &rtr2, arma::mat &t2,
+                arma::mat &qr2, arma::mat &rbr2,
+                arma::vec &logLikelihood2,
+                arma::mat &xr1, arma::mat &xr2,
+                arma::vec logLikelihood0, arma::mat &logLikelihoods,
+                arma::mat &estimates,
+                Rcpp::StringVector &skipOut) {
   int i = 0;
   double maf;
   std::string currentSNPid;
   std::string modelDG = "model D|G";
   std::string modelDGxE = "model D|G,GxE";
   std::ostringstream outstring;
-
+  std::string skipFile;
+  
   try {
     for (i = 0; i < numSNPs; ++i) {
       xr1.submat(0, 0, n - 1, 0) = xr.submat(0, 4*i, n - 1, 4*i);
@@ -201,10 +204,10 @@ int ScanGenes(int n, int p,
         logLikelihoods(i, 0) = 2 * (logLikelihood1[0] - logLikelihood0[0]);
         estimates(i, 0) = beta1(p);
         if (FitLRMod(n, p, y, xl, xr2, currentSNPid, modelDGxE,
-                   beta0, score0, w, wInv, yp0, zt0, k0, ql, rtl,
-                   abx, expabx, expabxp1, expitabx, yp, zt, k, bt,
-                   xrw2, beta2, score2, zb2, bb2, h2, rtr2, t2, qr2,
-                   rbr2, logLikelihood2, outstring) == 0) {
+                     beta0, score0, w, wInv, yp0, zt0, k0, ql, rtl,
+                     abx, expabx, expabxp1, expitabx, yp, zt, k, bt,
+                     xrw2, beta2, score2, zb2, bb2, h2, rtr2, t2, qr2,
+                     rbr2, logLikelihood2, outstring) == 0) {
           logLikelihoods(i, 0) = 2 * (logLikelihood1[0] - logLikelihood0[0]);
           estimates(i, 0) = beta1(p);
           logLikelihoods(i, 1) = 2 * (logLikelihood2[0] - logLikelihood1[0]);
@@ -217,18 +220,7 @@ int ScanGenes(int n, int p,
     Rcpp::Rcerr << snpID[i] << '\t' << "Error caught in ScanGenes" << std::endl;
     return 1;
   }
-  if (skipOut[0] == "RTerminal") {
-    Rcpp::Rcerr << outstring.str();
-  } else if (skipOut[0] != "") {
-    std::ofstream outfile;
-    std::string filename;
-    
-    filename = skipOut[0];
-    outfile.open(filename.c_str(), std::ios_base::out | std::ios_base::trunc);
-    if (!outfile.good())
-      return 1;
-    outfile << outstring.str();
-    outfile.close();
-  }
-  return 0;
+  
+  skipFile = skipOut[0];
+  return WriteOutput(skipFile, outstring.str());
 }

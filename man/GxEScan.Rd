@@ -46,7 +46,7 @@ GxEScan - Perform a genomewide interaction scan
 subjectData <- simSubjectData
 geneticData <- simGeneticData
 geneticData$filename <- system.file("extdata", simGeneticData$filename, package = "GxEScanR")
-outfile = "RTerminal"
+outfile = "stdout"
 skippedFile = ""
 popminMaf = 0.05
 sampleminMaf = 0.1

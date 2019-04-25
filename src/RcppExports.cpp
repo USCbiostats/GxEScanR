@@ -91,9 +91,9 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// ScanGenes
-int ScanGenes(int n, int p, arma::vec& y, arma::mat& xl, arma::mat& xr, Rcpp::StringVector& snpID, int numSNPs, double minMAF, arma::vec& beta0, arma::vec& score0, arma::vec& w, arma::vec& wInv, arma::vec& yp0, arma::vec& zt0, arma::vec& k0, arma::mat& ql, arma::mat& rtl, arma::vec& abx, arma::vec& expabx, arma::vec& expabxp1, arma::vec& expitabx, arma::vec& yp, arma::vec& zt, arma::vec& k, arma::vec& bt, arma::mat& xrw1, arma::vec& beta1, arma::vec& score1, arma::vec& zb1, arma::vec& bb1, arma::mat& h1, arma::mat& rtr1, arma::mat& t1, arma::mat& qr1, arma::mat& rbr1, arma::vec& logLikelihood1, arma::mat& xrw2, arma::vec& beta2, arma::vec& score2, arma::vec& zb2, arma::vec& bb2, arma::mat& h2, arma::mat& rtr2, arma::mat& t2, arma::mat& qr2, arma::mat& rbr2, arma::vec& logLikelihood2, arma::mat& xr1, arma::mat& xr2, arma::vec logLikelihood0, arma::mat& logLikelihoods, arma::mat& estimates, Rcpp::StringVector& skipOut);
-RcppExport SEXP _GxEScanR_ScanGenes(SEXP nSEXP, SEXP pSEXP, SEXP ySEXP, SEXP xlSEXP, SEXP xrSEXP, SEXP snpIDSEXP, SEXP numSNPsSEXP, SEXP minMAFSEXP, SEXP beta0SEXP, SEXP score0SEXP, SEXP wSEXP, SEXP wInvSEXP, SEXP yp0SEXP, SEXP zt0SEXP, SEXP k0SEXP, SEXP qlSEXP, SEXP rtlSEXP, SEXP abxSEXP, SEXP expabxSEXP, SEXP expabxp1SEXP, SEXP expitabxSEXP, SEXP ypSEXP, SEXP ztSEXP, SEXP kSEXP, SEXP btSEXP, SEXP xrw1SEXP, SEXP beta1SEXP, SEXP score1SEXP, SEXP zb1SEXP, SEXP bb1SEXP, SEXP h1SEXP, SEXP rtr1SEXP, SEXP t1SEXP, SEXP qr1SEXP, SEXP rbr1SEXP, SEXP logLikelihood1SEXP, SEXP xrw2SEXP, SEXP beta2SEXP, SEXP score2SEXP, SEXP zb2SEXP, SEXP bb2SEXP, SEXP h2SEXP, SEXP rtr2SEXP, SEXP t2SEXP, SEXP qr2SEXP, SEXP rbr2SEXP, SEXP logLikelihood2SEXP, SEXP xr1SEXP, SEXP xr2SEXP, SEXP logLikelihood0SEXP, SEXP logLikelihoodsSEXP, SEXP estimatesSEXP, SEXP skipOutSEXP) {
+// ScanDisease
+int ScanDisease(int n, int p, arma::vec& y, arma::mat& xl, arma::mat& xr, Rcpp::StringVector& snpID, int numSNPs, double minMAF, arma::vec& beta0, arma::vec& score0, arma::vec& w, arma::vec& wInv, arma::vec& yp0, arma::vec& zt0, arma::vec& k0, arma::mat& ql, arma::mat& rtl, arma::vec& abx, arma::vec& expabx, arma::vec& expabxp1, arma::vec& expitabx, arma::vec& yp, arma::vec& zt, arma::vec& k, arma::vec& bt, arma::mat& xrw1, arma::vec& beta1, arma::vec& score1, arma::vec& zb1, arma::vec& bb1, arma::mat& h1, arma::mat& rtr1, arma::mat& t1, arma::mat& qr1, arma::mat& rbr1, arma::vec& logLikelihood1, arma::mat& xrw2, arma::vec& beta2, arma::vec& score2, arma::vec& zb2, arma::vec& bb2, arma::mat& h2, arma::mat& rtr2, arma::mat& t2, arma::mat& qr2, arma::mat& rbr2, arma::vec& logLikelihood2, arma::mat& xr1, arma::mat& xr2, arma::vec logLikelihood0, arma::mat& logLikelihoods, arma::mat& estimates, Rcpp::StringVector& skipOut);
+RcppExport SEXP _GxEScanR_ScanDisease(SEXP nSEXP, SEXP pSEXP, SEXP ySEXP, SEXP xlSEXP, SEXP xrSEXP, SEXP snpIDSEXP, SEXP numSNPsSEXP, SEXP minMAFSEXP, SEXP beta0SEXP, SEXP score0SEXP, SEXP wSEXP, SEXP wInvSEXP, SEXP yp0SEXP, SEXP zt0SEXP, SEXP k0SEXP, SEXP qlSEXP, SEXP rtlSEXP, SEXP abxSEXP, SEXP expabxSEXP, SEXP expabxp1SEXP, SEXP expitabxSEXP, SEXP ypSEXP, SEXP ztSEXP, SEXP kSEXP, SEXP btSEXP, SEXP xrw1SEXP, SEXP beta1SEXP, SEXP score1SEXP, SEXP zb1SEXP, SEXP bb1SEXP, SEXP h1SEXP, SEXP rtr1SEXP, SEXP t1SEXP, SEXP qr1SEXP, SEXP rbr1SEXP, SEXP logLikelihood1SEXP, SEXP xrw2SEXP, SEXP beta2SEXP, SEXP score2SEXP, SEXP zb2SEXP, SEXP bb2SEXP, SEXP h2SEXP, SEXP rtr2SEXP, SEXP t2SEXP, SEXP qr2SEXP, SEXP rbr2SEXP, SEXP logLikelihood2SEXP, SEXP xr1SEXP, SEXP xr2SEXP, SEXP logLikelihood0SEXP, SEXP logLikelihoodsSEXP, SEXP estimatesSEXP, SEXP skipOutSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -150,7 +150,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::mat& >::type logLikelihoods(logLikelihoodsSEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type estimates(estimatesSEXP);
     Rcpp::traits::input_parameter< Rcpp::StringVector& >::type skipOut(skipOutSEXP);
-    rcpp_result_gen = Rcpp::wrap(ScanGenes(n, p, y, xl, xr, snpID, numSNPs, minMAF, beta0, score0, w, wInv, yp0, zt0, k0, ql, rtl, abx, expabx, expabxp1, expitabx, yp, zt, k, bt, xrw1, beta1, score1, zb1, bb1, h1, rtr1, t1, qr1, rbr1, logLikelihood1, xrw2, beta2, score2, zb2, bb2, h2, rtr2, t2, qr2, rbr2, logLikelihood2, xr1, xr2, logLikelihood0, logLikelihoods, estimates, skipOut));
+    rcpp_result_gen = Rcpp::wrap(ScanDisease(n, p, y, xl, xr, snpID, numSNPs, minMAF, beta0, score0, w, wInv, yp0, zt0, k0, ql, rtl, abx, expabx, expabxp1, expitabx, yp, zt, k, bt, xrw1, beta1, score1, zb1, bb1, h1, rtr1, t1, qr1, rbr1, logLikelihood1, xrw2, beta2, score2, zb2, bb2, h2, rtr2, t2, qr2, rbr2, logLikelihood2, xr1, xr2, logLikelihood0, logLikelihoods, estimates, skipOut));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -165,14 +165,37 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// AppendGxEResults
+int AppendGxEResults(std::string& filename, Rcpp::StringVector& snpID, Rcpp::StringVector& chromosome, Rcpp::IntegerVector& location, Rcpp::StringVector& refAllele, Rcpp::StringVector& altAllele, int numSub, int numCases, arma::mat& logLike, arma::mat& estimates, int length, double sigmaE);
+RcppExport SEXP _GxEScanR_AppendGxEResults(SEXP filenameSEXP, SEXP snpIDSEXP, SEXP chromosomeSEXP, SEXP locationSEXP, SEXP refAlleleSEXP, SEXP altAlleleSEXP, SEXP numSubSEXP, SEXP numCasesSEXP, SEXP logLikeSEXP, SEXP estimatesSEXP, SEXP lengthSEXP, SEXP sigmaESEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< std::string& >::type filename(filenameSEXP);
+    Rcpp::traits::input_parameter< Rcpp::StringVector& >::type snpID(snpIDSEXP);
+    Rcpp::traits::input_parameter< Rcpp::StringVector& >::type chromosome(chromosomeSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector& >::type location(locationSEXP);
+    Rcpp::traits::input_parameter< Rcpp::StringVector& >::type refAllele(refAlleleSEXP);
+    Rcpp::traits::input_parameter< Rcpp::StringVector& >::type altAllele(altAlleleSEXP);
+    Rcpp::traits::input_parameter< int >::type numSub(numSubSEXP);
+    Rcpp::traits::input_parameter< int >::type numCases(numCasesSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type logLike(logLikeSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type estimates(estimatesSEXP);
+    Rcpp::traits::input_parameter< int >::type length(lengthSEXP);
+    Rcpp::traits::input_parameter< double >::type sigmaE(sigmaESEXP);
+    rcpp_result_gen = Rcpp::wrap(AppendGxEResults(filename, snpID, chromosome, location, refAllele, altAllele, numSub, numCases, logLike, estimates, length, sigmaE));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_GxEScanR_GetLocations", (DL_FUNC) &_GxEScanR_GetLocations, 4},
     {"_GxEScanR_GetSections", (DL_FUNC) &_GxEScanR_GetSections, 5},
     {"_GxEScanR_ReadSNP", (DL_FUNC) &_GxEScanR_ReadSNP, 18},
     {"_GxEScanR_InitializeLRMod", (DL_FUNC) &_GxEScanR_InitializeLRMod, 18},
-    {"_GxEScanR_ScanGenes", (DL_FUNC) &_GxEScanR_ScanGenes, 53},
+    {"_GxEScanR_ScanDisease", (DL_FUNC) &_GxEScanR_ScanDisease, 53},
     {"_GxEScanR_OpenGxEOutFile", (DL_FUNC) &_GxEScanR_OpenGxEOutFile, 1},
+    {"_GxEScanR_AppendGxEResults", (DL_FUNC) &_GxEScanR_AppendGxEResults, 12},
     {NULL, NULL, 0}
 };
 
