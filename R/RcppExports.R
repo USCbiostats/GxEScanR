@@ -21,11 +21,15 @@ ScanDisease <- function(n, p, y, xl, xr, snpID, numSNPs, minMAF, beta0, score0, 
     .Call(`_GxEScanR_ScanDisease`, n, p, y, xl, xr, snpID, numSNPs, minMAF, beta0, score0, w, wInv, yp0, zt0, k0, ql, rtl, abx, expabx, expabxp1, expitabx, yp, zt, k, bt, xrw1, beta1, score1, zb1, bb1, h1, rtr1, t1, qr1, rbr1, logLikelihood1, xrw2, beta2, score2, zb2, bb2, h2, rtr2, t2, qr2, rbr2, logLikelihood2, xr1, xr2, logLikelihood0, logLikelihoods, estimates, skipOut)
 }
 
+ScanBinaryE <- function(n, p, y, xl, xr, snpID, numSNPs, minMAF, beta0, score0, w, wInv, yp0, zt0, k0, ql, rtl, abx, expabx, expabxp1, expitabx, yp, zt, k, bt, xrw1, beta1, score1, zb1, bb1, h1, rtr1, t1, qr1, rbr1, logLikelihood1, xr1, logLikelihood0, logLikelihoods, estimates, testID, skipOut, modelName) {
+    .Call(`_GxEScanR_ScanBinaryE`, n, p, y, xl, xr, snpID, numSNPs, minMAF, beta0, score0, w, wInv, yp0, zt0, k0, ql, rtl, abx, expabx, expabxp1, expitabx, yp, zt, k, bt, xrw1, beta1, score1, zb1, bb1, h1, rtr1, t1, qr1, rbr1, logLikelihood1, xr1, logLikelihood0, logLikelihoods, estimates, testID, skipOut, modelName)
+}
+
 OpenGxEOutFile <- function(filename) {
     .Call(`_GxEScanR_OpenGxEOutFile`, filename)
 }
 
-AppendGxEResults <- function(filename, snpID, chromosome, location, refAllele, altAllele, numSub, numCases, logLike, estimates, length, sigmaE) {
-    .Call(`_GxEScanR_AppendGxEResults`, filename, snpID, chromosome, location, refAllele, altAllele, numSub, numCases, logLike, estimates, length, sigmaE)
+AppendGxEScanResults <- function(filename, snpID, chromosome, location, refAllele, altAllele, numSub, numCases, lrTest, estimates, length, sigmaE) {
+    .Call(`_GxEScanR_AppendGxEScanResults`, filename, snpID, chromosome, location, refAllele, altAllele, numSub, numCases, lrTest, estimates, length, sigmaE)
 }
 

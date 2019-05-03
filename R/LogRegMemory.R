@@ -12,7 +12,7 @@ AllocateLRModConstantMemory <- function(x, y) {
   k <- numeric(p)
   ql <- matrix(0., nrow = n, ncol = p)
   rtl <- matrix(0., nrow = p, ncol = p)
-  logLikelihood <- 0.
+  logLikelihood <- numeric(1)
   return (list(n = n,
                p = p,
                beta = beta,
@@ -73,4 +73,37 @@ AllocateLRModNotFixedMemory <- function(n, p, q) {
                qr = qr,
                rbr = rbr,
                logLikelihood = logLikelihood))
+}
+
+# Allocates memory need for large scale logistic regression
+AllocateLargeScaleLogRegMemory <- function(y, x, gxe) {
+  if (ncol(x) == 1) {
+    df <- data.frame(y = y)
+  } else {
+    df <- data.frame(y = y, x = x[,2:ncol(x)])
+  }
+  rlogreg <- glm(y ~ ., data = df, family = "binomial")
+  
+  p1 <- AllocateLRModConstantMemory(x, y)
+  p2 <- AllocateLRModFixedMemory(p1$n, p1$p)
+  p1$beta <- rlogreg$coefficients
+  result <- InitializeLRMod(p1$n, p1$p, y, x,
+                            p1$beta, p1$score, p1$w, p1$wInv,
+                            p1$yp, p1$zt, p1$k, p1$ql, p1$rtl,
+                            p2$abx, p2$expabx, p2$expabxp1, p2$expitabx, p1$logLikelihood)
+  if (result != 0)
+    stop("Error initialize D|E model")
+  if (abs(p1$logLikelihood - logLik(rlogreg)) > 1e-7)
+    stop("Error calculating log likelihood for D|E")
+  p3 <- AllocateLRModNotFixedMemory(p1$n, p1$p, 1)
+  if (gxe == TRUE) {
+    p3gxe <- AllocateLRModNotFixedMemory(p1$n, p1$p, 2)
+    return (list(p1 = p1,
+                 p2 = p2,
+                 p3 = p3,
+                 p3gxe = p3gxe))
+  }
+  return (list(p1 = p1,
+               p2 = p2,
+               p3 = p3))
 }

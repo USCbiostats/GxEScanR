@@ -1,15 +1,24 @@
 context("test-standardizecovariates")
 
 test_that("Covariates standardize", {
-  covariates <- matrix(c(1., 1., 1., 1., 0., 2., 0., 2.), 4, 2)
-  expect_error(StandardizeCovariates(covariates),
+  geneticData <- simGeneticData
+  geneticData$filename <- system.file("extdata", simGeneticData$filename, package = "GxEScanR")
+  subjectInfo <- ProcessSubjectData(subjectData = simSubjectData)
+  subjectInfo <- MatchSubjectsAndGeneticData(subjectInfo, geneticData)
+
+  subjectInfo2 <- subjectInfo;
+  subjectInfo2$covariates[,1] <- 1.
+  expect_error(StandardizeCovariates(subjectInfo2),
                "At least one of the covariates is constant")
-  covariates[1,1] <- 0.
-  covariates[2,1] <- 0.
-  sigmaE <- sqrt(c(1./3., 4./3.))
-  x1 <- 0.5 / sigmaE[1]
-  x <- matrix(c(-x1, -x1, x1, x1, -x1, x1, -x1, x1), 4, 2)
-  ans <- StandardizeCovariates(covariates)
-  expect_equal(ans$sigmaE, sigmaE)
-  expect_equal(ans$x, x)
+  
+  result <- StandardizeCovariates(subjectInfo)
+  expect_equal(mean(result$x[,1]), 1.)
+  expect_equal(var(result$x[,1]), 0.)
+  expect_true(abs(mean(result$x[,2])) < 1e-15)
+  expect_equal(var(result$x[,2]), 1.)
+  expect_true(abs(mean(result$x[,3])) < 1e-15)
+  expect_equal(var(result$x[,3]), 1.)
+  expect_true(all(result$eg == result$x[,1:2]))
+  expect_true(all(result$cases == result$eg[subjectInfo$phenotype == 1,]))
+  expect_true(all(result$controls == result$eg[subjectInfo$phenotype == 0,]))
 })

@@ -162,6 +162,10 @@ int ReadSNP(Rcpp::IntegerVector &snpNumber,
         return 1;
       }
       infile.read((char *)&buffer[0], fLoc[snpSection[snpNumber[i] - 1] + 1] - fLoc[snpSection[snpNumber[i] - 1]]);
+//      Rcpp::Rcout << "SNP:\t" << snpNumber[i] << "\tStart:\t" << fLoc[snpSection[snpNumber[i] - 1]] << '\t'
+//                  << "End:\t" << fLoc[snpSection[snpNumber[i] - 1] + 1] << '\t'
+//                  << "Size:\t" << fLoc[snpSection[snpNumber[i] - 1] + 1] - fLoc[snpSection[snpNumber[i] - 1]] << std::endl;
+      
       if (infile.fail()) {
         Rcpp::Rcerr << "Error reading from file" << std::endl
                     << "Start:\t" << fLoc[snpSection[snpNumber[i] - 1]] << std::endl

@@ -126,14 +126,29 @@ MatchSubjectsAndGeneticData <- function(subjectData, geneticData) {
 # This routines standardized the covariates. This makes fitting logistics
 # models a little easier. The standard deviation is also returned because
 # this is needed to convert the beta estimates back to the original scale.
-StandardizeCovariates <- function(covariates) {
-  sigmaE = sqrt(diag(var(covariates)))
+StandardizeCovariates <- function(subjectInfo) {
+  sigmaE = sqrt(diag(var(subjectInfo$covariates)))
   if (min(sigmaE) == 0.)
     stop("At least one of the covariates is constant")
-  x <- scale(covariates)
-  x = matrix(x, nrow(covariates), ncol(covariates))
+  x <- scale(subjectInfo$covariates)
+  x <- matrix(x, nrow(subjectInfo$covariates), ncol(subjectInfo$covariates))
+  x <- cbind(1., x)
+  eg <- as.matrix(x[,1:(ncol(x) - 1)])
+  cases <- as.matrix(eg[subjectInfo$phenotype == 1,])
+  controls <- as.matrix(eg[subjectInfo$phenotype == 0,])
   return (list(sigmaE = sigmaE,
-               x = x))
+               x = x,
+               eg = eg,
+               cases = cases,
+               controls = controls))
+}
+
+# Get the outcome for the various models
+GetOutcomes <- function(subjectInfo) {
+  return (list(y = subjectInfo$phenotype,
+               eg = subjectInfo$covariates[, ncol(subjectInfo$covariates)],
+               cases = subjectInfo$covariates[subjectInfo$phenotype == 1, ncol(subjectInfo$covariates)],
+               controls = subjectInfo$covariates[subjectInfo$phenotype == 0, ncol(subjectInfo$covariates)]))
 }
 
 # Get information needed to read in a binary dosage file
@@ -266,48 +281,49 @@ GxEScan <- function(subjectData, geneticData, outputFile, skippedFilename = "", 
   }
   subjectInfo <- MatchSubjectsAndGeneticData(subjectInfo, geneticData)
   
-  standardizedX <- StandardizeCovariates(subjectInfo$covariates)
-  df <- data.frame(y = subjectInfo$phenotype, x = standardizedX$x)
-  gge <- glm(y ~ ., data = df, family = "binomial")
+  # Get the x's and y's for the regressions - standardizing the x's
+  standardizedX <- StandardizeCovariates(subjectInfo)
+  outcomes <- GetOutcomes(subjectInfo)
+  # indices for cases and controls
+  indicesCases <- which(outcomes$y == 1)
+  indicesControls <- which(outcomes$y == 0)
+  # Number of subjects and number of cases
+  numSub <- length(outcomes$y)
+  numCases <- sum(outcomes$y)
+  numControls <- numSub - numCases
   
-  standardizedX$x <- cbind(1., standardizedX$x)
-  p1d <- AllocateLRModConstantMemory(standardizedX$x, subjectInfo$phenotype)
-  p2d <- AllocateLRModFixedMemory(p1d$n, p1d$p)
-  p1d$beta <- gge$coefficients
-  result <- InitializeLRMod(p1d$n, p1d$p, subjectInfo$phenotype, standardizedX$x,
-                            p1d$beta, p1d$score, p1d$w, p1d$wInv,
-                            p1d$yp, p1d$zt, p1d$k, p1d$ql, p1d$rtl,
-                            p2d$abx, p2d$expabx, p2d$expabxp1, p2d$expitabx, p1d$logLikelihood)
-  if (result != 0)
-    stop("Error initialize D|E model")
-  if (abs(p1d$logLikelihood - logLik(gge)) > 1e-7)
-    stop("Error calculating log likelihood")
-  rm(df)
-  rm(gge)
-
+  # Select SNPs that meet minimum maf requirements  
   snpminmaf <- match(geneticData$SNPs$SNPID[abs(geneticData$SNPInfo$AAF - 0.5) < 0.5 - popminMaf], geneticData$SNPs$SNPID)
   snpminmaf <- snpminmaf[snpminmaf %in% snpIndices]
   bdInfo <- GetBDFileInfo(geneticData)
   
-  snpSet <- matrix(data = 0., nrow = length(subjectInfo$indices), ncol = 400)
-  p3dg <- AllocateLRModNotFixedMemory(p1d$n, p1d$p, 1)
-  p3dgxe <- AllocateLRModNotFixedMemory(p1d$n, p1d$p, 2)
+  # Memory allocation for models
+  gxeMem <- AllocateLargeScaleLogRegMemory(outcomes$y, standardizedX$x, TRUE)
+  egMem <- AllocateLargeScaleLogRegMemory(outcomes$eg, standardizedX$eg, FALSE)
+  casesMem <- AllocateLargeScaleLogRegMemory(outcomes$cases, standardizedX$cases, FALSE)
+  controlsMem <- AllocateLargeScaleLogRegMemory(outcomes$controls, standardizedX$controls, FALSE)
+
   # Memory needed for adding columns to previous LR model fit
-  xr1 <- matrix(data = 0., nrow = p1d$n, ncol = 1)
-  xr2 <- matrix(data = 0., nrow = p1d$n, ncol = 2)
+  xr1 <- matrix(data = 0., nrow = gxeMem$p1$n, ncol = 1)
+  xr2 <- matrix(data = 0., nrow = gxeMem$p1$n, ncol = 2)
+  xrCases <- matrix(data = 0., nrow = numCases, ncol = 1)
+  xrControls <- matrix(data = 0., nrow = numControls, ncol = 1)
+
   # Memory for results
-  loglikelihoods <- matrix(data = 0., nrow = 100, ncol = 3)
-  estimates <- matrix(data = 0., nrow = 100, ncol = 2)
+  loglikelihoods <- matrix(data = 0., nrow = 100, ncol = 6)
+  estimates <- matrix(data = 0., nrow = 100, ncol = 6)
+
+  # Memory for SNPs
+  snpSet <- matrix(data = 0., nrow = length(subjectInfo$indices), ncol = 400)
+  snpCases <- matrix(data = 0., nrow = length(indicesCases), ncol = 400)
+  snpControls <- matrix(data = 0., nrow = length(indicesControls), ncol = 400)
   # Memory for SNP info
   snpID <- character(100)
   chromosome <- character(100)
   locations <- integer(100)
   refAllele <- character(100)
   altAllele <- character(100)
-  # Number of subjects and number of cases
-  numSub = length(subjectInfo$phenotype)
-  numCases = sum(subjectInfo$phenotype)
-  
+
   # Count the number of groups and loop over them
   numGroups = ceiling(length(snpminmaf) / 100)
   # Loop over the groups of SNPs
@@ -316,7 +332,7 @@ GxEScan <- function(subjectData, geneticData, outputFile, skippedFilename = "", 
   for (i in 1:numGroups) {
     firstSNP <- (i - 1) * 100 + 1
     lastSNP <- min(firstSNP + 99, length(snpminmaf))
-
+    
     readResult <- ReadSNP(snpminmaf[firstSNP:lastSNP], subjectInfo$indices,
                           bdInfo$filename, bdInfo$format,
                           bdInfo$numSub, bdInfo$numSNPs,
@@ -327,6 +343,8 @@ GxEScan <- function(subjectData, geneticData, outputFile, skippedFilename = "", 
                           bdInfo$p0, bdInfo$p1, bdInfo$p2, snpSet)
     if (readResult == 1)
       stop("Error reading genetic file")
+    snpCases[1:nrow(snpCases), 1:400] = snpSet[indicesCases, 1:400]
+    snpControls[1:nrow(snpControls), 1:400] = snpSet[indicesControls, 1:400]
     
     snpID[1:length(firstSNP:lastSNP)] <- geneticData$SNPs$SNPID[snpminmaf[firstSNP:lastSNP]]
     chromosome[1:length(firstSNP:lastSNP)] <- geneticData$SNPs$Chromosome[snpminmaf[firstSNP:lastSNP]]
@@ -334,24 +352,75 @@ GxEScan <- function(subjectData, geneticData, outputFile, skippedFilename = "", 
     refAllele[1:length(firstSNP:lastSNP)] <- geneticData$SNPs$Reference[snpminmaf[firstSNP:lastSNP]]
     altAllele[1:length(firstSNP:lastSNP)] <- geneticData$SNPs$Alternate[snpminmaf[firstSNP:lastSNP]]
     loglikelihoods[,] = NA
-    scanResult <- ScanDisease(p1d$n, p1d$p, subjectInfo$phenotype, standardizedX$x,
-                              snpSet, snpID, length(firstSNP:lastSNP), sampleminMaf,
-                              p1d$beta, p1d$score, p1d$w, p1d$wInv, p1d$yp,
-                              p1d$zt, p1d$k, p1d$ql, p1d$rtl,
-                              p2d$abx, p2d$expabx, p2d$expabxp1, p2d$expitabx,
-                              p2d$yp, p2d$zt, p2d$k, p2d$bt,
-                              p3dg$xrw, p3dg$beta, p3dg$score, p3dg$zb, p3dg$bb,
-                              p3dg$h, p3dg$rtr, p3dg$t, p3dg$qr, p3dg$rbr, p3dg$logLikelihood,
-                              p3dgxe$xrw, p3dgxe$beta, p3dgxe$score, p3dgxe$zb, p3dgxe$bb,
-                              p3dgxe$h, p3dgxe$rtr, p3dgxe$t, p3dgxe$qr, p3dgxe$rbr, p3dgxe$logLikelihood,
-                              xr1, xr2, p1d$logLikelihood, loglikelihoods, estimates, skippedFilename)
-    if (scanResult > 0) {
+    estimates[,] = NA
+    scanResult <- ScanDisease(gxeMem$p1$n, gxeMem$p1$p,
+                              outcomes$y, standardizedX$x,
+                              snpSet, snpID, length(firstSNP:lastSNP),
+                              sampleminMaf,
+                              gxeMem$p1$beta, gxeMem$p1$score, gxeMem$p1$w,
+                              gxeMem$p1$wInv, gxeMem$p1$yp,
+                              gxeMem$p1$zt, gxeMem$p1$k, gxeMem$p1$ql, gxeMem$p1$rtl,
+                              gxeMem$p2$abx, gxeMem$p2$expabx, gxeMem$p2$expabxp1, gxeMem$p2$expitabx,
+                              gxeMem$p2$yp, gxeMem$p2$zt, gxeMem$p2$k, gxeMem$p2$bt,
+                              gxeMem$p3$xrw, gxeMem$p3$beta, gxeMem$p3$score, gxeMem$p3$zb, gxeMem$p3$bb,
+                              gxeMem$p3$h, gxeMem$p3$rtr, gxeMem$p3$t, gxeMem$p3$qr, gxeMem$p3$rbr, gxeMem$p3$logLikelihood,
+                              gxeMem$p3gxe$xrw, gxeMem$p3gxe$beta, gxeMem$p3gxe$score, gxeMem$p3gxe$zb, gxeMem$p3gxe$bb,
+                              gxeMem$p3gxe$h, gxeMem$p3gxe$rtr, gxeMem$p3gxe$t, gxeMem$p3gxe$qr,
+                              gxeMem$p3gxe$rbr, gxeMem$p3gxe$logLikelihood,
+                              xr1, xr2, gxeMem$p1$logLikelihood, loglikelihoods,
+                              estimates, skippedFilename)
+    if (scanResult > 0)
       stop("Error scanning genes")
-    }
-    AppendGxEResults(outputFile, snpID, chromosome, locations,
-                     refAllele, altAllele, numSub, numCases,
-                     loglikelihoods, estimates, length(firstSNP:lastSNP),
-                     standardizedX$sigmaE[length(standardizedX$sigmaE)])
+    estimates[,2] <- estimates[,2] / standardizedX$sigmaE[length(standardizedX$sigmaE)]
+    scanResult <- ScanBinaryE(egMem$p1$n, egMem$p1$p,
+                              outcomes$eg, standardizedX$eg,
+                              snpSet, snpID, length(firstSNP:lastSNP),
+                              sampleminMaf,
+                              egMem$p1$beta, egMem$p1$score, egMem$p1$w,
+                              egMem$p1$wInv, egMem$p1$yp,
+                              egMem$p1$zt, egMem$p1$k, egMem$p1$ql, egMem$p1$rtl,
+                              egMem$p2$abx, egMem$p2$expabx, egMem$p2$expabxp1, egMem$p2$expitabx,
+                              egMem$p2$yp, egMem$p2$zt, egMem$p2$k, egMem$p2$bt,
+                              egMem$p3$xrw, egMem$p3$beta, egMem$p3$score, egMem$p3$zb, egMem$p3$bb,
+                              egMem$p3$h, egMem$p3$rtr, egMem$p3$t, egMem$p3$qr, egMem$p3$rbr, egMem$p3$logLikelihood,
+                              xr1, egMem$p1$logLikelihood, loglikelihoods,
+                              estimates, 3L, "", "G|E")
+    if (scanResult > 0)
+      stop("Error scanning genes")
+    scanResult <- ScanBinaryE(casesMem$p1$n, casesMem$p1$p,
+                              outcomes$cases, standardizedX$cases,
+                              snpCases, snpID, length(firstSNP:lastSNP),
+                              sampleminMaf,
+                              casesMem$p1$beta, casesMem$p1$score, casesMem$p1$w,
+                              casesMem$p1$wInv, casesMem$p1$yp,
+                              casesMem$p1$zt, casesMem$p1$k, casesMem$p1$ql, casesMem$p1$rtl,
+                              casesMem$p2$abx, casesMem$p2$expabx, casesMem$p2$expabxp1, casesMem$p2$expitabx,
+                              casesMem$p2$yp, casesMem$p2$zt, casesMem$p2$k, casesMem$p2$bt,
+                              casesMem$p3$xrw, casesMem$p3$beta, casesMem$p3$score, casesMem$p3$zb, casesMem$p3$bb,
+                              casesMem$p3$h, casesMem$p3$rtr, casesMem$p3$t, casesMem$p3$qr, casesMem$p3$rbr, casesMem$p3$logLikelihood,
+                              xrCases, casesMem$p1$logLikelihood, loglikelihoods,
+                              estimates, 4L, "", "case-only")
+    if (scanResult > 0)
+      stop("Error scanning genes")
+    scanResult <- ScanBinaryE(controlsMem$p1$n, controlsMem$p1$p,
+                              outcomes$controls, standardizedX$controls,
+                              snpControls, snpID, length(firstSNP:lastSNP),
+                              sampleminMaf,
+                              controlsMem$p1$beta, controlsMem$p1$score, controlsMem$p1$w,
+                              controlsMem$p1$wInv, controlsMem$p1$yp,
+                              controlsMem$p1$zt, controlsMem$p1$k, controlsMem$p1$ql, controlsMem$p1$rtl,
+                              controlsMem$p2$abx, controlsMem$p2$expabx, controlsMem$p2$expabxp1, controlsMem$p2$expitabx,
+                              controlsMem$p2$yp, controlsMem$p2$zt, controlsMem$p2$k, controlsMem$p2$bt,
+                              controlsMem$p3$xrw, controlsMem$p3$beta, controlsMem$p3$score, controlsMem$p3$zb, controlsMem$p3$bb,
+                              controlsMem$p3$h, controlsMem$p3$rtr, controlsMem$p3$t, controlsMem$p3$qr, controlsMem$p3$rbr, controlsMem$p3$logLikelihood,
+                              xrControls, controlsMem$p1$logLikelihood, loglikelihoods,
+                              estimates, 5L, "", "control-only")
+    if (scanResult > 0)
+      stop("Error scanning genes")
+    AppendGxEScanResults(outputFile, snpID, chromosome, locations,
+                         refAllele, altAllele, numSub, numCases,
+                         loglikelihoods, estimates, length(firstSNP:lastSNP),
+                         standardizedX$sigmaE[length(standardizedX$sigmaE)])
   }
 
   return(0)

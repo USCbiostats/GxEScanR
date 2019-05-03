@@ -179,13 +179,14 @@ int ScanDisease(int n, int p,
   
   try {
     for (i = 0; i < numSNPs; ++i) {
-      xr1.submat(0, 0, n - 1, 0) = xr.submat(0, 4*i, n - 1, 4*i);
-      maf = mean(xr1.col(0)) / 2.;
       logLikelihoods(i,0) = NA_REAL;
       logLikelihoods(i,1) = NA_REAL;
       logLikelihoods(i,2) = NA_REAL;
       estimates(i, 0) = NA_REAL;
       estimates(i, 1) = NA_REAL;
+
+      xr1.submat(0, 0, n - 1, 0) = xr.submat(0, 4*i, n - 1, 4*i);
+      maf = mean(xr1.col(0)) / 2.;
       if (maf < minMAF || (1. - maf) < minMAF) {
         outstring << snpID[i] << "\tskipped because maf, ";
         outstring << (maf < 0.5 ? maf : 1 - maf);
@@ -218,6 +219,68 @@ int ScanDisease(int n, int p,
     } 
   } catch (...) {
     Rcpp::Rcerr << snpID[i] << '\t' << "Error caught in ScanGenes" << std::endl;
+    return 1;
+  }
+  
+  skipFile = skipOut[0];
+  return WriteOutput(skipFile, outstring.str());
+}
+
+// [[Rcpp::export]]
+int ScanBinaryE(int n, int p,
+                arma::vec &y, arma::mat &xl, arma::mat &xr,
+                Rcpp::StringVector &snpID,
+                int numSNPs, double minMAF,
+                arma::vec &beta0, arma::vec &score0,
+                arma::vec &w, arma::vec &wInv,
+                arma::vec &yp0, arma::vec &zt0, arma::vec &k0,
+                arma::mat &ql, arma::mat &rtl,
+                arma::vec &abx, arma::vec &expabx,
+                arma::vec &expabxp1, arma::vec &expitabx,
+                arma::vec &yp, arma::vec &zt, arma::vec &k, arma::vec &bt,
+                arma::mat &xrw1, arma::vec &beta1, arma::vec &score1,
+                arma::vec &zb1, arma::vec &bb1,
+                arma::mat &h1, arma::mat &rtr1, arma::mat &t1,
+                arma::mat &qr1, arma::mat &rbr1,
+                arma::vec &logLikelihood1,
+                arma::mat &xr1,
+                arma::vec logLikelihood0, arma::mat &logLikelihoods,
+                arma::mat &estimates, int testID,
+                Rcpp::StringVector &skipOut, Rcpp::StringVector &modelName) {
+  int i = 0;
+  double maf;
+  std::string currentSNPid;
+  std::string modelNameC;
+  std::ostringstream outstring;
+  std::string skipFile;
+  
+  modelNameC = modelName[0];
+  try {
+    for (i = 0; i < numSNPs; ++i) {
+      logLikelihoods(i, testID) = NA_REAL;
+      estimates(i, testID) = NA_REAL;
+
+      xr1.submat(0, 0, n - 1, 0) = xr.submat(0, 4*i, n - 1, 4*i);
+      maf = mean(xr1.col(0)) / 2.;
+      if (maf < minMAF || (1. - maf) < minMAF) {
+        outstring << snpID[i] << "\tskipped because maf, ";
+        outstring << (maf < 0.5 ? maf : 1 - maf);
+        outstring << ", is less than sampleminMaf, " << minMAF << std::endl;
+        continue;
+      }
+      
+      currentSNPid = snpID[i];
+      if (FitLRMod(n, p, y, xl, xr1, currentSNPid, modelNameC,
+                   beta0, score0, w, wInv, yp0, zt0, k0, ql, rtl,
+                   abx, expabx, expabxp1, expitabx, yp, zt, k, bt,
+                   xrw1, beta1, score1, zb1, bb1, h1, rtr1, t1, qr1,
+                   rbr1, logLikelihood1, outstring) == 0) {
+        logLikelihoods(i, testID) = 2 * (logLikelihood1[0] - logLikelihood0[0]);
+        estimates(i, testID) = beta1(p);
+      }
+    } 
+  } catch (...) {
+    Rcpp::Rcerr << snpID[i] << '\t' << "Error caught in ScanBinaryE" << std::endl;
     return 1;
   }
   

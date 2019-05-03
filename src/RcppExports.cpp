@@ -154,6 +154,59 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// ScanBinaryE
+int ScanBinaryE(int n, int p, arma::vec& y, arma::mat& xl, arma::mat& xr, Rcpp::StringVector& snpID, int numSNPs, double minMAF, arma::vec& beta0, arma::vec& score0, arma::vec& w, arma::vec& wInv, arma::vec& yp0, arma::vec& zt0, arma::vec& k0, arma::mat& ql, arma::mat& rtl, arma::vec& abx, arma::vec& expabx, arma::vec& expabxp1, arma::vec& expitabx, arma::vec& yp, arma::vec& zt, arma::vec& k, arma::vec& bt, arma::mat& xrw1, arma::vec& beta1, arma::vec& score1, arma::vec& zb1, arma::vec& bb1, arma::mat& h1, arma::mat& rtr1, arma::mat& t1, arma::mat& qr1, arma::mat& rbr1, arma::vec& logLikelihood1, arma::mat& xr1, arma::vec logLikelihood0, arma::mat& logLikelihoods, arma::mat& estimates, int testID, Rcpp::StringVector& skipOut, Rcpp::StringVector& modelName);
+RcppExport SEXP _GxEScanR_ScanBinaryE(SEXP nSEXP, SEXP pSEXP, SEXP ySEXP, SEXP xlSEXP, SEXP xrSEXP, SEXP snpIDSEXP, SEXP numSNPsSEXP, SEXP minMAFSEXP, SEXP beta0SEXP, SEXP score0SEXP, SEXP wSEXP, SEXP wInvSEXP, SEXP yp0SEXP, SEXP zt0SEXP, SEXP k0SEXP, SEXP qlSEXP, SEXP rtlSEXP, SEXP abxSEXP, SEXP expabxSEXP, SEXP expabxp1SEXP, SEXP expitabxSEXP, SEXP ypSEXP, SEXP ztSEXP, SEXP kSEXP, SEXP btSEXP, SEXP xrw1SEXP, SEXP beta1SEXP, SEXP score1SEXP, SEXP zb1SEXP, SEXP bb1SEXP, SEXP h1SEXP, SEXP rtr1SEXP, SEXP t1SEXP, SEXP qr1SEXP, SEXP rbr1SEXP, SEXP logLikelihood1SEXP, SEXP xr1SEXP, SEXP logLikelihood0SEXP, SEXP logLikelihoodsSEXP, SEXP estimatesSEXP, SEXP testIDSEXP, SEXP skipOutSEXP, SEXP modelNameSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< int >::type p(pSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type xl(xlSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type xr(xrSEXP);
+    Rcpp::traits::input_parameter< Rcpp::StringVector& >::type snpID(snpIDSEXP);
+    Rcpp::traits::input_parameter< int >::type numSNPs(numSNPsSEXP);
+    Rcpp::traits::input_parameter< double >::type minMAF(minMAFSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type beta0(beta0SEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type score0(score0SEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type w(wSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type wInv(wInvSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type yp0(yp0SEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type zt0(zt0SEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type k0(k0SEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type ql(qlSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type rtl(rtlSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type abx(abxSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type expabx(expabxSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type expabxp1(expabxp1SEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type expitabx(expitabxSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type yp(ypSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type zt(ztSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type k(kSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type bt(btSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type xrw1(xrw1SEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type beta1(beta1SEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type score1(score1SEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type zb1(zb1SEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type bb1(bb1SEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type h1(h1SEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type rtr1(rtr1SEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type t1(t1SEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type qr1(qr1SEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type rbr1(rbr1SEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type logLikelihood1(logLikelihood1SEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type xr1(xr1SEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type logLikelihood0(logLikelihood0SEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type logLikelihoods(logLikelihoodsSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type estimates(estimatesSEXP);
+    Rcpp::traits::input_parameter< int >::type testID(testIDSEXP);
+    Rcpp::traits::input_parameter< Rcpp::StringVector& >::type skipOut(skipOutSEXP);
+    Rcpp::traits::input_parameter< Rcpp::StringVector& >::type modelName(modelNameSEXP);
+    rcpp_result_gen = Rcpp::wrap(ScanBinaryE(n, p, y, xl, xr, snpID, numSNPs, minMAF, beta0, score0, w, wInv, yp0, zt0, k0, ql, rtl, abx, expabx, expabxp1, expitabx, yp, zt, k, bt, xrw1, beta1, score1, zb1, bb1, h1, rtr1, t1, qr1, rbr1, logLikelihood1, xr1, logLikelihood0, logLikelihoods, estimates, testID, skipOut, modelName));
+    return rcpp_result_gen;
+END_RCPP
+}
 // OpenGxEOutFile
 int OpenGxEOutFile(std::string& filename);
 RcppExport SEXP _GxEScanR_OpenGxEOutFile(SEXP filenameSEXP) {
@@ -165,9 +218,9 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// AppendGxEResults
-int AppendGxEResults(std::string& filename, Rcpp::StringVector& snpID, Rcpp::StringVector& chromosome, Rcpp::IntegerVector& location, Rcpp::StringVector& refAllele, Rcpp::StringVector& altAllele, int numSub, int numCases, arma::mat& logLike, arma::mat& estimates, int length, double sigmaE);
-RcppExport SEXP _GxEScanR_AppendGxEResults(SEXP filenameSEXP, SEXP snpIDSEXP, SEXP chromosomeSEXP, SEXP locationSEXP, SEXP refAlleleSEXP, SEXP altAlleleSEXP, SEXP numSubSEXP, SEXP numCasesSEXP, SEXP logLikeSEXP, SEXP estimatesSEXP, SEXP lengthSEXP, SEXP sigmaESEXP) {
+// AppendGxEScanResults
+int AppendGxEScanResults(std::string& filename, Rcpp::StringVector& snpID, Rcpp::StringVector& chromosome, Rcpp::IntegerVector& location, Rcpp::StringVector& refAllele, Rcpp::StringVector& altAllele, int numSub, int numCases, arma::mat& lrTest, arma::mat& estimates, int length, double sigmaE);
+RcppExport SEXP _GxEScanR_AppendGxEScanResults(SEXP filenameSEXP, SEXP snpIDSEXP, SEXP chromosomeSEXP, SEXP locationSEXP, SEXP refAlleleSEXP, SEXP altAlleleSEXP, SEXP numSubSEXP, SEXP numCasesSEXP, SEXP lrTestSEXP, SEXP estimatesSEXP, SEXP lengthSEXP, SEXP sigmaESEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -179,11 +232,11 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Rcpp::StringVector& >::type altAllele(altAlleleSEXP);
     Rcpp::traits::input_parameter< int >::type numSub(numSubSEXP);
     Rcpp::traits::input_parameter< int >::type numCases(numCasesSEXP);
-    Rcpp::traits::input_parameter< arma::mat& >::type logLike(logLikeSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type lrTest(lrTestSEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type estimates(estimatesSEXP);
     Rcpp::traits::input_parameter< int >::type length(lengthSEXP);
     Rcpp::traits::input_parameter< double >::type sigmaE(sigmaESEXP);
-    rcpp_result_gen = Rcpp::wrap(AppendGxEResults(filename, snpID, chromosome, location, refAllele, altAllele, numSub, numCases, logLike, estimates, length, sigmaE));
+    rcpp_result_gen = Rcpp::wrap(AppendGxEScanResults(filename, snpID, chromosome, location, refAllele, altAllele, numSub, numCases, lrTest, estimates, length, sigmaE));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -194,8 +247,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_GxEScanR_ReadSNP", (DL_FUNC) &_GxEScanR_ReadSNP, 18},
     {"_GxEScanR_InitializeLRMod", (DL_FUNC) &_GxEScanR_InitializeLRMod, 18},
     {"_GxEScanR_ScanDisease", (DL_FUNC) &_GxEScanR_ScanDisease, 53},
+    {"_GxEScanR_ScanBinaryE", (DL_FUNC) &_GxEScanR_ScanBinaryE, 43},
     {"_GxEScanR_OpenGxEOutFile", (DL_FUNC) &_GxEScanR_OpenGxEOutFile, 1},
-    {"_GxEScanR_AppendGxEResults", (DL_FUNC) &_GxEScanR_AppendGxEResults, 12},
+    {"_GxEScanR_AppendGxEScanResults", (DL_FUNC) &_GxEScanR_AppendGxEScanResults, 12},
     {NULL, NULL, 0}
 };
 
