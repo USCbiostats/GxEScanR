@@ -3,11 +3,12 @@
 int WriteOutput(const std::string &filename, const std::string &outstring);
 
 // [[Rcpp::export]]
-int InitializeLRMod(int numRow, int numCol, arma::vec &y, arma::mat &xl,
-                    arma::vec &beta, arma::vec &score, arma::vec &w, arma::vec &wInv,
-                    arma::vec &yp, arma::vec &zt, arma::vec &k,
-                    arma::mat &ql, arma::mat &rtl,
-                    arma::vec &abx, arma::vec &expabx, arma::vec &expabxp1, arma::vec &expitabx, arma::vec &logLikelihood) {
+int InitializeLargeScaleLogReg(int numRow, int numCol, arma::vec &y, arma::mat &xl,
+                               arma::vec &beta, arma::vec &score, arma::vec &w, arma::vec &wInv,
+                               arma::vec &yp, arma::vec &zt, arma::vec &k,
+                               arma::mat &ql, arma::mat &rtl,
+                               arma::vec &abx, arma::vec &expabx, arma::vec &expabxp1,
+                               arma::vec &expitabx, arma::vec &logLikelihood) {
   arma::mat xlw;
   
   abx = xl * beta;  
@@ -177,6 +178,7 @@ int ScanDisease(int n, int p,
   std::ostringstream outstring;
   std::string skipFile;
   
+  skipFile = skipOut[0];
   try {
     for (i = 0; i < numSNPs; ++i) {
       logLikelihoods(i,0) = NA_REAL;
@@ -188,9 +190,11 @@ int ScanDisease(int n, int p,
       xr1.submat(0, 0, n - 1, 0) = xr.submat(0, 4*i, n - 1, 4*i);
       maf = mean(xr1.col(0)) / 2.;
       if (maf < minMAF || (1. - maf) < minMAF) {
-        outstring << snpID[i] << "\tskipped because maf, ";
-        outstring << (maf < 0.5 ? maf : 1 - maf);
-        outstring << ", is less than sampleminMaf, " << minMAF << std::endl;
+        if (skipFile != "") {
+          outstring << snpID[i] << "\tskipped because maf, ";
+          outstring << (maf < 0.5 ? maf : 1 - maf);
+          outstring << ", is less than sampleminMaf, " << minMAF << std::endl;
+        }
         continue;
       }
       
@@ -222,7 +226,6 @@ int ScanDisease(int n, int p,
     return 1;
   }
   
-  skipFile = skipOut[0];
   return WriteOutput(skipFile, outstring.str());
 }
 
@@ -250,10 +253,11 @@ int ScanBinaryE(int n, int p,
   int i = 0;
   double maf;
   std::string currentSNPid;
-  std::string modelNameC;
   std::ostringstream outstring;
   std::string skipFile;
+  std::string modelNameC;
   
+  skipFile = skipOut[0];
   modelNameC = modelName[0];
   try {
     for (i = 0; i < numSNPs; ++i) {
@@ -263,9 +267,11 @@ int ScanBinaryE(int n, int p,
       xr1.submat(0, 0, n - 1, 0) = xr.submat(0, 4*i, n - 1, 4*i);
       maf = mean(xr1.col(0)) / 2.;
       if (maf < minMAF || (1. - maf) < minMAF) {
-        outstring << snpID[i] << "\tskipped because maf, ";
-        outstring << (maf < 0.5 ? maf : 1 - maf);
-        outstring << ", is less than sampleminMaf, " << minMAF << std::endl;
+// This is currently commented out but may be readded if
+// option to only do E|G is added.
+//        outstring << snpID[i] << "\tskipped because maf, ";
+//        outstring << (maf < 0.5 ? maf : 1 - maf);
+//        outstring << ", is less than sampleminMaf, " << minMAF << std::endl;
         continue;
       }
       
@@ -284,6 +290,5 @@ int ScanBinaryE(int n, int p,
     return 1;
   }
   
-  skipFile = skipOut[0];
   return WriteOutput(skipFile, outstring.str());
 }

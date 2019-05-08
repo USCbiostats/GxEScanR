@@ -1,6 +1,6 @@
 # Allocates memory for large scale logistic regression
 # does not change from iteration to iteration
-AllocateLRModConstantMemory <- function(x, y) {
+AllocateLogRegConstantMemory <- function(x, y) {
   n <- nrow(x)
   p <- ncol(x)
   beta <- numeric(p)
@@ -29,7 +29,7 @@ AllocateLRModConstantMemory <- function(x, y) {
 
 # Allocates memory for large scale logistic regression
 # that is fixed in size but can vary iteration to iteration
-AllocateLRModFixedMemory <- function(n, p) {
+AllocateLogRegFixedMemory <- function(n, p) {
   abx <- numeric(n)
   expabx <- numeric(n)
   expabxp1 <- numeric(n)
@@ -50,7 +50,7 @@ AllocateLRModFixedMemory <- function(n, p) {
 
 # Allocates memory for large scale logistic regression
 # that is not fixed in size and can vary iteration to iteration
-AllocateLRModNotFixedMemory <- function(n, p, q) {
+AllocateLogRegNotFixedMemory <- function(n, p, q) {
   xrw <- matrix(0., nrow = n, ncol = q)
   beta <- numeric(p + q)
   score <- numeric(p + q)
@@ -84,20 +84,21 @@ AllocateLargeScaleLogRegMemory <- function(y, x, gxe) {
   }
   rlogreg <- glm(y ~ ., data = df, family = "binomial")
   
-  p1 <- AllocateLRModConstantMemory(x, y)
-  p2 <- AllocateLRModFixedMemory(p1$n, p1$p)
+  p1 <- AllocateLogRegConstantMemory(x, y)
+  p2 <- AllocateLogRegFixedMemory(p1$n, p1$p)
   p1$beta <- rlogreg$coefficients
-  result <- InitializeLRMod(p1$n, p1$p, y, x,
-                            p1$beta, p1$score, p1$w, p1$wInv,
-                            p1$yp, p1$zt, p1$k, p1$ql, p1$rtl,
-                            p2$abx, p2$expabx, p2$expabxp1, p2$expitabx, p1$logLikelihood)
+  result <- InitializeLargeScaleLogReg(p1$n, p1$p, y, x,
+                                       p1$beta, p1$score, p1$w, p1$wInv,
+                                       p1$yp, p1$zt, p1$k, p1$ql, p1$rtl,
+                                       p2$abx, p2$expabx, p2$expabxp1, p2$expitabx,
+                                       p1$logLikelihood)
   if (result != 0)
     stop("Error initialize D|E model")
   if (abs(p1$logLikelihood - logLik(rlogreg)) > 1e-7)
     stop("Error calculating log likelihood for D|E")
-  p3 <- AllocateLRModNotFixedMemory(p1$n, p1$p, 1)
+  p3 <- AllocateLogRegNotFixedMemory(p1$n, p1$p, 1)
   if (gxe == TRUE) {
-    p3gxe <- AllocateLRModNotFixedMemory(p1$n, p1$p, 2)
+    p3gxe <- AllocateLogRegNotFixedMemory(p1$n, p1$p, 2)
     return (list(p1 = p1,
                  p2 = p2,
                  p3 = p3,

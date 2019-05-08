@@ -63,9 +63,63 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// InitializeLRMod
-int InitializeLRMod(int numRow, int numCol, arma::vec& y, arma::mat& xl, arma::vec& beta, arma::vec& score, arma::vec& w, arma::vec& wInv, arma::vec& yp, arma::vec& zt, arma::vec& k, arma::mat& ql, arma::mat& rtl, arma::vec& abx, arma::vec& expabx, arma::vec& expabxp1, arma::vec& expitabx, arma::vec& logLikelihood);
-RcppExport SEXP _GxEScanR_InitializeLRMod(SEXP numRowSEXP, SEXP numColSEXP, SEXP ySEXP, SEXP xlSEXP, SEXP betaSEXP, SEXP scoreSEXP, SEXP wSEXP, SEXP wInvSEXP, SEXP ypSEXP, SEXP ztSEXP, SEXP kSEXP, SEXP qlSEXP, SEXP rtlSEXP, SEXP abxSEXP, SEXP expabxSEXP, SEXP expabxp1SEXP, SEXP expitabxSEXP, SEXP logLikelihoodSEXP) {
+// InitializeLargeScaleLinReg
+int InitializeLargeScaleLinReg(arma::vec& y, arma::mat& xl, arma::vec& bt, arma::mat& ql, arma::mat& rtl, arma::vec& zt, arma::vec& k, arma::vec& logLikelihood);
+RcppExport SEXP _GxEScanR_InitializeLargeScaleLinReg(SEXP ySEXP, SEXP xlSEXP, SEXP btSEXP, SEXP qlSEXP, SEXP rtlSEXP, SEXP ztSEXP, SEXP kSEXP, SEXP logLikelihoodSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::vec& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type xl(xlSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type bt(btSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type ql(qlSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type rtl(rtlSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type zt(ztSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type k(kSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type logLikelihood(logLikelihoodSEXP);
+    rcpp_result_gen = Rcpp::wrap(InitializeLargeScaleLinReg(y, xl, bt, ql, rtl, zt, k, logLikelihood));
+    return rcpp_result_gen;
+END_RCPP
+}
+// ScanContinuousE
+int ScanContinuousE(int n, int p, arma::vec& y, arma::mat& xl, arma::mat& xr, Rcpp::StringVector& snpID, int numSNPs, double minMAF, arma::mat& ql, arma::mat& rtl, arma::vec& k, arma::vec& bt, arma::vec& zb, arma::vec& bb, arma::mat& h, arma::mat& rtr, arma::mat& t, arma::mat& qr, arma::mat& rbr, arma::vec& logLikelihood, arma::mat& xr1, arma::mat& lrTests, arma::mat& estimates, int testID, Rcpp::StringVector& skipOut, Rcpp::StringVector& modelName);
+RcppExport SEXP _GxEScanR_ScanContinuousE(SEXP nSEXP, SEXP pSEXP, SEXP ySEXP, SEXP xlSEXP, SEXP xrSEXP, SEXP snpIDSEXP, SEXP numSNPsSEXP, SEXP minMAFSEXP, SEXP qlSEXP, SEXP rtlSEXP, SEXP kSEXP, SEXP btSEXP, SEXP zbSEXP, SEXP bbSEXP, SEXP hSEXP, SEXP rtrSEXP, SEXP tSEXP, SEXP qrSEXP, SEXP rbrSEXP, SEXP logLikelihoodSEXP, SEXP xr1SEXP, SEXP lrTestsSEXP, SEXP estimatesSEXP, SEXP testIDSEXP, SEXP skipOutSEXP, SEXP modelNameSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< int >::type p(pSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type xl(xlSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type xr(xrSEXP);
+    Rcpp::traits::input_parameter< Rcpp::StringVector& >::type snpID(snpIDSEXP);
+    Rcpp::traits::input_parameter< int >::type numSNPs(numSNPsSEXP);
+    Rcpp::traits::input_parameter< double >::type minMAF(minMAFSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type ql(qlSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type rtl(rtlSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type k(kSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type bt(btSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type zb(zbSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type bb(bbSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type h(hSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type rtr(rtrSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type t(tSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type qr(qrSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type rbr(rbrSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type logLikelihood(logLikelihoodSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type xr1(xr1SEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type lrTests(lrTestsSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type estimates(estimatesSEXP);
+    Rcpp::traits::input_parameter< int >::type testID(testIDSEXP);
+    Rcpp::traits::input_parameter< Rcpp::StringVector& >::type skipOut(skipOutSEXP);
+    Rcpp::traits::input_parameter< Rcpp::StringVector& >::type modelName(modelNameSEXP);
+    rcpp_result_gen = Rcpp::wrap(ScanContinuousE(n, p, y, xl, xr, snpID, numSNPs, minMAF, ql, rtl, k, bt, zb, bb, h, rtr, t, qr, rbr, logLikelihood, xr1, lrTests, estimates, testID, skipOut, modelName));
+    return rcpp_result_gen;
+END_RCPP
+}
+// InitializeLargeScaleLogReg
+int InitializeLargeScaleLogReg(int numRow, int numCol, arma::vec& y, arma::mat& xl, arma::vec& beta, arma::vec& score, arma::vec& w, arma::vec& wInv, arma::vec& yp, arma::vec& zt, arma::vec& k, arma::mat& ql, arma::mat& rtl, arma::vec& abx, arma::vec& expabx, arma::vec& expabxp1, arma::vec& expitabx, arma::vec& logLikelihood);
+RcppExport SEXP _GxEScanR_InitializeLargeScaleLogReg(SEXP numRowSEXP, SEXP numColSEXP, SEXP ySEXP, SEXP xlSEXP, SEXP betaSEXP, SEXP scoreSEXP, SEXP wSEXP, SEXP wInvSEXP, SEXP ypSEXP, SEXP ztSEXP, SEXP kSEXP, SEXP qlSEXP, SEXP rtlSEXP, SEXP abxSEXP, SEXP expabxSEXP, SEXP expabxp1SEXP, SEXP expitabxSEXP, SEXP logLikelihoodSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -87,7 +141,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::vec& >::type expabxp1(expabxp1SEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type expitabx(expitabxSEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type logLikelihood(logLikelihoodSEXP);
-    rcpp_result_gen = Rcpp::wrap(InitializeLRMod(numRow, numCol, y, xl, beta, score, w, wInv, yp, zt, k, ql, rtl, abx, expabx, expabxp1, expitabx, logLikelihood));
+    rcpp_result_gen = Rcpp::wrap(InitializeLargeScaleLogReg(numRow, numCol, y, xl, beta, score, w, wInv, yp, zt, k, ql, rtl, abx, expabx, expabxp1, expitabx, logLikelihood));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -245,7 +299,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_GxEScanR_GetLocations", (DL_FUNC) &_GxEScanR_GetLocations, 4},
     {"_GxEScanR_GetSections", (DL_FUNC) &_GxEScanR_GetSections, 5},
     {"_GxEScanR_ReadSNP", (DL_FUNC) &_GxEScanR_ReadSNP, 18},
-    {"_GxEScanR_InitializeLRMod", (DL_FUNC) &_GxEScanR_InitializeLRMod, 18},
+    {"_GxEScanR_InitializeLargeScaleLinReg", (DL_FUNC) &_GxEScanR_InitializeLargeScaleLinReg, 8},
+    {"_GxEScanR_ScanContinuousE", (DL_FUNC) &_GxEScanR_ScanContinuousE, 26},
+    {"_GxEScanR_InitializeLargeScaleLogReg", (DL_FUNC) &_GxEScanR_InitializeLargeScaleLogReg, 18},
     {"_GxEScanR_ScanDisease", (DL_FUNC) &_GxEScanR_ScanDisease, 53},
     {"_GxEScanR_ScanBinaryE", (DL_FUNC) &_GxEScanR_ScanBinaryE, 43},
     {"_GxEScanR_OpenGxEOutFile", (DL_FUNC) &_GxEScanR_OpenGxEOutFile, 1},

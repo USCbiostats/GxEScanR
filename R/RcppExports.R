@@ -13,8 +13,16 @@ ReadSNP <- function(snpNumber, subjectNumber, filename, format, numSub, numSNPs,
     .Call(`_GxEScanR_ReadSNP`, snpNumber, subjectNumber, filename, format, numSub, numSNPs, bufferSize, buffer, sections, snpSection, fileLocation, snpLocation, currentSection, dosage, p0, p1, p2, values)
 }
 
-InitializeLRMod <- function(numRow, numCol, y, xl, beta, score, w, wInv, yp, zt, k, ql, rtl, abx, expabx, expabxp1, expitabx, logLikelihood) {
-    .Call(`_GxEScanR_InitializeLRMod`, numRow, numCol, y, xl, beta, score, w, wInv, yp, zt, k, ql, rtl, abx, expabx, expabxp1, expitabx, logLikelihood)
+InitializeLargeScaleLinReg <- function(y, xl, bt, ql, rtl, zt, k, logLikelihood) {
+    .Call(`_GxEScanR_InitializeLargeScaleLinReg`, y, xl, bt, ql, rtl, zt, k, logLikelihood)
+}
+
+ScanContinuousE <- function(n, p, y, xl, xr, snpID, numSNPs, minMAF, ql, rtl, k, bt, zb, bb, h, rtr, t, qr, rbr, logLikelihood, xr1, lrTests, estimates, testID, skipOut, modelName) {
+    .Call(`_GxEScanR_ScanContinuousE`, n, p, y, xl, xr, snpID, numSNPs, minMAF, ql, rtl, k, bt, zb, bb, h, rtr, t, qr, rbr, logLikelihood, xr1, lrTests, estimates, testID, skipOut, modelName)
+}
+
+InitializeLargeScaleLogReg <- function(numRow, numCol, y, xl, beta, score, w, wInv, yp, zt, k, ql, rtl, abx, expabx, expabxp1, expitabx, logLikelihood) {
+    .Call(`_GxEScanR_InitializeLargeScaleLogReg`, numRow, numCol, y, xl, beta, score, w, wInv, yp, zt, k, ql, rtl, abx, expabx, expabxp1, expitabx, logLikelihood)
 }
 
 ScanDisease <- function(n, p, y, xl, xr, snpID, numSNPs, minMAF, beta0, score0, w, wInv, yp0, zt0, k0, ql, rtl, abx, expabx, expabxp1, expitabx, yp, zt, k, bt, xrw1, beta1, score1, zb1, bb1, h1, rtr1, t1, qr1, rbr1, logLikelihood1, xrw2, beta2, score2, zb2, bb2, h2, rtr2, t2, qr2, rbr2, logLikelihood2, xr1, xr2, logLikelihood0, logLikelihoods, estimates, skipOut) {

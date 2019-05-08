@@ -5,18 +5,16 @@
 int WriteOutput(const std::string &filename, const std::string &outstring) {
   std::ofstream outfile;
   
-  if (filename == "")
+  if (filename == "" || filename == "stderr") {
+    Rcpp::Rcerr << outstring;
     return 0;
+  }
   
   if (filename == "stdout") {
     Rcpp::Rcout << outstring;
     return 0;
   }
-  if (filename == "stderr") {
-    Rcpp::Rcerr << outstring;
-    return 0;
-  }
-  
+
   outfile.open(filename.c_str(), std::ios_base::out | std::ios_base::app);
   if (!outfile.good()) {
     Rcpp::Rcerr << "Error opening output file" << std::endl;
@@ -30,7 +28,7 @@ int WriteOutput(const std::string &filename, const std::string &outstring) {
 // [[Rcpp::export]]
 int OpenGxEOutFile(std::string &filename) {
   std::ofstream outfile;
-  std::string outstring1 = "SNP\tChromosome\tLocation\tReference\tAlternate\tSubjects\tCases\tbetaG\tchiSqG\tbetaGxE\tchiSqGxE\tchi2df\t";
+  std::string outstring1 = "SNP\tChromosome\tLocation\tReference\tAlternate\tSubjects\tCases\tbetaG\tchiSqG\tbetaGxE\tchiSqGxE\tchiSq2df\t";
   std::string outstring2 = "betaGE\tchiSqGE\tbetaCase\tchiSqCase\tbetaControl\tchiSqControl\n";
   
   if (filename != "stdout" && filename != "stderr") {

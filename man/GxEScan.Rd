@@ -4,8 +4,8 @@
 \alias{GxEScan}
 \title{GxEScan - Perform a genomewide interaction scan}
 \usage{
-GxEScan(subjectData, geneticData, outputFile, skippedFilename = "",
-  popminMaf = 0.01, sampleminMaf = 0.05, snps)
+GxEScan(subjectData, geneticData, outFile, skipFile = "",
+  popminMaf = 0.01, sampleminMaf = 0.05, binCov = TRUE, snps)
 }
 \arguments{
 \item{subjectData}{Data frame with subject data
@@ -22,15 +22,18 @@ with the gene.}
 \item{geneticData}{List with information on reading genetic data
 This is returned from BianryDosage::GetGeneticInfo}
 
-\item{outputFile}{Name of file to write the results to}
+\item{outFile}{Name of file to write the results to}
 
-\item{skippedFilename}{Name of file to write info about SNPs that were skipped. If this is blank
-no file is written. If this is the same as outputFilename, the skipped SNPs
-are written to the output file along with NA for all tests.}
+\item{skipFile}{Name of file to write info about SNPs that were skipped. If this is blank
+no file is written. If this is the same as outFile, the skipped SNPs
+are written to the output file.}
 
 \item{popminMaf}{Population minimum allele frequency}
 
 \item{sampleminMaf}{Sample minimum allele frequency}
+
+\item{binCov}{Indicator if covariate interacting with the gene is a binary value. The
+default value is TRUE.}
 
 \item{snps}{Vector of snps to be tested. Can either me a character vector of SNP names
 or a vector of indices.}
@@ -46,10 +49,11 @@ GxEScan - Perform a genomewide interaction scan
 subjectData <- simSubjectData
 geneticData <- simGeneticData
 geneticData$filename <- system.file("extdata", simGeneticData$filename, package = "GxEScanR")
-outfile = "stdout"
-skippedFile = ""
+outFile = "stdout"
+skipFile = ""
 popminMaf = 0.05
 sampleminMaf = 0.1
+binCov = TRUE
 snps = 1L:110L
-GxEScan(subjectData, geneticData, outfile, skippedFile, popminMaf, sampleminMaf, snps)
+GxEScan(subjectData, geneticData, outFile, skipFile, popminMaf, sampleminMaf, binCov, snps)
 }
