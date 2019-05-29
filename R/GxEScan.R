@@ -323,11 +323,27 @@ GxEScan <- function(subjectData,
   bdInfo <- GetBDFileInfo(geneticData)
   
   # Memory allocation for models
-  gxeMem <- AllocateLargeScaleLogRegMemory(outcomes$y, standardizedX$x, TRUE, errorInfo)
+  gxeMem <- AllocateLargeScaleLogRegMemory(outcomes$y,
+                                           standardizedX$x,
+                                           TRUE,
+                                           "D|E",
+                                           errorInfo)
   if (binCov == TRUE) {
-    egMem <- AllocateLargeScaleLogRegMemory(outcomes$eg, standardizedX$eg, FALSE)
-    casesMem <- AllocateLargeScaleLogRegMemory(outcomes$cases, standardizedX$cases, FALSE)
-    controlsMem <- AllocateLargeScaleLogRegMemory(outcomes$controls, standardizedX$controls, FALSE)
+    egMem <- AllocateLargeScaleLogRegMemory(outcomes$eg,
+                                            standardizedX$eg,
+                                            FALSE,
+                                            "E|G",
+                                            errorInfo)
+    casesMem <- AllocateLargeScaleLogRegMemory(outcomes$cases,
+                                               standardizedX$cases,
+                                               FALSE,
+                                               "case-only",
+                                               errorInfo)
+    controlsMem <- AllocateLargeScaleLogRegMemory(outcomes$controls,
+                                                  standardizedX$controls,
+                                                  FALSE,
+                                                  "control-only",
+                                                  errorInfo)
   } else {
     egMem <- AllocateLargeScaleLinRegMemory(outcomes$eg, standardizedX$eg, "E|G")
     casesMem <- AllocateLargeScaleLinRegMemory(outcomes$cases, standardizedX$cases, "case-only")

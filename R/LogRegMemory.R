@@ -76,7 +76,8 @@ AllocateLogRegNotFixedMemory <- function(n, p, q) {
 }
 
 # Allocates memory need for large scale logistic regression
-AllocateLargeScaleLogRegMemory <- function(y, x, gxe, errorInfo) {
+AllocateLargeScaleLogRegMemory <- function(y, x, gxe,
+                                           modelName, errorInfo) {
   if (ncol(x) == 1) {
     df <- data.frame(y = y)
   } else {
@@ -92,20 +93,40 @@ AllocateLargeScaleLogRegMemory <- function(y, x, gxe, errorInfo) {
                                        p1$yp, p1$zt, p1$k, p1$ql, p1$rtl,
                                        p2$abx, p2$expabx, p2$expabxp1, p2$expitabx,
                                        p1$logLikelihood)
-  if (result != 0)
-    stop("Error initializing D|E model")
-  if (is.na(p1$logLikelihood) == TRUE) {
+  if (result != 0) {
+    errorMessage <- paste("Error initializing", modelName, "model")
     if (errorInfo) {
       GxEErrorData <- list(p1 = p1,
                            p2 = p2,
                            rlogreg = rlogreg,
-                           message = "Error initializing D|E model")
+                           message = errorMessage)
       saveRDS(GxEErrorData, "GxEScanErrorData")
     }
-    stop("Error initializing D|E model")
+    stop(errorMessage)
   }
-  if (abs(p1$logLikelihood - logLik(rlogreg)) > 1e-7)
-    stop("Error calculating log likelihood for D|E")
+  
+  if (is.na(p1$logLikelihood) == TRUE) {
+    errorMessage <- paste("Error initializing", modelName, "model")
+    if (errorInfo) {
+      GxEErrorData <- list(p1 = p1,
+                           p2 = p2,
+                           rlogreg = rlogreg,
+                           message = errorMessage)
+      saveRDS(GxEErrorData, "GxEScanErrorData")
+    }
+    stop(errorMessage)
+  }
+  if (abs(p1$logLikelihood - logLik(rlogreg)) > 1e-7) {
+    errorMessage <- paste("Error calculating log likelihood for", modelName, "model")
+    if (errorInfo) {
+      GxEErrorData <- list(p1 = p1,
+                           p2 = p2,
+                           rlogreg = rlogreg,
+                           message = errorMessage)
+      saveRDS(GxEErrorData, "GxEScanErrorData")
+    }
+    stop(errorMessage)
+  }
   p3 <- AllocateLogRegNotFixedMemory(p1$n, p1$p, 1)
   if (gxe == TRUE) {
     p3gxe <- AllocateLogRegNotFixedMemory(p1$n, p1$p, 2)
