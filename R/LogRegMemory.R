@@ -76,7 +76,7 @@ AllocateLogRegNotFixedMemory <- function(n, p, q) {
 }
 
 # Allocates memory need for large scale logistic regression
-AllocateLargeScaleLogRegMemory <- function(y, x, gxe) {
+AllocateLargeScaleLogRegMemory <- function(y, x, gxe, errorInfo) {
   if (ncol(x) == 1) {
     df <- data.frame(y = y)
   } else {
@@ -93,7 +93,17 @@ AllocateLargeScaleLogRegMemory <- function(y, x, gxe) {
                                        p2$abx, p2$expabx, p2$expabxp1, p2$expitabx,
                                        p1$logLikelihood)
   if (result != 0)
-    stop("Error initialize D|E model")
+    stop("Error initializing D|E model")
+  if (is.na(p1$logLikelihood) == TRUE) {
+    if (errorInfo) {
+      GxEErrorData <- list(p1 = p1,
+                           p2 = p2,
+                           rlogreg = rlogreg,
+                           message = "Error initializing D|E model")
+      saveRDS(GxEErrorData, "GxEScanErrorData")
+    }
+    stop("Error initializing D|E model")
+  }
   if (abs(p1$logLikelihood - logLik(rlogreg)) > 1e-7)
     stop("Error calculating log likelihood for D|E")
   p3 <- AllocateLogRegNotFixedMemory(p1$n, p1$p, 1)

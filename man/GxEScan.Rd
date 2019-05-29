@@ -5,7 +5,8 @@
 \title{GxEScan - Perform a genomewide interaction scan}
 \usage{
 GxEScan(subjectData, geneticData, outFile, skipFile = "",
-  popminMaf = 0.01, sampleminMaf = 0.05, binCov = TRUE, snps)
+  popminMaf = 0.01, sampleminMaf = 0.05, binCov = TRUE, snps,
+  errorInfo = FALSE)
 }
 \arguments{
 \item{subjectData}{Data frame with subject data
@@ -37,6 +38,9 @@ default value is TRUE.}
 
 \item{snps}{Vector of snps to be tested. Can either me a character vector of SNP names
 or a vector of indices.}
+
+\item{errorInfo}{If set to true, additional error information will be written to a file
+named GxEScanError.data. Default value is FALSE.}
 }
 \value{
 0 - success

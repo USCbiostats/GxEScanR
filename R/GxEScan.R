@@ -235,6 +235,9 @@ GetBDFileInfo <- function(bdInfo) {
 #' @param snps
 #' Vector of snps to be tested. Can either me a character vector of SNP names
 #' or a vector of indices.
+#' @param errorInfo
+#' If set to true, additional error information will be written to a file
+#' named GxEScanError.data. Default value is FALSE.
 #' @return
 #' 0 - success
 #' 1 - failure
@@ -257,7 +260,8 @@ GxEScan <- function(subjectData,
                     popminMaf = 0.01,
                     sampleminMaf = 0.05,
                     binCov = TRUE,
-                    snps) {
+                    snps,
+                    errorInfo = FALSE) {
   if (missing(subjectData) == TRUE)
     stop("No subject data specified")
   subjectInfo <- ProcessSubjectData(subjectData = subjectData)
@@ -319,7 +323,7 @@ GxEScan <- function(subjectData,
   bdInfo <- GetBDFileInfo(geneticData)
   
   # Memory allocation for models
-  gxeMem <- AllocateLargeScaleLogRegMemory(outcomes$y, standardizedX$x, TRUE)
+  gxeMem <- AllocateLargeScaleLogRegMemory(outcomes$y, standardizedX$x, TRUE, errorInfo)
   if (binCov == TRUE) {
     egMem <- AllocateLargeScaleLogRegMemory(outcomes$eg, standardizedX$eg, FALSE)
     casesMem <- AllocateLargeScaleLogRegMemory(outcomes$cases, standardizedX$cases, FALSE)
