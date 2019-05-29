@@ -6,7 +6,7 @@
 \usage{
 GxEScan(subjectData, geneticData, outFile, skipFile = "",
   popminMaf = 0.01, sampleminMaf = 0.05, binCov = TRUE, snps,
-  errorInfo = FALSE)
+  errorOut = "")
 }
 \arguments{
 \item{subjectData}{Data frame with subject data
@@ -39,8 +39,9 @@ default value is TRUE.}
 \item{snps}{Vector of snps to be tested. Can either me a character vector of SNP names
 or a vector of indices.}
 
-\item{errorInfo}{If set to true, additional error information will be written to a file
-named GxEScanError.data. Default value is FALSE.}
+\item{errorOut}{The name of the file to output additional information about an error that
+caused the scan to terminate unexpectedly. If this is set to "", no additional
+error information is output.}
 }
 \value{
 0 - success

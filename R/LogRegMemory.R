@@ -77,7 +77,7 @@ AllocateLogRegNotFixedMemory <- function(n, p, q) {
 
 # Allocates memory need for large scale logistic regression
 AllocateLargeScaleLogRegMemory <- function(y, x, gxe,
-                                           modelName, errorInfo) {
+                                           modelName, errorOut) {
   if (ncol(x) == 1) {
     df <- data.frame(y = y)
   } else {
@@ -95,35 +95,35 @@ AllocateLargeScaleLogRegMemory <- function(y, x, gxe,
                                        p1$logLikelihood)
   if (result != 0) {
     errorMessage <- paste("Error initializing", modelName, "model")
-    if (errorInfo) {
+    if (errorOut != "") {
       GxEErrorData <- list(p1 = p1,
                            p2 = p2,
                            rlogreg = rlogreg,
                            message = errorMessage)
-      saveRDS(GxEErrorData, "GxEScanErrorData")
+      saveRDS(GxEErrorData, errorOut)
     }
     stop(errorMessage)
   }
   
   if (is.na(p1$logLikelihood) == TRUE) {
     errorMessage <- paste("Error initializing", modelName, "model")
-    if (errorInfo) {
+    if (errorOut != "") {
       GxEErrorData <- list(p1 = p1,
                            p2 = p2,
                            rlogreg = rlogreg,
                            message = errorMessage)
-      saveRDS(GxEErrorData, "GxEScanErrorData")
+      saveRDS(GxEErrorData, errorOut)
     }
     stop(errorMessage)
   }
   if (abs(p1$logLikelihood - logLik(rlogreg)) > 1e-7) {
     errorMessage <- paste("Error calculating log likelihood for", modelName, "model")
-    if (errorInfo) {
+    if (errorOut != "") {
       GxEErrorData <- list(p1 = p1,
                            p2 = p2,
                            rlogreg = rlogreg,
                            message = errorMessage)
-      saveRDS(GxEErrorData, "GxEScanErrorData")
+      saveRDS(GxEErrorData, errorOut)
     }
     stop(errorMessage)
   }

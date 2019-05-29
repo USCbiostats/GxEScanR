@@ -235,9 +235,10 @@ GetBDFileInfo <- function(bdInfo) {
 #' @param snps
 #' Vector of snps to be tested. Can either me a character vector of SNP names
 #' or a vector of indices.
-#' @param errorInfo
-#' If set to true, additional error information will be written to a file
-#' named GxEScanError.data. Default value is FALSE.
+#' @param errorOut
+#' The name of the file to output additional information about an error that
+#' caused the scan to terminate unexpectedly. If this is set to "", no additional
+#' error information is output.
 #' @return
 #' 0 - success
 #' 1 - failure
@@ -261,7 +262,7 @@ GxEScan <- function(subjectData,
                     sampleminMaf = 0.05,
                     binCov = TRUE,
                     snps,
-                    errorInfo = FALSE) {
+                    errorOut = "") {
   if (missing(subjectData) == TRUE)
     stop("No subject data specified")
   subjectInfo <- ProcessSubjectData(subjectData = subjectData)
@@ -327,23 +328,23 @@ GxEScan <- function(subjectData,
                                            standardizedX$x,
                                            TRUE,
                                            "D|E",
-                                           errorInfo)
+                                           errorOut)
   if (binCov == TRUE) {
     egMem <- AllocateLargeScaleLogRegMemory(outcomes$eg,
                                             standardizedX$eg,
                                             FALSE,
                                             "E|G",
-                                            errorInfo)
+                                            errorOut)
     casesMem <- AllocateLargeScaleLogRegMemory(outcomes$cases,
                                                standardizedX$cases,
                                                FALSE,
                                                "case-only",
-                                               errorInfo)
+                                               errorOut)
     controlsMem <- AllocateLargeScaleLogRegMemory(outcomes$controls,
                                                   standardizedX$controls,
                                                   FALSE,
                                                   "control-only",
-                                                  errorInfo)
+                                                  errorOut)
   } else {
     egMem <- AllocateLargeScaleLinRegMemory(outcomes$eg, standardizedX$eg, "E|G")
     casesMem <- AllocateLargeScaleLinRegMemory(outcomes$cases, standardizedX$cases, "case-only")
