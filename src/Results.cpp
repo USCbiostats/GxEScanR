@@ -5,7 +5,10 @@
 int WriteOutput(const std::string &filename, const std::string &outstring) {
   std::ofstream outfile;
   
-  if (filename == "" || filename == "stderr") {
+  if (filename == "" )
+    return 0;
+    
+  if (filename == "stderr") {
     Rcpp::Rcerr << outstring;
     return 0;
   }
