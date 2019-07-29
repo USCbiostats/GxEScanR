@@ -318,9 +318,15 @@ GxEScan <- function(subjectData,
   numCases <- sum(outcomes$y)
   numControls <- numSub - numCases
   
-  # Select SNPs that meet minimum maf requirements  
-  snpminmaf <- match(geneticData$SNPs$SNPID[abs(geneticData$SNPInfo$AAF - 0.5) < 0.5 - popminMaf], geneticData$SNPs$SNPID)
-  snpminmaf <- snpminmaf[snpminmaf %in% snpIndices]
+  # Select SNPs that meet minimum maf requirements
+  if (all(is.na(geneticData$SNPInfo$AAF)) == TRUE) {
+    snpminmaf <- snpIndices
+  } else {
+    snpminmaf <- match(geneticData$SNPs$SNPID[abs(geneticData$SNPInfo$AAF - 0.5) < 0.5 - popminMaf], geneticData$SNPs$SNPID)
+    snpminmaf <- snpminmaf[snpminmaf %in% snpIndices]
+  }
+  if (length(snpminmaf) == 0)
+    stop("No SNPs have sufficient minor allele frequency")
   bdInfo <- GetBDFileInfo(geneticData)
   
   # Memory allocation for models
