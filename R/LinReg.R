@@ -121,11 +121,6 @@ linreggwas <- function(bdinfo, blkinfo, snps, stddata, subindex,
         lrt <- 2*(tmploglh[!is.na(tmploglh)] - linreg0$loglike)
         snpids <- bdinfo$snps$snpid[firstsnp:lastsnp]
         snpids <- snpids[!is.na(tmploglh)]
-        if (i > 259) {
-          print(paste(i, firstsnp, lastsnp, maxn,
-                      length(snpids), length(lrt), length(beta),
-                      sep = "  "))
-        }
         outstring <- paste(snpids, beta, lrt, sep = '\t')
         write(outstring, outfile, append = TRUE)
       }
