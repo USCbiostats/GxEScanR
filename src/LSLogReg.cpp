@@ -152,6 +152,7 @@ int lslogreg(arma::vec &y,
     while (iterations < maxiterations) {
       zb = qr.t() * yp;
       if (solve(bb, rbr, zb, arma::solve_opts::no_approx) == false) {
+        loglike(i) = NA_REAL;
         beta(i, 0) = 4.;
         continue;
       }
@@ -176,13 +177,14 @@ int lslogreg(arma::vec &y,
       yp %= winv;
       zt = ql.t() * yp;
       if (solve(k, rtl, zt, arma::solve_opts::no_approx) == false) {
+        loglike(i) = NA_REAL;
         beta(i, 0) = 5.;
         continue;
       }
       ++iterations;
     }
     if (iterations == maxiterations) {
-      loglike(i) = 1;
+      loglike(i) = NA_REAL;
       beta(i, 0) = 6.;
     }
   }

@@ -334,6 +334,12 @@ gwas <- function(data, bdinfo, snps, outfile, skipfile,
 gwis <- function(data, bdinfo, snps, outfile, skipfile,
                  minmaf, blksize, binary) {
   # Set missing values to default values
+  if (missing(snps) == TRUE)
+    snps = "all"
+  if (missing(outfile) == TRUE)
+    outfile <- ""
+  if (missing(skipfile) == TRUE)
+    skipfile <- ""
   if (missing(minmaf) == TRUE)
     minmaf <- 0.
   if (missing(blksize))

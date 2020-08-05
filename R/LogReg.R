@@ -52,7 +52,7 @@ logreggwas <- function(bdinfo, blkinfo, snps, stddata, subindex,
   #####################################################
   
   if (outfile != "")
-    write("snp\tlrtg\tbetag", outfile);
+    write("snp\tbetag\tlrtg", outfile);
   if (skipfile != "")
     write("snp\treason", skipfile)
   
@@ -129,7 +129,7 @@ logreggwas <- function(bdinfo, blkinfo, snps, stddata, subindex,
         lrt <- 2*(tmploglh[!is.na(tmploglh)] - logreg0$loglike)
         snpids <- bdinfo$snps$snpid[firstsnp:lastsnp]
         snpids <- snpids[!is.na(tmploglh)]
-        outstring <- paste(snpids, lrt, beta, sep = '\t')
+        outstring <- paste(snpids, beta, lrt, sep = '\t')
         write(outstring, outfile, append = TRUE)
       }
     } else {
@@ -422,6 +422,14 @@ logreggwis <- function(bdinfo, blkinfo, snps, stddata, subindex,
                 blkbytes = blkinfo$blkbytes[i],
                 blkbuffer = blkbuffer)
       # Calculate the dosages
+#      if (i > 0)
+#        return(list(dosages = dosages,
+#                    blkbuffer = blkbuffer,
+#                    fileloc = blkinfo$blkloc[i],
+#                    indices = bdinfo$indices,
+#                    firstsnp = firstsnp,
+#                    lastsnp = lastsnp,
+#                    base = base))
       getdosages(dosages = dosages,
                  blkbuffer = blkbuffer,
                  fileloc = blkinfo$blkloc[i],
