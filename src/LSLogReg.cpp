@@ -28,7 +28,10 @@ Rcpp::List initlslogreg(const arma::vec &y,
   qr_econ(ql, rtl, xlw);
   yp = y - expitabx;
   z = ql.t() * (yp % winv);
-  k = solve(rtl, z);
+  if (solve(k, rtl, z, arma::solve_opts::no_approx) == false)  {
+    Rcpp::Rcerr << "Solve error" << std::endl;
+    Rcpp::stop("Error initializing large scale logistic regression");
+  }
   score = xl.t() * yp;
   loglike = sum(abx % y);
   loglike -= sum(log(expabxp1));
@@ -63,7 +66,7 @@ int lslogreg(arma::vec &y,
              arma::vec &loglike,
              arma::mat &beta) {
   
-  const int maxiterations = 10;
+  const int maxiterations = 30;
   int iterations;
   double colsum;
   int i;
