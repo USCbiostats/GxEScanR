@@ -422,14 +422,6 @@ logreggwis <- function(bdinfo, blkinfo, snps, stddata, subindex,
                 blkbytes = blkinfo$blkbytes[i],
                 blkbuffer = blkbuffer)
       # Calculate the dosages
-#      if (i > 0)
-#        return(list(dosages = dosages,
-#                    blkbuffer = blkbuffer,
-#                    fileloc = blkinfo$blkloc[i],
-#                    indices = bdinfo$indices,
-#                    firstsnp = firstsnp,
-#                    lastsnp = lastsnp,
-#                    base = base))
       getdosages(dosages = dosages,
                  blkbuffer = blkbuffer,
                  fileloc = blkinfo$blkloc[i],

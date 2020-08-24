@@ -137,10 +137,10 @@ void xrgwis2(arma::mat &xr1,
   ncol = src1.n_cols;
   nrowsrc = src1.n_rows;
   nrowdest = src2.n_elem;
-  
+
   d1 = xr1.memptr();
   d2a = xr2.memptr();
-  d2b = xr2.memptr() + nrowsrc;
+  d2b = xr2.memptr() + nrowdest;
   d3 = xr3.memptr();
   d4 = xr4.memptr();
   d5 = xr5.memptr();
@@ -150,7 +150,6 @@ void xrgwis2(arma::mat &xr1,
     idxp = idx.memptr();
     for (uj = 0; uj < nrowdest; ++uj, ++d1, ++d2a, ++d2b, ++d3, ++cd2, ++idxp) {
       dose = *(cd1 + *idxp);
-//      Rcpp::Rcout << *(cd1 + *idxp) << '\t' << *idxp << '\t' << dose << std::endl;
       *d1 = dose;
       *d2a = dose;
       *d2b = dose * *cd2;
@@ -164,7 +163,6 @@ void xrgwis2(arma::mat &xr1,
       }
     }
   }
-//  Rcpp::Rcout << std::endl;
 }
 
 // [[Rcpp::export]]
