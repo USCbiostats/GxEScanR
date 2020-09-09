@@ -15,10 +15,10 @@ test_that("gwas input", {
                      y = y,
                      x = x,
                      stringsAsFactors = FALSE)
-  bdinfofile <- system.file("extdata", "bdinfo_set1a_1_1.rds", package = "bdgwas")
+  bdinfofile <- system.file("extdata", "bdinfo_set1a_1_1.rds", package = "GxEScanR")
   bdinfo <- readRDS(bdinfofile)
   # Large bdinfo data for testing blksize
-  bdinfofile <- system.file("extdata", "largebdinfo.rds", package = "bdgwas")
+  bdinfofile <- system.file("extdata", "largebdinfo.rds", package = "GxEScanR")
   bdinfobig <- readRDS(bdinfofile)
   
   # Subject and genetic data sets using subject IDs and family IDs
@@ -73,12 +73,6 @@ test_that("gwas input", {
                     bdinfo = bdinfo,
                     outfile = c("a", "b")),
                "outfile must be a character vector of length 1")
-  
-  # Testing the outfile value is a non-empty string value
-  expect_error(gwas(data = data,
-                    bdinfo = bdinfo,
-                    outfile = ""),
-               "outfile cannot be an empty string")
   
   ##############################################################
   #                 Testing minmaf value
