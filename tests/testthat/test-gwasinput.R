@@ -74,6 +74,18 @@ test_that("gwas input", {
                     outfile = c("a", "b")),
                "outfile must be a character vector of length 1")
   
+  # Testing the skipfile value is a string value
+  expect_error(gwas(data = data,
+                    bdinfo = bdinfo,
+                    skipfile = 1),
+               "skipfile must be a character value")
+  
+  # Testing the skipfile value is a single string value
+  expect_error(gwas(data = data,
+                    bdinfo = bdinfo,
+                    skipfile = c("a", "b")),
+               "skipfile must be a character vector of length 1")
+
   ##############################################################
   #                 Testing minmaf value
   ##############################################################
@@ -236,5 +248,15 @@ test_that("gwas input", {
                     outfile = outfile,
                     binary = TRUE),
                "When using a binary outcome must be coded 0,1")
+  
+  bdinfofile <- system.file("extdata", "pdata_4_1.bdinfo", package = "GxEScanR")
+  bdinfo <- readRDS(bdinfofile)
+  bdinfo$filename <- system.file("extdata", "pdata_4_1.bdose", package = "GxEScanR")
+  covdatafile <- system.file("extdata", "covdata.rds", package = "GxEScanR")
+  covdata <- readRDS(covdatafile)
+  results <- gwas(data = covdata, bdinfo = bdinfo)
+  results <- gwas(data = covdata, bdinfo = bdinfo, binary = FALSE)
+  results <- gwis(data = covdata, bdinfo = bdinfo)
+  results <- gwis(data = covdata, bdinfo = bdinfo, binary = FALSE)
   
 })

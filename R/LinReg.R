@@ -362,7 +362,6 @@ linreggwis <- function(bdinfo, blkinfo, snps, stddata, subindex,
   
   if (outfile == "") {
     tokeep <- !is.na(lrtg)
-    print(tokeep)
     results <- data.frame(snp = bdinfo$snps$snpid[tokeep],
                           betadg = betag[tokeep],
                           lrtdg = lrtg[tokeep],
@@ -370,7 +369,6 @@ linreggwis <- function(bdinfo, blkinfo, snps, stddata, subindex,
                           lrtgxe = lrtgxe[tokeep],
                           lrt2df = lrt2df[tokeep],
                           stringsAsFactors = FALSE)
-    print(results)
     return (results)
   }
   
