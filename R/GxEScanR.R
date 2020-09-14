@@ -185,7 +185,16 @@ validateinput <- function(data, bdinfo, outfile, skipfile,
 #' and covariates
 #' @param bdinfo Information about the binary dosage file returned
 #' from the BinaryDosage::getbdinfo routine
-#' @param outfile The file name for the results output.
+#' @param snps The SNPs to be used in the scan. This may be an integer
+#' vector indicate which SNPs to use in the binary dosage file or a 
+#' character vector of the SNP IDs to use. The value may also be "all",
+#' indicating to use all SNPs. The default value is "all".
+#' @param outfile The file name for the results Can be blank.
+#' If the value is "", the results are returned as a data frame. Default
+#' value is ""
+#' @param skipfile The name of the file to write the SNPs that were not
+#' used and the reason they weren't used. If the value is blank, there is
+#' no output of the unused SNPs. Default value is "".
 #' @param minmaf Minimum minor allele frequency of SNPs to include
 #' in analysis. SNPS that have less than 20 minor alleles observed
 #' will be excluded from the analysis regardless of the value of
@@ -309,7 +318,16 @@ gwas <- function(data, bdinfo, snps, outfile, skipfile,
 #' and covariates
 #' @param bdinfo Information about the binary dosage file returned
 #' from the BinaryDosage::getbdinfo routine
-#' @param outfile The file name for the results output.
+#' @param snps The SNPs to be used in the scan. This may be an integer
+#' vector indicate which SNPs to use in the binary dosage file or a 
+#' character vector of the SNP IDs to use. The value may also be "all",
+#' indicating to use all SNPs. The default value is "all".
+#' @param outfile The file name for the results Can be blank.
+#' If the value is "", the results are returned as a data frame. Default
+#' value is ""
+#' @param skipfile The name of the file to write the SNPs that were not
+#' used and the reason they weren't used. If the value is blank, there is
+#' no output of the unused SNPs. Default value is "".
 #' @param minmaf Minimum minor allele frequency of SNPs to include
 #' in analysis. SNPS that have less than 20 minor alleles observed
 #' will be excluded from the analysis regardless of the value of

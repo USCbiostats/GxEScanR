@@ -13,7 +13,18 @@ and covariates}
 \item{bdinfo}{Information about the binary dosage file returned
 from the BinaryDosage::getbdinfo routine}
 
-\item{outfile}{The file name for the results output.}
+\item{snps}{The SNPs to be used in the scan. This may be an integer
+vector indicate which SNPs to use in the binary dosage file or a 
+character vector of the SNP IDs to use. The value may also be "all",
+indicating to use all SNPs. The default value is "all".}
+
+\item{outfile}{The file name for the results Can be blank.
+If the value is "", the results are returned as a data frame. Default
+value is ""}
+
+\item{skipfile}{The name of the file to write the SNPs that were not
+used and the reason they weren't used. If the value is blank, there is
+no output of the unused SNPs. Default value is "".}
 
 \item{minmaf}{Minimum minor allele frequency of SNPs to include
 in analysis. SNPS that have less than 20 minor alleles observed
