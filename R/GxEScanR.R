@@ -1,6 +1,7 @@
 #' @useDynLib GxEScanR, .registration = TRUE
 #' @importFrom Rcpp sourceCpp
 #' @importFrom prodlim row.match
+#' @importFrom stats complete.cases glm var
 NULL
 
 subsetsnps <- function(snps, snplist) {
@@ -201,11 +202,10 @@ validateinput <- function(data, bdinfo, outfile, skipfile,
 #' @export
 #'
 #' @examples
-#' data <- data.frame()
-#' bdinfofile <- system.file("extdata", "bdinfo_set1a_1_1.rds", package = "bdgwas")
-#' bdinfo <- readRDS(bdinfofile)
-#' outfile <- "test.out"
-#' gwas(data = data, bdinfo = bdinfo, outfile = outfile)
+#' bdinfo <- readRDS(system.file("extdata/pdata_4_1.bdinfo", package = "GxEScanR"))
+#' covdata <- readRDS(system.file("extdata/covdata.rds", package = "GxEScanR"))
+#'
+#' results <- gwas(data = covdata, bdinfo = bdinfo, binary = FALSE)
 gwas <- function(data, bdinfo, snps, outfile, skipfile,
                  minmaf, blksize, binary) {
   # Set missing values to default values
@@ -326,11 +326,10 @@ gwas <- function(data, bdinfo, snps, outfile, skipfile,
 #' @export
 #'
 #' @examples
-#' data <- data.frame()
-#' bdinfofile <- system.file("extdata", "bdinfo_set1a_1_1.rds", package = "bdgwas")
-#' bdinfo <- readRDS(bdinfofile)
-#' outfile <- "test.out"
-#' gwas(data = data, bdinfo = bdinfo, outfile = outfile)
+#' bdinfo <- readRDS(system.file("extdata/pdata_4_1.bdinfo", package = "GxEScanR"))
+#' covdata <- readRDS(system.file("extdata/covdata.rds", package = "GxEScanR"))
+#'
+#' results <- gwis(data = covdata, bdinfo = bdinfo)
 gwis <- function(data, bdinfo, snps, outfile, skipfile,
                  minmaf, blksize, binary) {
   # Set missing values to default values

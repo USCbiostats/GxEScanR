@@ -98,7 +98,7 @@ logreggwas <- function(bdinfo, blkinfo, snps, stddata, subindex,
               idx = subindexm1)
       # Fit D|G
       logregres <- lslogreg(y = y,
-                            x = stddata,
+                            xl = stddata,
                             xr = gxr,
                             beta0 = beta0,
                             yp0 = logreg0$yp,
@@ -176,9 +176,10 @@ b0logreg <- function(x, ebinary) {
   modfamily = "binomial"
   for (i in 1:5) {
     df <- data.frame(x[[i]])
+    colnames(df)[1] <- "X1"
     if (i == 3) {
       if (ebinary == FALSE)
-        modfamily <- "guassian"
+        modfamily <- "gaussian"
     }
     modformula <- "X1 ~ ."
     basemodel <- glm(formula = modformula,
@@ -200,7 +201,7 @@ initlogreggwis <- function(y, x, beta, ebinary) {
   loglike0 <- numeric(5)
   for (i in 1:2) {
     initvalues <- initlslogreg(y = y[[i]],
-                               x = x[[i]],
+                               xl = x[[i]],
                                beta = beta[[i]])
     yp0[[i]] <- initvalues$yp
     ql[[i]] <- initvalues$ql
@@ -213,7 +214,7 @@ initlogreggwis <- function(y, x, beta, ebinary) {
   if (ebinary == TRUE) {
     for (i in 3:5) {
       initvalues <- initlslogreg(y = y[[i]],
-                                 x = x[[i]],
+                                 xl = x[[i]],
                                  beta = beta[[i]])
       yp0[[i]] <- initvalues$yp
       ql[[i]] <- initvalues$ql
@@ -284,11 +285,11 @@ logreggwis <- function(bdinfo, blkinfo, snps, stddata, subindex,
   x <- vector("list", length = 5)
   x[[1]] <- stddata
   x[[2]] <- stddata
-  x[[3]] <- stddata[,1:(ncol(stddata)-1)]
+  x[[3]] <- as.matrix(stddata[,1:(ncol(stddata)-1)])
   x[[3]][,1] <- e
-  x[[4]] <- stddata[stddata[,1] == 1, 1:(ncol(stddata)-1)]
+  x[[4]] <- as.matrix(stddata[stddata[,1] == 1, 1:(ncol(stddata)-1)])
   x[[4]][,1] <- e[stddata[,1] == 1]
-  x[[5]] <- stddata[stddata[,1] == 0, 1:(ncol(stddata)-1)]
+  x[[5]] <- as.matrix(stddata[stddata[,1] == 0, 1:(ncol(stddata)-1)])
   x[[5]][,1] <- e[stddata[,1] == 0]
   # The first column was set to y to use the glm routine to
   # get initial values for beta. This is done because it is
@@ -455,7 +456,7 @@ logreggwis <- function(bdinfo, blkinfo, snps, stddata, subindex,
                                 beta = tmpbeta[[j]])
         } else {
           logregres <- lslogreg(y = y[[j]],
-                                x = x[[j]],
+                                xl = x[[j]],
                                 xr = xr[[j]],
                                 beta0 = beta0[[j]],
                                 yp0 = initvalues$yp0[[j]],

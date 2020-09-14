@@ -36,9 +36,8 @@ is a binary value. Default value is false.}
 Run a gwas using genetic data from a binary dosage file
 }
 \examples{
-data <- data.frame()
-bdinfofile <- system.file("extdata", "bdinfo_set1a_1_1.rds", package = "bdgwas")
-bdinfo <- readRDS(bdinfofile)
-outfile <- "test.out"
-gwas(data = data, bdinfo = bdinfo, outfile = outfile)
+bdinfo <- readRDS(system.file("extdata/pdata_4_1.bdinfo", package = "GxEScanR"))
+covdata <- readRDS(system.file("extdata/covdata.rds", package = "GxEScanR"))
+
+results <- gwis(data = covdata, bdinfo = bdinfo)
 }

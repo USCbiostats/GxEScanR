@@ -1,4 +1,4 @@
 library(testthat)
-library(bdgwas)
+library(GxEScanR)
 
-test_check("bdgwas")
+test_check("GxEScanR")
