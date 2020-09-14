@@ -47,10 +47,10 @@ subsetdata <- function(subdata, bdinfo, binary, mincov) {
   
   # Remove subjects without complete data
   covdata <- subdata[complete.cases(subdata),]
-  colnames(covdata) <- colnames(subdata)
   if (nrow(covdata) == 0)
     stop("No subjects have complete phenotype/covariate data")
   
+  colnames(covdata) <- colnames(subdata)
   # Determine if family IDs are used
   # and get the indices of the subjects in the genetic data that are
   # in the covariate data

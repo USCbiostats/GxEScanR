@@ -4,18 +4,18 @@ test_that("gwas input", {
   ##############################################################
   
   # Data for phenotype/covariate data
-  substouse <- c(1,2,4,8,16,32,64)
+  substouse <- c(1,2,4,8,16,32,64,128,256)
   sid <- paste(rep("I", length(substouse)), substouse, sep = "")
   fid <- paste(rep("F", length(substouse)), substouse, sep = "")
-  y = c(0, 0, 0, 1, 1, 1, 1)
-  x = c(1, 2, 4, 3, 2, 5, 3)
+  y = c(0, 0, 0, 0, 1, 1, 1, 1, 1)
+  x = c(1, 2, 4, 3, 2, 5, 3, 4, 5)
   
   # Subject and genetic data sets using only subject IDs
   data <- data.frame(sid = sid,
                      y = y,
                      x = x,
                      stringsAsFactors = FALSE)
-  bdinfofile <- system.file("extdata", "bdinfo_set1a_1_1.rds", package = "GxEScanR")
+  bdinfofile <- system.file("extdata", "pdata_4_1.bdinfo", package = "GxEScanR")
   bdinfo <- readRDS(bdinfofile)
   # Large bdinfo data for testing blksize
   bdinfofile <- system.file("extdata", "largebdinfo.rds", package = "GxEScanR")
@@ -34,7 +34,7 @@ test_that("gwas input", {
                                sep = "")
 
   # Other data values for testing that are valid  
-  outfile <- "test.out"
+  outfile <- ""
   minmaf <- 0.05
   blksize <- 0
   binary <- FALSE
