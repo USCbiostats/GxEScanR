@@ -3,3 +3,4 @@
 README.md
 ^codecov\.yml$
 ^\.travis\.yml$
+^appveyor\.yml$
