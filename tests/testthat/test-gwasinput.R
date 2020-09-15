@@ -17,6 +17,7 @@ test_that("gwas input", {
                      stringsAsFactors = FALSE)
   bdinfofile <- system.file("extdata", "pdata_4_1.bdinfo", package = "GxEScanR")
   bdinfo <- readRDS(bdinfofile)
+  bdinfo$filename <- system.file("extdata", "pdata_4_1.bdose", package = "GxEScanR")
   # Large bdinfo data for testing blksize
   bdinfofile <- system.file("extdata", "largebdinfo.rds", package = "GxEScanR")
   bdinfobig <- readRDS(bdinfofile)
@@ -248,6 +249,45 @@ test_that("gwas input", {
                     outfile = outfile,
                     binary = TRUE),
                "When using a binary outcome must be coded 0,1")
+
+  # Check if snps is a character or positive integer array
+  expect_error(subsetsnps(snps = TRUE,
+                          snplist = bdinfo$snps$snpid),
+               "snps must be a character or integer array")
+  expect_error(subsetsnps(snps = 1.2,
+                          snplist = bdinfo$snps$snpid),
+               "snps must be a character or integer array")
+  expect_error(subsetsnps(snps = 0,
+                          snplist = bdinfo$snps$snpid),
+               "snp indices must be positive")
+  expect_error(subsetsnps(snps = 10,
+                          snplist = bdinfo$snps$snpid),
+               "at least one snp index is greater than the number of SNPs available")
+  expect_error(subsetsnps(snps = "1:10010",
+                          snplist = bdinfo$snps$snpid),
+               "No matching SNPs found")
+  expect_error(subsetsnps(snps = character(),
+                          snplist = bdinfo$snps$snpid),
+               "No SNPs selected")
+  dataerror <- data[,1:2]
+  expect_error(gwis(data = dataerror,
+                    bdinfo = bdinfo),
+               "Subject data has no covariates")
+  
+  
+  x <- subsetsnps(snps = c("1:10001", "1:10004", "1:10010"),
+                           snplist = bdinfo$snps$snpid)
+  expect_equal(x[1], TRUE)
+  expect_equal(x[2], FALSE)
+  expect_equal(x[3], FALSE)
+  expect_equal(x[4], TRUE)
+  expect_equal(x[5], FALSE)
+  
+  # Checking subsetting of subject data
+  expect_error(gwas(data = data,
+                    bdinfo = bdinfof),
+               "When using family ID, the first two columns must be character values")
+  
   
   bdinfofile <- system.file("extdata", "pdata_4_1.bdinfo", package = "GxEScanR")
   bdinfo <- readRDS(bdinfofile)

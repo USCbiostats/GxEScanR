@@ -14,21 +14,24 @@ subsetsnps <- function(snps, snplist) {
     snps2 <- match(snps, snplist)
     snps2 <- snps2[!is.na(snps2)]
     if (length(snps2) == 0)
-      stop("No SNPs found")
+      stop("No matching SNPs found")
     if (length(snps) != length(snps2))
-      print(paste(length(snps) - length(snps2), " SNP(s) were not found"))
+      print(paste(length(snps) - length(snps2),
+                  " of ",
+                  length(snps),
+                  " SNPs were not found"))
     snps <- snps2
   }
   if (is.numeric(snps) == FALSE)
-    stop("snps must be character or integer array")
+    stop("snps must be a character or integer array")
   if (is.integer(snps) == FALSE) {
     if (all(floor(snps) == snps) == FALSE)
-      stop("snps must be character or integer array")
+      stop("snps must be a character or integer array")
   }
   if (min(snps) < 1)
-    stop("numeric snp values must be positive")
+    stop("snp indices must be positive")
   if (max(snps) > length(snplist))
-    stop("at least one snp value is invalid")
+    stop("at least one snp index is greater than the number of SNPs available")
   snpstouse <- rep(FALSE, length(snplist))
   snpstouse[snps] <- TRUE
   
@@ -68,9 +71,9 @@ subsetdata <- function(subdata, bdinfo, binary, mincov) {
     covdata$genindex <- row.match(covdata[,1:2], bdinfo$samples)
     phenocol <- 3
   }
-  if (ncol(covdata) < phenocol + mincov)
+  if (ncol(subdata) < phenocol + mincov)
     stop("Subject data has no covariates")
-  for (i in phenocol:ncol(covdata)) {
+  for (i in phenocol:ncol(subdata)) {
     if (is.numeric(covdata[,i]) == FALSE)
       stop("Phenotype and covariate values must be numeric")
   }
@@ -281,9 +284,13 @@ gwas <- function(data, bdinfo, snps, outfile, skipfile,
   if (binary == TRUE) {
     ncov <- length(basemodel$coefficients)
     beta0 <- numeric(ncov)
-    beta0[2:ncov] <- basemodel$coefficients[2:ncov] * stddevs[2:ncov]
-    beta0[1] <- basemodel$coefficients[1] +
-                  sum(means[2:ncov] * basemodel$coefficients[2:ncov])
+    if(ncov == 1) {
+      beta0[1] = basemodel$coefficients[1]
+    } else {
+      beta0[2:ncov] <- basemodel$coefficients[2:ncov] * stddevs[2:ncov]
+      beta0[1] <- basemodel$coefficients[1] +
+        sum(means[2:ncov] * basemodel$coefficients[2:ncov])
+    }
     return (logreggwas(bdinfo = bdinfo,
                        blkinfo = blkinfo,
                        snps = snps,
