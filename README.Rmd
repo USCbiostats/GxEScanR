@@ -17,6 +17,9 @@ knitr::opts_chunk$set(
 # GxEScanR
 
 <!-- badges: start -->
+[![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/USCbiostats/GxEScanR?branch=master&svg=true)](https://ci.appveyor.com/project/USCbiostats/GxEScanR)
+[![Travis build status](https://travis-ci.com/USCbiostats/GxEScanR.svg?branch=master)](https://travis-ci.com/USCbiostats/GxEScanR)
+[![Codecov test coverage](https://codecov.io/gh/USCbiostats/GxEScanR/branch/master/graph/badge.svg)](https://codecov.io/gh/USCbiostats/GxEScanR?branch=master)
 <!-- badges: end -->
 
 GxEScanR is designed to efficiently run GWAS/GWIS scans using imputed genotypes
