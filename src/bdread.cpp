@@ -186,18 +186,18 @@ void lrtgwis2(arma::vec &lrtg,
   unsigned int ui;
 
   nelem = loglhg.n_elem;  
-  d1 = lrtg.memptr();
-  d2 = lrtgxe.memptr();
-  d3 = lrt2df.memptr();
-  d4 = lrteg.memptr();
-  d5 = lrt3df.memptr();
-  d6 = lrtcase.memptr();
-  d7 = lrtctrl.memptr();
-  cd1 = loglhg.memptr() + (offset - 1);
-  cd2 = loglhgxe.memptr() + (offset - 1);
-  cd3 = loglheg.memptr() + (offset - 1);
-  cd4 = loglhcase.memptr() + (offset - 1);
-  cd5 = loglhctrl.memptr() + (offset - 1);
+  d1 = lrtg.memptr() + (offset - 1);
+  d2 = lrtgxe.memptr() + (offset - 1);
+  d3 = lrt2df.memptr() + (offset - 1);
+  d4 = lrteg.memptr() + (offset - 1);
+  d5 = lrt3df.memptr() + (offset - 1);
+  d6 = lrtcase.memptr() + (offset - 1);
+  d7 = lrtctrl.memptr() + (offset - 1);
+  cd1 = loglhg.memptr();
+  cd2 = loglhgxe.memptr();
+  cd3 = loglheg.memptr();
+  cd4 = loglhcase.memptr();
+  cd5 = loglhctrl.memptr();
   for (ui = 0; ui < nelem; ++ui, ++d1, ++d2, ++d3, ++d4, ++d5, ++d6, ++d7,
        ++cd1, ++cd2, ++cd3, ++cd4, ++cd5) {
     *d1 = 2 * (*cd1 - loglike0(0));
@@ -229,16 +229,16 @@ void betagwis2(arma::vec &betag,
   unsigned int ui;
   
   nelem = tmpbetag.n_rows;
-  d1 = betag.memptr();
-  d2 = betagxe.memptr();
-  d3 = betaeg.memptr();
-  d4 = betacase.memptr();
-  d5 = betactrl.memptr();
-  cd1 = tmpbetag.memptr() + (offset - 1);
-  cd2 = tmpbetagxe.memptr() + nelem + (offset - 1);
-  cd3 = tmpbetaeg.memptr() + (offset - 1);
-  cd4 = tmpbetacase.memptr() + (offset - 1);
-  cd5 = tmpbetactrl.memptr() + (offset - 1);
+  d1 = betag.memptr() + (offset - 1);
+  d2 = betagxe.memptr() + (offset - 1);
+  d3 = betaeg.memptr() + (offset - 1);
+  d4 = betacase.memptr() + (offset - 1);
+  d5 = betactrl.memptr() + (offset - 1);
+  cd1 = tmpbetag.memptr();
+  cd2 = tmpbetagxe.memptr() + nelem;
+  cd3 = tmpbetaeg.memptr();
+  cd4 = tmpbetacase.memptr();
+  cd5 = tmpbetactrl.memptr();
   for (ui = 0; ui < nelem; ++ui, ++d1, ++d2, ++d3, ++d4, ++d5,
        ++cd1, ++cd2, ++cd3, ++cd4, ++cd5) {
     *d1 = *cd1;

@@ -165,8 +165,8 @@ logreggwas <- function(bdinfo, blkinfo, snps, stddata, subindex,
   
   # Return results as data frame
   results <- data.frame(snp = bdinfo$snps$snpid[!is.na(lrt)],
-                        lrtg = lrt[!is.na(lrt)],
                         betag = beta[!is.na(lrt),1],
+                        lrtg = lrt[!is.na(lrt)],
                         stringsAsFactors = FALSE)
   return (results)
 }
@@ -276,7 +276,7 @@ logreggwis <- function(bdinfo, blkinfo, snps, stddata, subindex,
   ebinary <- FALSE
   if (length(evalues) == 2) {
     evalues <- sort(evalues)
-    if (evalues[1] == 0 | evalues[1] == 1) {
+    if (evalues[1] == 0 & evalues[2] == 1) {
       ebinary <- TRUE
     }
   }
@@ -383,9 +383,9 @@ logreggwis <- function(bdinfo, blkinfo, snps, stddata, subindex,
   #####################################################
   
   if (outfile != "")
-    write("snp\tbetag\tlrtg\tbetagxe\tlrtgxe\tlrt2df\tbetaeg\tlrteg\tlrt3df\tbetacase\tlrtcase\tbetactrl\tlrtctrl", outfile);
+    write("snp\tbetadg\tlrtdg\tbetagxe\tlrtgxe\tlrt2df\tbetaeg\tlrteg\tlrt3df\tbetacase\tlrtcase\tbetactrl\tlrtctrl", outfile);
   if (skipfile != "")
-    write("snp\treasong\treasongxe\treasoneg\treasoncase\treasonctrl", skipfile)
+    write("snp\treasondg\treasongxe\treasoneg\treasoncase\treasonctrl", skipfile)
   
   #####################################################
   ###       Loop over blocks
@@ -478,7 +478,7 @@ logreggwis <- function(bdinfo, blkinfo, snps, stddata, subindex,
     } else {
       for (j in 1:5) {
         tmploglh[[j]][1:length(tmploglh[[j]])] <- NA
-        tmpbeta[[j]][1:nrow(tmpbeta[[j]]), q[j]] <- 1
+        tmpbeta[[j]][1:nrow(tmpbeta[[j]]), 1] <- 1
       }
     }
     if (outfile == "") {
@@ -554,8 +554,8 @@ logreggwis <- function(bdinfo, blkinfo, snps, stddata, subindex,
   if (outfile == "") {
     tokeep <- !is.na(lrtg)
     results <- data.frame(snp = bdinfo$snps$snpid[tokeep],
-                          betag = betag[tokeep],
-                          lrtg = lrtg[tokeep],
+                          betadg = betag[tokeep],
+                          lrtdg = lrtg[tokeep],
                           betagxe = betagxe[tokeep],
                           lrtgxe = lrtgxe[tokeep],
                           lrt2df = lrt2df[tokeep],

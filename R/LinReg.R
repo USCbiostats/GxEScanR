@@ -231,9 +231,9 @@ linreggwis <- function(bdinfo, blkinfo, snps, stddata, subindex,
   #####################################################
   
   if (outfile != "")
-    write("SNPID\tbetag\tlrtg\tbetagxe\tlrtgxe\tlrt2df", outfile);
+    write("SNPID\tbetadg\tlrtdg\tbetagxe\tlrtgxe\tlrt2df", outfile);
   if (skipfile != "")
-    write("SNPID\treason", skipfile)
+    write("SNPID\treasondg\treasongxe", skipfile)
   
   #####################################################
   ###       Loop over blocks
@@ -357,6 +357,18 @@ linreggwis <- function(bdinfo, blkinfo, snps, stddata, subindex,
                numrows = maxn)
     }
  
+    if (skipfile != "") {
+      # Output the reason SNPs were skipped
+      reasong <- as.integer(tmpbetag[is.na(tmploglhg)])
+      reasongxe <- as.integer(tmpbetagxe[is.na(tmploglhg),1])
+      snpids <- bdinfo$snps$snpid[firstsnp:lastsnp]
+      snpids <- snpids[is.na(tmploglhg)]
+      if (length(snpids) > 0) {
+        outstring <- paste(snpids, reasong, reasongxe, sep = '\t')
+        write(outstring, skipfile, append = TRUE)
+      }
+    }
+
     firstsnp <- lastsnp + 1
   }
   
