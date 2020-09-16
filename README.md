@@ -16,9 +16,9 @@ coverage](https://codecov.io/gh/USCbiostats/GxEScanR/branch/master/graph/badge.s
 <!-- badges: end -->
 
 GxEScanR is designed to efficiently run GWAS/GWIS scans using imputed
-genotypes stored in the BinaryDosageformat. The phenotype to be analyzed
-can either be a continuous or binary trait. The GWIS scan performs
-multiple tests that can be used in two-step methods.
+genotypes stored in the BinaryDosage format. The phenotype to be
+analyzed can either be a continuous or binary trait. The GWIS scan
+performs multiple tests that can be used in two-step methods.
 
 ## Installation
 
