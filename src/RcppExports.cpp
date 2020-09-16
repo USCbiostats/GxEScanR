@@ -224,25 +224,6 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
-// copysubmat
-void copysubmat(arma::mat& dest, int drow1, int drow2, int dcol1, int dcol2, const arma::mat& src, int srow1, int srow2, int scol1, int scol2);
-RcppExport SEXP _GxEScanR_copysubmat(SEXP destSEXP, SEXP drow1SEXP, SEXP drow2SEXP, SEXP dcol1SEXP, SEXP dcol2SEXP, SEXP srcSEXP, SEXP srow1SEXP, SEXP srow2SEXP, SEXP scol1SEXP, SEXP scol2SEXP) {
-BEGIN_RCPP
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::mat& >::type dest(destSEXP);
-    Rcpp::traits::input_parameter< int >::type drow1(drow1SEXP);
-    Rcpp::traits::input_parameter< int >::type drow2(drow2SEXP);
-    Rcpp::traits::input_parameter< int >::type dcol1(dcol1SEXP);
-    Rcpp::traits::input_parameter< int >::type dcol2(dcol2SEXP);
-    Rcpp::traits::input_parameter< const arma::mat& >::type src(srcSEXP);
-    Rcpp::traits::input_parameter< int >::type srow1(srow1SEXP);
-    Rcpp::traits::input_parameter< int >::type srow2(srow2SEXP);
-    Rcpp::traits::input_parameter< int >::type scol1(scol1SEXP);
-    Rcpp::traits::input_parameter< int >::type scol2(scol2SEXP);
-    copysubmat(dest, drow1, drow2, dcol1, dcol2, src, srow1, srow2, scol1, scol2);
-    return R_NilValue;
-END_RCPP
-}
 // calculatelrt
 void calculatelrt(arma::vec& lrt, int idx1, int idx2, const arma::vec& loglike, double loglike0);
 RcppExport SEXP _GxEScanR_calculatelrt(SEXP lrtSEXP, SEXP idx1SEXP, SEXP idx2SEXP, SEXP loglikeSEXP, SEXP loglike0SEXP) {
@@ -289,7 +270,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_GxEScanR_betagwis2", (DL_FUNC) &_GxEScanR_betagwis2, 12},
     {"_GxEScanR_makegxexr", (DL_FUNC) &_GxEScanR_makegxexr, 3},
     {"_GxEScanR_copybeta", (DL_FUNC) &_GxEScanR_copybeta, 5},
-    {"_GxEScanR_copysubmat", (DL_FUNC) &_GxEScanR_copysubmat, 10},
     {"_GxEScanR_calculatelrt", (DL_FUNC) &_GxEScanR_calculatelrt, 5},
     {"_GxEScanR_calculatelrtgxe", (DL_FUNC) &_GxEScanR_calculatelrtgxe, 8},
     {NULL, NULL, 0}

@@ -53,10 +53,6 @@ copybeta <- function(dest, src, colnum, startrow, numrows) {
     invisible(.Call(`_GxEScanR_copybeta`, dest, src, colnum, startrow, numrows))
 }
 
-copysubmat <- function(dest, drow1, drow2, dcol1, dcol2, src, srow1, srow2, scol1, scol2) {
-    invisible(.Call(`_GxEScanR_copysubmat`, dest, drow1, drow2, dcol1, dcol2, src, srow1, srow2, scol1, scol2))
-}
-
 calculatelrt <- function(lrt, idx1, idx2, loglike, loglike0) {
     invisible(.Call(`_GxEScanR_calculatelrt`, lrt, idx1, idx2, loglike, loglike0))
 }

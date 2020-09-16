@@ -288,21 +288,6 @@ void copybeta(arma::vec &dest,
 }
 
 // [[Rcpp::export]]
-void copysubmat(arma::mat &dest,
-                int drow1,
-                int drow2,
-                int dcol1,
-                int dcol2,
-                const arma::mat &src,
-                int srow1,
-                int srow2,
-                int scol1,
-                int scol2) {
-  dest.submat(drow1 - 1, dcol1 - 1, drow2 - 1, dcol2 - 1) =
-    src.submat(srow1 - 1, scol1 - 1, srow2 - 1, scol2 - 1);
-}
-
-// [[Rcpp::export]]
 void calculatelrt(arma::vec &lrt,
                   int idx1,
                   int idx2,
