@@ -288,15 +288,52 @@ test_that("gwas input", {
                     bdinfo = bdinfof),
                "When using family ID, the first two columns must be character values")
   
+  dataerror <- dataf
+  dataerror$y <- TRUE
+  expect_error(gwas(data = dataerror,
+                    bdinfo = bdinfof),
+               "Phenotype and covariate values must be numeric")
   
-  bdinfofile <- system.file("extdata", "pdata_4_1.bdinfo", package = "GxEScanR")
-  bdinfo <- readRDS(bdinfofile)
-  bdinfo$filename <- system.file("extdata", "pdata_4_1.bdose", package = "GxEScanR")
-  covdatafile <- system.file("extdata", "covdata.rds", package = "GxEScanR")
-  covdata <- readRDS(covdatafile)
-  results <- gwas(data = covdata, bdinfo = bdinfo)
-  results <- gwas(data = covdata, bdinfo = bdinfo, binary = FALSE)
-  results <- gwis(data = covdata, bdinfo = bdinfo)
-  results <- gwis(data = covdata, bdinfo = bdinfo, binary = FALSE)
+  x <- assignblocks(nsub = 10000,
+                    nsnps = 100,
+                    snploc = 1:100,
+                    snpbytes = rep(1,100),
+                    reqblksize = 50)
+  expect_equal(x$snpsperblk, 50)
+  
+  x <- assignblocks(nsub = 25000,
+                    nsnps = 100,
+                    snploc = 1:100,
+                    snpbytes = rep(1,100),
+                    reqblksize = 0)
+  expect_equal(x$snpsperblk, 100)
+  
+  x <- assignblocks(nsub = 50000,
+                    nsnps = 100,
+                    snploc = 1:100,
+                    snpbytes = rep(1,100),
+                    reqblksize = 0)
+  expect_equal(x$snpsperblk, 100)
+  
+  x <- assignblocks(nsub = 100000,
+                    nsnps = 100,
+                    snploc = 1:100,
+                    snpbytes = rep(1,100),
+                    reqblksize = 0)
+  expect_equal(x$snpsperblk, 100)
+  
+  x <- assignblocks(nsub = 250000,
+                    nsnps = 100,
+                    snploc = 1:100,
+                    snpbytes = rep(1,100),
+                    reqblksize = 0)
+  expect_equal(x$snpsperblk, 100)
+  
+  x <- assignblocks(nsub = 500000,
+                    nsnps = 100,
+                    snploc = 1:100,
+                    snpbytes = rep(1,100),
+                    reqblksize = 0)
+  expect_equal(x$snpsperblk, 50)
   
 })
