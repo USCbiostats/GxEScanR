@@ -76,7 +76,7 @@ knitr::kable(modeldf[1,], caption = "Model Fit")
 ```
 
 In the example data set,
-the phenotype, y, is coded 0,1. When GxEScan sees the phenotype codes this way
+the phenotype, y, is coded 0,1. When GxEScanR sees the phenotype codes this way
 it assumes the outcome is binary and uses logistic regression. To perform
 a linear regression GWAS the binary option needs to be set to FALSE. The
 following shows how to do a linear GWAS along with the results.
@@ -238,7 +238,7 @@ knitr::kable(loggwis1, caption = "Logistic Regression GWIS", digits = 4)
 ```
 
 In this example the snps options was used. The snps option can either be a
-vector of indices indicating what SNPs to include or a list of SNPs by SNPID.
+vector of indices indicating what SNPs to include or a list of SNPs by SNP ID.
 A vector of indices was used in this example.
 
 ### Logistic Regression GWIS with a Continuous Covariate

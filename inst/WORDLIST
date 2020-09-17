@@ -1,6 +1,7 @@
 AppVeyor
 betag
 BinaryDosage
+blksize
 Codecov
 getbdinfo
 gwas
@@ -10,5 +11,9 @@ GWIS
 lrtg
 minmaf
 modelling
+outfile
 README
 sid
+skipfile
+snps
+VCF
