@@ -44,9 +44,11 @@ dosage file that makes reading it fast.
 ``` {r, eval = T, echo = T, message = F, warning = F, tidy = T}
 covdatafile <- system.file("extdata", "covdata.rds", package = "GxEScanR")
 covdata <- readRDS(covdatafile)
-covdata[1:5,]
 ```
 
+``` {r, eval = T, echo = F, message = F, warning = F, tidy = T}
+knitr::kable(covdata[1:5,], caption = "First 5 Subjects")
+```
 To load the binary dosage information file, it is necessary to update the
 file name since the file has been moved from its original location during the
 installation process. The following loads the binary dosage information and
@@ -58,11 +60,22 @@ bdinfo <- readRDS(bdinfofile)
 bdinfo$filename <- system.file("extdata", "pdata_4_1.bdose", package = "GxEScanR")
 ```
 
+``` {r, eval = T, echo = F, message = F, warning = F, tidy = T}
+modeldf <- readRDS(system.file("extdata", "models.rds", package = "GxEScanR"))
+knitr::kable(modeldf, caption = "Models Fit")
+```
+
 # Examples
 
 ## Linear Regression GWAS
 
-The simplest model to fit is a linear regression GWAS. In the example data set,
+The simplest scan to do is a linear regression GWAS. The following model is
+first when doing a linear regression GWAS.
+``` {r, eval = T, echo = F, message = F, warning = F, tidy = T}
+knitr::kable(modeldf[1,], caption = "Model Fit")
+```
+
+In the example data set,
 the phenotype, y, is coded 0,1. When GxEScan sees the phenotype codes this way
 it assumes the outcome is binary and uses logistic regression. To perform
 a linear regression GWAS the binary option needs to be set to FALSE. The
@@ -75,7 +88,10 @@ a data frame with the results.
 lingwas1 <- gwas(data = covdata,
                  bdinfo = bdinfo,
                  binary = FALSE)
-lingwas1
+```
+
+``` {r, eval = T, echo = F, message = F, warning = F, tidy = T}
+knitr::kable(lingwas1, caption = "Linear Regression GWAS")
 ```
 
 The output can be redirected to output file that produces a plain test
@@ -91,16 +107,22 @@ lingwas2 <- gwas(data = covdata,
                  binary = FALSE)
 lingwas2
 lingwas2 <- read.table(outfile, header = TRUE, sep ='\t')
-lingwas2
+```
+
+``` {r, eval = T, echo = F, message = F, warning = F, tidy = T}
+knitr::kable(lingwas2, caption = "Linear Regression GWAS")
 ```
 
 ## Linear Regression GWIS
 
 The gwis routine takes the same parameters as the gwas function but performs
-additional tests. For a linear regression GWIS there is one additional model
-fitted. This is the D|G,E,GxE model with two additional tests performed. These
-are the one degree of freedom test of betaGxE = 0, and the two degree of
-freedom test, betaG = 0, betaGxE = 0.
+additional tests. The models fit for a linear regression GWAS are.
+``` {r, eval = T, echo = F, message = F, warning = F, tidy = T}
+knitr::kable(modeldf[1:2,], caption = "Models Fit")
+```
+
+Note: When doing a GWIS the interaction covariate is in the last column of the
+subject data frame.
 
 In this test the minmaf option was used. When minmaf is specified the minor
 allele for a SNP must exceed minmaf to be test. Notice that only 5 SNPs are
@@ -112,7 +134,10 @@ lingwis1 <- gwis(data = covdata,
                  bdinfo = bdinfo,
                  minmaf = 0.2,
                  binary = FALSE)
-lingwis1
+```
+
+``` {r, eval = T, echo = F, message = F, warning = F, tidy = T}
+knitr::kable(lingwis1, caption = "Linear Regression GWIS")
 ```
 
 If the user is interested in see what happened to SNPs that weren't included
@@ -123,12 +148,116 @@ output file. Below is an example using the skipfile option.
 
 ``` {r, eval = T, echo = T, message = F, warning = F, tidy = T}
 skipfile = tempfile()
-lingwis1 <- gwis(data = covdata,
+lingwis2 <- gwis(data = covdata,
                  bdinfo = bdinfo,
                  skipfile = skipfile,
                  minmaf = 0.2,
                  binary = FALSE)
-lingwis1
-skipsnps <- read.table(skipfile, header = TRUE, sep = '\t')
-skipsnps
 ```
+
+``` {r, eval = T, echo = F, message = F, warning = F, tidy = T}
+knitr::kable(lingwis2, caption = "Linear Regression GWIS")
+skipsnps <- read.table(skipfile, header = TRUE, sep = '\t')
+```
+
+``` {r, eval = T, echo = T, message = F, warning = F, tidy = T}
+knitr::kable(skipsnps, caption = "Skipped SNPs")
+```
+
+The following table lists the reasons SNPs were skipped given the skipped value.
+``` {r, eval = T, echo = F, message = F, warning = F, tidy = T}
+reasondf <- readRDS(system.file("extdata", "skipreason.rds", package = "GxEScanR"))
+knitr::kable(reasondf, caption = "Skipped Reasons")
+```
+
+## Logistic Regression GWAS
+
+In this example, the phenotype is coded (0,1). The gwas and gwis routines check
+for this an will run logistic regressions if the outcome is coded (0,1) unless
+binary is set to FALSE. If the use wants to make sure the outcome is coded
+(0,1), the user may set binary to TRUE. In this case, if the outcome is not
+coded (0,1) an error is produced.
+
+The following model is fit when doing a logistic regression GWAS.
+``` {r, eval = T, echo = F, message = F, warning = F, tidy = T}
+knitr::kable(modeldf[1,], caption = "Model Fit")
+```
+
+``` {r, eval = T, echo = T, message = F, warning = F, tidy = T}
+loggwas1 <- gwas(data = covdata,
+                 bdinfo = bdinfo,
+                 blksize = 2,
+                 binary = TRUE)
+```
+
+``` {r, eval = T, echo = F, message = F, warning = F, tidy = T}
+knitr::kable(loggwas1, caption = "Logistic Regression GWAS", digits = 4)
+```
+
+In this example, the option blksize is used. When an analysis is run several
+SNPs are read in at one time. This saves disk time. The following are the
+default values for given the number of subjects. These values were chosen to
+keep the program running using less than 4GB of RAM. The user is allowed to
+specify a value up to twice the default value. Little performance gain is seen
+going with larger values. If the user enters 0 for blksize, the default value
+is used.
+
+``` {r, eval = T, echo = F, message = F, warning = F, tidy = T}
+defaultdf <- readRDS(system.file("extdata", "defaultblk.rds", package = "GxEScanR"))
+knitr::kable(defaultdf, caption = "Default blksize")
+```
+
+## Logistic Regression GWIS
+
+A logistic regression GWIS fits an additional 4 models that produce 7 more
+tests. 3 of these models use the the interaction covariate as the outcome.
+The following show all the models fit in a logistic regression GWIS.
+
+The following model is fit when doing a logistic regression GWAS.
+``` {r, eval = T, echo = F, message = F, warning = F, tidy = T}
+knitr::kable(modeldf, caption = "Models Fit")
+```
+
+Note: When doing a GWIS the interaction covariate is in the last column of the
+data frame.
+
+### Logistic Regression GWIS with Binary Covariate
+
+In the example subject data, the covariate is coded (0,1). In this case, the
+gwis routine will use logistic regression to fit the last 3 models.
+
+``` {r, eval = T, echo = T, message = F, warning = F, tidy = T}
+loggwis1 <- gwis(data = covdata,
+                 bdinfo = bdinfo,
+                 snps = 1:2,
+                 binary = TRUE)
+```
+
+``` {r, eval = T, echo = F, message = F, warning = F, tidy = T}
+knitr::kable(loggwis1, caption = "Logistic Regression GWIS", digits = 4)
+```
+
+In this example the snps options was used. The snps option can either be a
+vector of indices indicating what SNPs to include or a list of SNPs by SNPID.
+A vector of indices was used in this example.
+
+### Logistic Regression GWIS with a Continuous Covariate
+
+In the example subject data, the covariate is coded (0,1) which the gwis
+routine sees a binary covariate to make the routine do a linear regression
+1 can be added to the interaction covariate. This will change the coding to
+(1,2) which the routine sees as a continuous covariate.
+
+``` {r, eval = T, echo = T, message = F, warning = F, tidy = T}
+covdata2 <- covdata
+covdata2$e <- covdata2$e + 1
+loggwis2 <- gwis(data = covdata2,
+                 bdinfo = bdinfo,
+                 snps = c("1:10001", "1:10002"))
+```
+
+``` {r, eval = T, echo = F, message = F, warning = F, tidy = T}
+knitr::kable(loggwis2, caption = "Logistic Regression GWIS", digits = 4)
+```
+
+In this example the snps options was used with the SNP IDs.
