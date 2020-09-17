@@ -1,0 +1,134 @@
+---
+title: "Using GxEScanR"
+output:
+  rmarkdown::html_vignette:
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{Using GxEScanR}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+This vignette shows some examples of using GxEScanR to perform GWAS and GWAS
+scans using all the options available to the user.
+
+```{r setup}
+library(GxEScanR)
+```
+
+# Introduction
+
+With growing number of SNPs that can be imputed it is necessary to have
+software that can efficiently perform GWAS and GWIS scans. GxEScanR can
+do this using files that were saved in the BinaryDosage format. The BinaryDosage
+package can convert VCF and GEN files into the BinaryDosage format. The
+BinaryDosage format was designed to keep the file with the genetic data
+small with fast read times. GxEScanR uses this and efficient large scale
+regression routines to perform GWAS and GWIS scans quickly.
+
+# Example Files
+
+The examples below use three sample files. The first contains a data frame
+that has subject data. The second file is a genetic data file in the
+BinaryDosage format. The last file contains the information returned by
+the BinaryDosage::getbdinfo routine that returns information about the binary
+dosage file that makes reading it fast.
+
+``` {r, eval = T, echo = T, message = F, warning = F, tidy = T}
+covdatafile <- system.file("extdata", "covdata.rds", package = "GxEScanR")
+covdata <- readRDS(covdatafile)
+covdata[1:5,]
+```
+
+To load the binary dosage information file, it is necessary to update the
+file name since the file has been moved from its original location during the
+installation process. The following loads the binary dosage information and
+updates the file name.
+
+``` {r, eval = T, echo = T, message = F, warning = F, tidy = T}
+bdinfofile <- system.file("extdata", "pdata_4_1.bdinfo", package = "GxEScanR")
+bdinfo <- readRDS(bdinfofile)
+bdinfo$filename <- system.file("extdata", "pdata_4_1.bdose", package = "GxEScanR")
+```
+
+# Examples
+
+## Linear Regression GWAS
+
+The simplest model to fit is a linear regression GWAS. In the example data set,
+the phenotype, y, is coded 0,1. When GxEScan sees the phenotype codes this way
+it assumes the outcome is binary and uses logistic regression. To perform
+a linear regression GWAS the binary option needs to be set to FALSE. The
+following shows how to do a linear GWAS along with the results.
+
+The routine outputs the number of subjects used in the analysis and returns
+a data frame with the results.
+
+``` {r, eval = T, echo = T, message = F, warning = F, tidy = T}
+lingwas1 <- gwas(data = covdata,
+                 bdinfo = bdinfo,
+                 binary = FALSE)
+lingwas1
+```
+
+The output can be redirected to output file that produces a plain test
+version of the results in a tab delimited file that can be read into R
+using the read.table routine. In this case, the gwas routine returns a
+value of 0.
+
+``` {r, eval = T, echo = T, message = F, warning = F, tidy = T}
+outfile <- tempfile()
+lingwas2 <- gwas(data = covdata,
+                 bdinfo = bdinfo,
+                 outfile = outfile,
+                 binary = FALSE)
+lingwas2
+lingwas2 <- read.table(outfile, header = TRUE, sep ='\t')
+lingwas2
+```
+
+## Linear Regression GWIS
+
+The gwis routine takes the same parameters as the gwas function but performs
+additional tests. For a linear regression GWIS there is one additional model
+fitted. This is the D|G,E,GxE model with two additional tests performed. These
+are the one degree of freedom test of betaGxE = 0, and the two degree of
+freedom test, betaG = 0, betaGxE = 0.
+
+In this test the minmaf option was used. When minmaf is specified the minor
+allele for a SNP must exceed minmaf to be test. Notice that only 5 SNPs are
+in the output data frame. This is because one of the SNPs has a minor allele
+frequency below 0.2.
+
+``` {r, eval = T, echo = T, message = F, warning = F, tidy = T}
+lingwis1 <- gwis(data = covdata,
+                 bdinfo = bdinfo,
+                 minmaf = 0.2,
+                 binary = FALSE)
+lingwis1
+```
+
+If the user is interested in see what happened to SNPs that weren't included
+in the data frame, the skipfile option can be used. The skipfile value is the
+name of a file to write the skipped SNPs to. The skipfile option can be used
+along with the outfile option. The skip file is in the same format as the
+output file. Below is an example using the skipfile option.
+
+``` {r, eval = T, echo = T, message = F, warning = F, tidy = T}
+skipfile = tempfile()
+lingwis1 <- gwis(data = covdata,
+                 bdinfo = bdinfo,
+                 skipfile = skipfile,
+                 minmaf = 0.2,
+                 binary = FALSE)
+lingwis1
+skipsnps <- read.table(skipfile, header = TRUE, sep = '\t')
+skipsnps
+```

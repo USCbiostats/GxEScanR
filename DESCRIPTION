@@ -1,8 +1,8 @@
 Package: GxEScanR
 Type: Package
 Title: Run a GWAS/GWIS Using a Binary Dosage File
-Version: 0.1.0
-Date: 2020-05-18
+Version: 2.0.0
+Date: 2020-09-16
 Authors@R:
     c(person(given = "John",
              family = "Morrison",
@@ -32,6 +32,10 @@ Imports:
     prodlim
 LinkingTo: Rcpp, RcppArmadillo
 RoxygenNote: 7.1.1
-Suggests: 
+Suggests:
+    BinaryDosage
     testthat (>= 2.1.0),
-    covr
+    covr,
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
