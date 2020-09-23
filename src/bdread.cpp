@@ -118,14 +118,14 @@ void makegxr(arma::mat &dest,
 }
 
 // [[Rcpp::export]]
-void xrgwis2(arma::mat &xr1,
-             arma::mat &xr2,
-             arma::mat &xr3,
-             arma::mat &xr4,
-             arma::mat &xr5,
-             const arma::uvec &idx,
-             const arma::mat &src1,
-             const arma::vec &src2) {
+void xrgweis2(arma::mat &xr1,
+              arma::mat &xr2,
+              arma::mat &xr3,
+              arma::mat &xr4,
+              arma::mat &xr5,
+              const arma::uvec &idx,
+              const arma::mat &src1,
+              const arma::vec &src2) {
   double *d1, *d2a, *d2b, *d3, *d4, *d5;
   const double *cd1, *cd2;
   const unsigned int *idxp;
@@ -166,20 +166,20 @@ void xrgwis2(arma::mat &xr1,
 }
 
 // [[Rcpp::export]]
-void lrtgwis2(arma::vec &lrtg,
-              arma::vec &lrtgxe,
-              arma::vec &lrt2df,
-              arma::vec &lrteg,
-              arma::vec &lrt3df,
-              arma::vec &lrtcase,
-              arma::vec &lrtctrl,
-              const arma::vec &loglike0,
-              const arma::vec &loglhg,
-              const arma::vec &loglhgxe,
-              const arma::vec &loglheg,
-              const arma::vec &loglhcase,
-              const arma::vec &loglhctrl,
-              const int offset) {
+void lrtgweis2(arma::vec &lrtg,
+               arma::vec &lrtgxe,
+               arma::vec &lrt2df,
+               arma::vec &lrteg,
+               arma::vec &lrt3df,
+               arma::vec &lrtcase,
+               arma::vec &lrtctrl,
+               const arma::vec &loglike0,
+               const arma::vec &loglhg,
+               const arma::vec &loglhgxe,
+               const arma::vec &loglheg,
+               const arma::vec &loglhcase,
+               const arma::vec &loglhctrl,
+               const int offset) {
   double *d1, *d2, *d3, *d4, *d5, *d6, *d7;
   const double *cd1, *cd2, *cd3, *cd4, *cd5;
   unsigned int nelem;
@@ -211,18 +211,18 @@ void lrtgwis2(arma::vec &lrtg,
 }
 
 // [[Rcpp::export]]
-void betagwis2(arma::vec &betag,
-               arma::vec &betagxe,
-               arma::vec &betaeg,
-               arma::vec &betacase,
-               arma::vec &betactrl,
-               const arma::mat &tmpbetag,
-               const arma::mat &tmpbetagxe,
-               const arma::mat &tmpbetaeg,
-               const arma::mat &tmpbetacase,
-               const arma::mat &tmpbetactrl,
-               const double estddev,
-               const int offset) {
+void betagweis2(arma::vec &betag,
+                arma::vec &betagxe,
+                arma::vec &betaeg,
+                arma::vec &betacase,
+                arma::vec &betactrl,
+                const arma::mat &tmpbetag,
+                const arma::mat &tmpbetagxe,
+                const arma::mat &tmpbetaeg,
+                const arma::mat &tmpbetacase,
+                const arma::mat &tmpbetactrl,
+                const double estddev,
+                const int offset) {
   double *d1, *d2, *d3, *d4, *d5;
   const double *cd1, *cd2, *cd3, *cd4, *cd5;
   unsigned int nelem;

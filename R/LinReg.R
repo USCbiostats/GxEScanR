@@ -164,12 +164,12 @@ linreggwas <- function(bdinfo, blkinfo, snps, stddata, subindex,
 }
 
 #####################################################
-###       Perform Linear Regression GWIS
+###       Perform Linear Regression GWEIS
 #####################################################
 #
-# Routine to do a GWIS with a continuous outcome
+# Routine to do a GWEIS with a continuous outcome
 #
-linreggwis <- function(bdinfo, blkinfo, snps, stddata, subindex,
+linreggweis <- function(bdinfo, blkinfo, snps, stddata, subindex,
                        outfile, skipfile, minmaf, base, estddev) {
   #####################################################
   ###       Useful values to have

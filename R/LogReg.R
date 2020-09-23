@@ -191,7 +191,7 @@ b0logreg <- function(x, ebinary) {
   return (beta0)
 }
 
-initlogreggwis <- function(y, x, beta, ebinary) {
+initlogreggweis <- function(y, x, beta, ebinary) {
   yp0 <- vector("list", 5)
   ql <- vector("list", 5)
   rtl <- vector("list", 5)
@@ -243,7 +243,7 @@ initlogreggwis <- function(y, x, beta, ebinary) {
                loglike0 = loglike0))
 }
 
-minmafgwis <- function(datalist, minmaf) {
+minmafgweis <- function(datalist, minmaf) {
   minsum <- numeric(5)
   maxsum <- numeric(5)
   for (i in 1:5) {
@@ -261,13 +261,13 @@ minmafgwis <- function(datalist, minmaf) {
                maxsum = maxsum))
 }
 #####################################################
-###       Perform Logistic Regression GWIS
+###       Perform Logistic Regression GWEIS
 #####################################################
 #
-# Routine to do a GWIS with a binary outcome
+# Routine to do a GWEIS with a binary outcome
 #
-logreggwis <- function(bdinfo, blkinfo, snps, stddata, subindex,
-                       outfile, skipfile, minmaf, base, e) {
+logreggweis <- function(bdinfo, blkinfo, snps, stddata, subindex,
+                        outfile, skipfile, minmaf, base, e) {
   #####################################################
   ###       Set up needed arrays
   #####################################################
@@ -310,16 +310,16 @@ logreggwis <- function(bdinfo, blkinfo, snps, stddata, subindex,
 
   # Save the needed values from the initial regressions
   # that are needed to do the large scale regression part
-  initvalues <- initlogreggwis(y = y,
-                               x = x,
-                               beta = beta0,
-                               ebinary = ebinary)
+  initvalues <- initlogreggweis(y = y,
+                                x = x,
+                                beta = beta0,
+                                ebinary = ebinary)
   
   # The number of columns added
   q <- c(1L, 2L, 1L, 1L, 1L)
   # Calculate the minimum and maximum number of SNPs that
   # can be observed
-  minmaxg <- minmafgwis(x, minmaf)
+  minmaxg <- minmafgweis(x, minmaf)
   
   # Indices for cases and controls in binary dosage file
   caseindex <- subindex[stddata[,1] == 1]
@@ -430,14 +430,14 @@ logreggwis <- function(bdinfo, blkinfo, snps, stddata, subindex,
                  firstsnp = firstsnp,
                  lastsnp = lastsnp,
                  base = base)
-      xrgwis2(xr1 = xr[[1]],
-              xr2 = xr[[2]],
-              xr3 = xr[[3]],
-              xr4 = xr[[4]],
-              xr5 = xr[[5]],
-              idx = subindexm1,
-              src1 = dosages,
-              src2 = estd)
+      xrgweis2(xr1 = xr[[1]],
+               xr2 = xr[[2]],
+               xr3 = xr[[3]],
+               xr4 = xr[[4]],
+               xr5 = xr[[5]],
+               idx = subindexm1,
+               src1 = dosages,
+               src2 = estd)
       for (j in 1:5) {
         if (j > 2 & ebinary == FALSE) {
           linregres <- lslinreg(y = y[[j]],
@@ -482,32 +482,32 @@ logreggwis <- function(bdinfo, blkinfo, snps, stddata, subindex,
       }
     }
     if (outfile == "") {
-      lrtgwis2(lrtg = lrtg,
-               lrtgxe = lrtgxe,
-               lrt2df = lrt2df,
-               lrteg = lrteg,
-               lrt3df = lrt3df,
-               lrtcase = lrtcase,
-               lrtctrl = lrtctrl,
-               loglike0 = initvalues$loglike0,
-               loglhg = tmploglh[[1]],
-               loglhgxe = tmploglh[[2]],
-               loglheg = tmploglh[[3]],
-               loglhcase = tmploglh[[4]],
-               loglhctrl = tmploglh[[5]],
-               offset = firstsnp)
-      betagwis2(betag = betag,
-                betagxe = betagxe,
-                betaeg = betaeg,
-                betacase = betacase,
-                betactrl = betactrl,
-                tmpbetag = tmpbeta[[1]],
-                tmpbetagxe = tmpbeta[[2]],
-                tmpbetaeg = tmpbeta[[3]],
-                tmpbetacase = tmpbeta[[4]],
-                tmpbetactrl = tmpbeta[[5]],
-                estddev = estddev,
+      lrtgweis2(lrtg = lrtg,
+                lrtgxe = lrtgxe,
+                lrt2df = lrt2df,
+                lrteg = lrteg,
+                lrt3df = lrt3df,
+                lrtcase = lrtcase,
+                lrtctrl = lrtctrl,
+                loglike0 = initvalues$loglike0,
+                loglhg = tmploglh[[1]],
+                loglhgxe = tmploglh[[2]],
+                loglheg = tmploglh[[3]],
+                loglhcase = tmploglh[[4]],
+                loglhctrl = tmploglh[[5]],
                 offset = firstsnp)
+      betagweis2(betag = betag,
+                 betagxe = betagxe,
+                 betaeg = betaeg,
+                 betacase = betacase,
+                 betactrl = betactrl,
+                 tmpbetag = tmpbeta[[1]],
+                 tmpbetagxe = tmpbeta[[2]],
+                 tmpbetaeg = tmpbeta[[3]],
+                 tmpbetacase = tmpbeta[[4]],
+                 tmpbetactrl = tmpbeta[[5]],
+                 estddev = estddev,
+                 offset = firstsnp)
     } else {
       tokeep <- !is.na(tmploglh[[1]])
       if (length(tokeep) > 0) {

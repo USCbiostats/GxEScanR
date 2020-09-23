@@ -16,7 +16,9 @@ knitr::opts_chunk$set(
 )
 ```
 
-This vignette shows some examples of using GxEScanR to perform GWAS and GWAS
+This vignette shows some examples of using GxEScanR to perform
+genomewide association study (GWAS)
+and genomewide environment interaction study (GWEIS)
 scans using all the options available to the user.
 
 ```{r setup}
@@ -26,12 +28,12 @@ library(GxEScanR)
 # Introduction
 
 With growing number of SNPs that can be imputed it is necessary to have
-software that can efficiently perform GWAS and GWIS scans. GxEScanR can
+software that can efficiently perform GWAS and GWEIS scans. GxEScanR can
 do this using files that were saved in the BinaryDosage format. The BinaryDosage
 package can convert VCF and GEN files into the BinaryDosage format. The
 BinaryDosage format was designed to keep the file with the genetic data
 small with fast read times. GxEScanR uses this and efficient large scale
-regression routines to perform GWAS and GWIS scans quickly.
+regression routines to perform GWAS and GWEIS scans quickly.
 
 # Example Files
 
@@ -113,15 +115,15 @@ lingwas2 <- read.table(outfile, header = TRUE, sep ='\t')
 knitr::kable(lingwas2, caption = "Linear Regression GWAS")
 ```
 
-## Linear Regression GWIS
+## Linear Regression GWEIS
 
-The gwis routine takes the same parameters as the gwas function but performs
+The gweis routine takes the same parameters as the gwas function but performs
 additional tests. The models fit for a linear regression GWAS are.
 ``` {r, eval = T, echo = F, message = F, warning = F, tidy = T}
 knitr::kable(modeldf[1:2,], caption = "Models Fit")
 ```
 
-Note: When doing a GWIS the interaction covariate is in the last column of the
+Note: When doing a GWEIS the interaction covariate is in the last column of the
 subject data frame.
 
 In this test the minmaf option was used. When minmaf is specified the minor
@@ -130,14 +132,14 @@ in the output data frame. This is because one of the SNPs has a minor allele
 frequency below 0.2.
 
 ``` {r, eval = T, echo = T, message = F, warning = F, tidy = T}
-lingwis1 <- gwis(data = covdata,
-                 bdinfo = bdinfo,
-                 minmaf = 0.2,
-                 binary = FALSE)
+lingweis1 <- gweis(data = covdata,
+                   bdinfo = bdinfo,
+                   minmaf = 0.2,
+                   binary = FALSE)
 ```
 
 ``` {r, eval = T, echo = F, message = F, warning = F, tidy = T}
-knitr::kable(lingwis1, caption = "Linear Regression GWIS")
+knitr::kable(lingweis1, caption = "Linear Regression GWEIS")
 ```
 
 If the user is interested in see what happened to SNPs that weren't included
@@ -148,15 +150,15 @@ output file. Below is an example using the skipfile option.
 
 ``` {r, eval = T, echo = T, message = F, warning = F, tidy = T}
 skipfile = tempfile()
-lingwis2 <- gwis(data = covdata,
-                 bdinfo = bdinfo,
-                 skipfile = skipfile,
-                 minmaf = 0.2,
-                 binary = FALSE)
+lingweis2 <- gweis(data = covdata,
+                   bdinfo = bdinfo,
+                   skipfile = skipfile,
+                   minmaf = 0.2,
+                   binary = FALSE)
 ```
 
 ``` {r, eval = T, echo = F, message = F, warning = F, tidy = T}
-knitr::kable(lingwis2, caption = "Linear Regression GWIS")
+knitr::kable(lingweis2, caption = "Linear Regression GWEIS")
 skipsnps <- read.table(skipfile, header = TRUE, sep = '\t')
 ```
 
@@ -172,7 +174,7 @@ knitr::kable(reasondf, caption = "Skipped Reasons")
 
 ## Logistic Regression GWAS
 
-In this example, the phenotype is coded (0,1). The gwas and gwis routines check
+In this example, the phenotype is coded (0,1). The gwas and gweis routines check
 for this an will run logistic regressions if the outcome is coded (0,1) unless
 binary is set to FALSE. If the use wants to make sure the outcome is coded
 (0,1), the user may set binary to TRUE. In this case, if the outcome is not
@@ -207,43 +209,43 @@ defaultdf <- readRDS(system.file("extdata", "defaultblk.rds", package = "GxEScan
 knitr::kable(defaultdf, caption = "Default blksize")
 ```
 
-## Logistic Regression GWIS
+## Logistic Regression GWEIS
 
-A logistic regression GWIS fits an additional 4 models that produce 7 more
+A logistic regression GWEIS fits an additional 4 models that produce 7 more
 tests. 3 of these models use the the interaction covariate as the outcome.
-The following show all the models fit in a logistic regression GWIS.
+The following show all the models fit in a logistic regression GWEIS.
 
 The following model is fit when doing a logistic regression GWAS.
 ``` {r, eval = T, echo = F, message = F, warning = F, tidy = T}
 knitr::kable(modeldf, caption = "Models Fit")
 ```
 
-Note: When doing a GWIS the interaction covariate is in the last column of the
-data frame.
+Note: When doing a GWEIS the interaction covariate is in the last column of
+the data frame.
 
-### Logistic Regression GWIS with Binary Covariate
+### Logistic Regression GWEIS with Binary Covariate
 
 In the example subject data, the covariate is coded (0,1). In this case, the
-gwis routine will use logistic regression to fit the last 3 models.
+gweis routine will use logistic regression to fit the last 3 models.
 
 ``` {r, eval = T, echo = T, message = F, warning = F, tidy = T}
-loggwis1 <- gwis(data = covdata,
-                 bdinfo = bdinfo,
-                 snps = 1:2,
-                 binary = TRUE)
+loggweis1 <- gweis(data = covdata,
+                   bdinfo = bdinfo,
+                   snps = 1:2,
+                   binary = TRUE)
 ```
 
 ``` {r, eval = T, echo = F, message = F, warning = F, tidy = T}
-knitr::kable(loggwis1, caption = "Logistic Regression GWIS", digits = 4)
+knitr::kable(loggweis1, caption = "Logistic Regression GWEIS", digits = 4)
 ```
 
 In this example the snps options was used. The snps option can either be a
 vector of indices indicating what SNPs to include or a list of SNPs by SNP ID.
 A vector of indices was used in this example.
 
-### Logistic Regression GWIS with a Continuous Covariate
+### Logistic Regression GWEIS with a Continuous Covariate
 
-In the example subject data, the covariate is coded (0,1) which the gwis
+In the example subject data, the covariate is coded (0,1) which the gweis
 routine sees a binary covariate to make the routine do a linear regression
 1 can be added to the interaction covariate. This will change the coding to
 (1,2) which the routine sees as a continuous covariate.
@@ -251,13 +253,13 @@ routine sees a binary covariate to make the routine do a linear regression
 ``` {r, eval = T, echo = T, message = F, warning = F, tidy = T}
 covdata2 <- covdata
 covdata2$e <- covdata2$e + 1
-loggwis2 <- gwis(data = covdata2,
-                 bdinfo = bdinfo,
-                 snps = c("1:10001", "1:10002"))
+loggweis2 <- gweis(data = covdata2,
+                   bdinfo = bdinfo,
+                   snps = c("1:10001", "1:10002"))
 ```
 
 ``` {r, eval = T, echo = F, message = F, warning = F, tidy = T}
-knitr::kable(loggwis2, caption = "Logistic Regression GWIS", digits = 4)
+knitr::kable(loggweis2, caption = "Logistic Regression GWEIS", digits = 4)
 ```
 
 In this example the snps options was used with the SNP IDs.

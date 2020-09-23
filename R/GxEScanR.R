@@ -315,12 +315,12 @@ gwas <- function(data, bdinfo, snps, outfile, skipfile,
 }
 
 #####################################################
-###                      GWIS
+###                      GWEIS
 #####################################################
 
-#' gwis
+#' gweis
 #'
-#' Run a gwas using genetic data from a binary dosage file
+#' Run a gweis using genetic data from a binary dosage file
 #' @param data Data frame containing the subject ID, phenotype
 #' and covariates
 #' @param bdinfo Information about the binary dosage file returned
@@ -354,9 +354,9 @@ gwas <- function(data, bdinfo, snps, outfile, skipfile,
 #' bdinfo <- readRDS(system.file("extdata/pdata_4_1.bdinfo", package = "GxEScanR"))
 #' covdata <- readRDS(system.file("extdata/covdata.rds", package = "GxEScanR"))
 #'
-#' results <- gwis(data = covdata, bdinfo = bdinfo)
-gwis <- function(data, bdinfo, snps, outfile, skipfile,
-                 minmaf, blksize, binary) {
+#' results <- gweis(data = covdata, bdinfo = bdinfo)
+gweis <- function(data, bdinfo, snps, outfile, skipfile,
+                  minmaf, blksize, binary) {
   # Set missing values to default values
   if (missing(snps) == TRUE)
     snps = "all"
@@ -415,24 +415,24 @@ gwis <- function(data, bdinfo, snps, outfile, skipfile,
   
   subindex <- as.integer(rownames(data))
   if (binary == TRUE)
-    return (logreggwis(bdinfo = bdinfo,
-                       blkinfo = blkinfo,
-                       snps = snps,
-                       stddata = stddata,
-                       subindex = subindex,
-                       outfile = outfile,
-                       skipfile = skipfile,
-                       minmaf = minmaf,
-                       base = base,
-                       e = data[,ncol(data)]))
-  return (linreggwis(bdinfo = bdinfo,
-                     blkinfo = blkinfo,
-                     snps = snps,
-                     stddata = stddata,
-                     subindex = subindex,
-                     minmaf = minmaf,
-                     outfile = outfile,
-                     skipfile = skipfile,
-                     base = base,
-                     estddev = stddevs[length(stddevs)]))
+    return (logreggweis(bdinfo = bdinfo,
+                        blkinfo = blkinfo,
+                        snps = snps,
+                        stddata = stddata,
+                        subindex = subindex,
+                        outfile = outfile,
+                        skipfile = skipfile,
+                        minmaf = minmaf,
+                        base = base,
+                        e = data[,ncol(data)]))
+  return (linreggweis(bdinfo = bdinfo,
+                      blkinfo = blkinfo,
+                      snps = snps,
+                      stddata = stddata,
+                      subindex = subindex,
+                      minmaf = minmaf,
+                      outfile = outfile,
+                      skipfile = skipfile,
+                      base = base,
+                      estddev = stddevs[length(stddevs)]))
 }

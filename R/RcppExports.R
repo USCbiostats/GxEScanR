@@ -33,16 +33,16 @@ makegxr <- function(dest, src, idx) {
     invisible(.Call(`_GxEScanR_makegxr`, dest, src, idx))
 }
 
-xrgwis2 <- function(xr1, xr2, xr3, xr4, xr5, idx, src1, src2) {
-    invisible(.Call(`_GxEScanR_xrgwis2`, xr1, xr2, xr3, xr4, xr5, idx, src1, src2))
+xrgweis2 <- function(xr1, xr2, xr3, xr4, xr5, idx, src1, src2) {
+    invisible(.Call(`_GxEScanR_xrgweis2`, xr1, xr2, xr3, xr4, xr5, idx, src1, src2))
 }
 
-lrtgwis2 <- function(lrtg, lrtgxe, lrt2df, lrteg, lrt3df, lrtcase, lrtctrl, loglike0, loglhg, loglhgxe, loglheg, loglhcase, loglhctrl, offset) {
-    invisible(.Call(`_GxEScanR_lrtgwis2`, lrtg, lrtgxe, lrt2df, lrteg, lrt3df, lrtcase, lrtctrl, loglike0, loglhg, loglhgxe, loglheg, loglhcase, loglhctrl, offset))
+lrtgweis2 <- function(lrtg, lrtgxe, lrt2df, lrteg, lrt3df, lrtcase, lrtctrl, loglike0, loglhg, loglhgxe, loglheg, loglhcase, loglhctrl, offset) {
+    invisible(.Call(`_GxEScanR_lrtgweis2`, lrtg, lrtgxe, lrt2df, lrteg, lrt3df, lrtcase, lrtctrl, loglike0, loglhg, loglhgxe, loglheg, loglhcase, loglhctrl, offset))
 }
 
-betagwis2 <- function(betag, betagxe, betaeg, betacase, betactrl, tmpbetag, tmpbetagxe, tmpbetaeg, tmpbetacase, tmpbetactrl, estddev, offset) {
-    invisible(.Call(`_GxEScanR_betagwis2`, betag, betagxe, betaeg, betacase, betactrl, tmpbetag, tmpbetagxe, tmpbetaeg, tmpbetacase, tmpbetactrl, estddev, offset))
+betagweis2 <- function(betag, betagxe, betaeg, betacase, betactrl, tmpbetag, tmpbetagxe, tmpbetaeg, tmpbetacase, tmpbetactrl, estddev, offset) {
+    invisible(.Call(`_GxEScanR_betagweis2`, betag, betagxe, betaeg, betacase, betactrl, tmpbetag, tmpbetagxe, tmpbetaeg, tmpbetacase, tmpbetactrl, estddev, offset))
 }
 
 makegxexr <- function(dest, src1, src2) {

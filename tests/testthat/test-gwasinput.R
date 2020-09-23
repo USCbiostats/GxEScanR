@@ -270,7 +270,7 @@ test_that("gwas input", {
                           snplist = bdinfo$snps$snpid),
                "No SNPs selected")
   dataerror <- data[,1:2]
-  expect_error(gwis(data = dataerror,
+  expect_error(gweis(data = dataerror,
                     bdinfo = bdinfo),
                "Subject data has no covariates")
   

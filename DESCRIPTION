@@ -1,6 +1,6 @@
 Package: GxEScanR
 Type: Package
-Title: Run a GWAS/GWIS Using a Binary Dosage File
+Title: Run GWAS/GWEIS Scans Using Binary Dosage Files
 Version: 2.0.0
 Date: 2020-09-16
 Authors@R:
@@ -20,10 +20,11 @@ Authors@R:
       person(given = "NHLBI",
              role = "fnd",
              comment = "HL115606"))
-Description: Package to run a GWAS/GWIS using the genetic data stored in
-  a binary dosage file. The user provides a data frame with the covariate
-  data and the information about the binary dosage file returned by the
-  BinaryDosage::getbdinfo routine.
+Description: Routines to run genomewide association study (GWAS) and
+  genomewide environment interaction study (GWEIS) scans using the genetic
+  data stored in a binary dosage file. The user provides a data frame with
+  the subject's covariate data and the information about the binary dosage
+  file returned by the BinaryDosage::getbdinfo() routine.
 License: GPL-3
 Encoding: UTF-8
 Language: en-US

@@ -137,9 +137,9 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
-// xrgwis2
-void xrgwis2(arma::mat& xr1, arma::mat& xr2, arma::mat& xr3, arma::mat& xr4, arma::mat& xr5, const arma::uvec& idx, const arma::mat& src1, const arma::vec& src2);
-RcppExport SEXP _GxEScanR_xrgwis2(SEXP xr1SEXP, SEXP xr2SEXP, SEXP xr3SEXP, SEXP xr4SEXP, SEXP xr5SEXP, SEXP idxSEXP, SEXP src1SEXP, SEXP src2SEXP) {
+// xrgweis2
+void xrgweis2(arma::mat& xr1, arma::mat& xr2, arma::mat& xr3, arma::mat& xr4, arma::mat& xr5, const arma::uvec& idx, const arma::mat& src1, const arma::vec& src2);
+RcppExport SEXP _GxEScanR_xrgweis2(SEXP xr1SEXP, SEXP xr2SEXP, SEXP xr3SEXP, SEXP xr4SEXP, SEXP xr5SEXP, SEXP idxSEXP, SEXP src1SEXP, SEXP src2SEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::mat& >::type xr1(xr1SEXP);
@@ -150,13 +150,13 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::uvec& >::type idx(idxSEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type src1(src1SEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type src2(src2SEXP);
-    xrgwis2(xr1, xr2, xr3, xr4, xr5, idx, src1, src2);
+    xrgweis2(xr1, xr2, xr3, xr4, xr5, idx, src1, src2);
     return R_NilValue;
 END_RCPP
 }
-// lrtgwis2
-void lrtgwis2(arma::vec& lrtg, arma::vec& lrtgxe, arma::vec& lrt2df, arma::vec& lrteg, arma::vec& lrt3df, arma::vec& lrtcase, arma::vec& lrtctrl, const arma::vec& loglike0, const arma::vec& loglhg, const arma::vec& loglhgxe, const arma::vec& loglheg, const arma::vec& loglhcase, const arma::vec& loglhctrl, const int offset);
-RcppExport SEXP _GxEScanR_lrtgwis2(SEXP lrtgSEXP, SEXP lrtgxeSEXP, SEXP lrt2dfSEXP, SEXP lrtegSEXP, SEXP lrt3dfSEXP, SEXP lrtcaseSEXP, SEXP lrtctrlSEXP, SEXP loglike0SEXP, SEXP loglhgSEXP, SEXP loglhgxeSEXP, SEXP loglhegSEXP, SEXP loglhcaseSEXP, SEXP loglhctrlSEXP, SEXP offsetSEXP) {
+// lrtgweis2
+void lrtgweis2(arma::vec& lrtg, arma::vec& lrtgxe, arma::vec& lrt2df, arma::vec& lrteg, arma::vec& lrt3df, arma::vec& lrtcase, arma::vec& lrtctrl, const arma::vec& loglike0, const arma::vec& loglhg, const arma::vec& loglhgxe, const arma::vec& loglheg, const arma::vec& loglhcase, const arma::vec& loglhctrl, const int offset);
+RcppExport SEXP _GxEScanR_lrtgweis2(SEXP lrtgSEXP, SEXP lrtgxeSEXP, SEXP lrt2dfSEXP, SEXP lrtegSEXP, SEXP lrt3dfSEXP, SEXP lrtcaseSEXP, SEXP lrtctrlSEXP, SEXP loglike0SEXP, SEXP loglhgSEXP, SEXP loglhgxeSEXP, SEXP loglhegSEXP, SEXP loglhcaseSEXP, SEXP loglhctrlSEXP, SEXP offsetSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::vec& >::type lrtg(lrtgSEXP);
@@ -173,13 +173,13 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::vec& >::type loglhcase(loglhcaseSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type loglhctrl(loglhctrlSEXP);
     Rcpp::traits::input_parameter< const int >::type offset(offsetSEXP);
-    lrtgwis2(lrtg, lrtgxe, lrt2df, lrteg, lrt3df, lrtcase, lrtctrl, loglike0, loglhg, loglhgxe, loglheg, loglhcase, loglhctrl, offset);
+    lrtgweis2(lrtg, lrtgxe, lrt2df, lrteg, lrt3df, lrtcase, lrtctrl, loglike0, loglhg, loglhgxe, loglheg, loglhcase, loglhctrl, offset);
     return R_NilValue;
 END_RCPP
 }
-// betagwis2
-void betagwis2(arma::vec& betag, arma::vec& betagxe, arma::vec& betaeg, arma::vec& betacase, arma::vec& betactrl, const arma::mat& tmpbetag, const arma::mat& tmpbetagxe, const arma::mat& tmpbetaeg, const arma::mat& tmpbetacase, const arma::mat& tmpbetactrl, const double estddev, const int offset);
-RcppExport SEXP _GxEScanR_betagwis2(SEXP betagSEXP, SEXP betagxeSEXP, SEXP betaegSEXP, SEXP betacaseSEXP, SEXP betactrlSEXP, SEXP tmpbetagSEXP, SEXP tmpbetagxeSEXP, SEXP tmpbetaegSEXP, SEXP tmpbetacaseSEXP, SEXP tmpbetactrlSEXP, SEXP estddevSEXP, SEXP offsetSEXP) {
+// betagweis2
+void betagweis2(arma::vec& betag, arma::vec& betagxe, arma::vec& betaeg, arma::vec& betacase, arma::vec& betactrl, const arma::mat& tmpbetag, const arma::mat& tmpbetagxe, const arma::mat& tmpbetaeg, const arma::mat& tmpbetacase, const arma::mat& tmpbetactrl, const double estddev, const int offset);
+RcppExport SEXP _GxEScanR_betagweis2(SEXP betagSEXP, SEXP betagxeSEXP, SEXP betaegSEXP, SEXP betacaseSEXP, SEXP betactrlSEXP, SEXP tmpbetagSEXP, SEXP tmpbetagxeSEXP, SEXP tmpbetaegSEXP, SEXP tmpbetacaseSEXP, SEXP tmpbetactrlSEXP, SEXP estddevSEXP, SEXP offsetSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::vec& >::type betag(betagSEXP);
@@ -194,7 +194,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::mat& >::type tmpbetactrl(tmpbetactrlSEXP);
     Rcpp::traits::input_parameter< const double >::type estddev(estddevSEXP);
     Rcpp::traits::input_parameter< const int >::type offset(offsetSEXP);
-    betagwis2(betag, betagxe, betaeg, betacase, betactrl, tmpbetag, tmpbetagxe, tmpbetaeg, tmpbetacase, tmpbetactrl, estddev, offset);
+    betagweis2(betag, betagxe, betaeg, betacase, betactrl, tmpbetag, tmpbetagxe, tmpbetaeg, tmpbetacase, tmpbetactrl, estddev, offset);
     return R_NilValue;
 END_RCPP
 }
@@ -265,9 +265,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_GxEScanR_getdosages", (DL_FUNC) &_GxEScanR_getdosages, 7},
     {"_GxEScanR_stdmat", (DL_FUNC) &_GxEScanR_stdmat, 4},
     {"_GxEScanR_makegxr", (DL_FUNC) &_GxEScanR_makegxr, 3},
-    {"_GxEScanR_xrgwis2", (DL_FUNC) &_GxEScanR_xrgwis2, 8},
-    {"_GxEScanR_lrtgwis2", (DL_FUNC) &_GxEScanR_lrtgwis2, 14},
-    {"_GxEScanR_betagwis2", (DL_FUNC) &_GxEScanR_betagwis2, 12},
+    {"_GxEScanR_xrgweis2", (DL_FUNC) &_GxEScanR_xrgweis2, 8},
+    {"_GxEScanR_lrtgweis2", (DL_FUNC) &_GxEScanR_lrtgweis2, 14},
+    {"_GxEScanR_betagweis2", (DL_FUNC) &_GxEScanR_betagweis2, 12},
     {"_GxEScanR_makegxexr", (DL_FUNC) &_GxEScanR_makegxexr, 3},
     {"_GxEScanR_copybeta", (DL_FUNC) &_GxEScanR_copybeta, 5},
     {"_GxEScanR_calculatelrt", (DL_FUNC) &_GxEScanR_calculatelrt, 5},

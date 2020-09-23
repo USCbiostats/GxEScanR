@@ -33,28 +33,28 @@ test_that("results", {
   expect_true(all(abs(lingwas1$betag - lingwas2$betag) < 1e-6))
   expect_true(all(abs(lingwas1$betag[1:2] - lingwas3$betag) < 1e-6))
 
-  # Linear regression GWIS
-  lingwis1 <- gwis(data = covdata,
-                   bdinfo = bdinfo,
-                   binary = FALSE)
-  lingwis2 <- gwis(data = covdata,
-                   bdinfo = bdinfo,
-                   outfile = outfile,
-                   minmaf = 0.05,
-                   blksize = 2,
-                   binary = FALSE)
-  expect_equal(lingwis2, 0)
-  lingwis2 <- read.table(outfile, header = TRUE, sep = '\t')
-  lingwis3 <- gwis(data = covdata,
-                   bdinfo = bdinfo,
-                   snps = 4:5,
-                   skipfile = skipfile,
-                   blksize = 2,
-                   binary = FALSE)
-  lingwis3skip <- read.table(skipfile, header = TRUE, sep = '\t')
-  expect_true(all(lingwis3skip$reason == 1))
-  expect_true(all(abs(lingwis1$betadg - lingwis2$betadg) < 1e-6))
-  expect_true(all(abs(lingwis1$betadg[4:5] - lingwis3$betadg) < 1e-6))
+  # Linear regression GWEIS
+  lingweis1 <- gweis(data = covdata,
+                     bdinfo = bdinfo,
+                     binary = FALSE)
+  lingweis2 <- gweis(data = covdata,
+                     bdinfo = bdinfo,
+                     outfile = outfile,
+                     minmaf = 0.05,
+                     blksize = 2,
+                     binary = FALSE)
+  expect_equal(lingweis2, 0)
+  lingweis2 <- read.table(outfile, header = TRUE, sep = '\t')
+  lingweis3 <- gweis(data = covdata,
+                     bdinfo = bdinfo,
+                     snps = 4:5,
+                     skipfile = skipfile,
+                     blksize = 2,
+                     binary = FALSE)
+  lingweis3skip <- read.table(skipfile, header = TRUE, sep = '\t')
+  expect_true(all(lingweis3skip$reason == 1))
+  expect_true(all(abs(lingweis1$betadg - lingweis2$betadg) < 1e-6))
+  expect_true(all(abs(lingweis1$betadg[4:5] - lingweis3$betadg) < 1e-6))
   
   # Logistic regression GWAS
   loggwas1 <- gwas(data = covdata,
@@ -76,43 +76,43 @@ test_that("results", {
   expect_true(all(abs(loggwas1$betag - loggwas2$betag) < 1e-6))
   expect_true(all(abs(loggwas1$betag[1:2] - loggwas3$betag) < 1e-6))
 
-  # Logistic regression GWIS - binary covariate
-  loggwis1 <- gwis(data = covdata,
-                   bdinfo = bdinfo)
-  loggwis2 <- gwis(data = covdata,
-                   bdinfo = bdinfo,
-                   outfile = outfile,
-                   minmaf = 0.05,
-                   blksize = 2)
-  expect_equal(loggwis2, 0)
-  loggwis2 <- read.table(outfile, header = TRUE, sep = '\t')
-  loggwis3 <- gwis(data = covdata,
-                   bdinfo = bdinfo,
-                   snps = 4:5,
-                   skipfile = skipfile,
-                   blksize = 2)
-  loggwis3skip <- read.table(skipfile, header = TRUE, sep = '\t')
-  expect_true(all(loggwis3skip$reason == 1))
-  expect_true(all(abs(loggwis1$betadg - loggwis2$betadg) < 1e-6))
-  expect_true(all(abs(loggwis1$betadg[4:5] - loggwis3$betadg) < 1e-6))
+  # Logistic regression GWEIS - binary covariate
+  loggweis1 <- gweis(data = covdata,
+                     bdinfo = bdinfo)
+  loggweis2 <- gweis(data = covdata,
+                     bdinfo = bdinfo,
+                     outfile = outfile,
+                     minmaf = 0.05,
+                     blksize = 2)
+  expect_equal(loggweis2, 0)
+  loggweis2 <- read.table(outfile, header = TRUE, sep = '\t')
+  loggweis3 <- gweis(data = covdata,
+                     bdinfo = bdinfo,
+                     snps = 4:5,
+                     skipfile = skipfile,
+                     blksize = 2)
+  loggweis3skip <- read.table(skipfile, header = TRUE, sep = '\t')
+  expect_true(all(loggweis3skip$reason == 1))
+  expect_true(all(abs(loggweis1$betadg - loggweis2$betadg) < 1e-6))
+  expect_true(all(abs(loggweis1$betadg[4:5] - loggweis3$betadg) < 1e-6))
   
-  # Logistic regression GWIS - continuous covariate
-  loggwis1c <- gwis(data = covdata2,
-                    bdinfo = bdinfo)
-  loggwis2c <- gwis(data = covdata2,
-                    bdinfo = bdinfo,
-                    outfile = outfile,
-                    minmaf = 0.001,
-                    blksize = 2)
-  expect_equal(loggwis2c, 0)
-  loggwis2c <- read.table(outfile, header = TRUE, sep = '\t')
-  loggwis3c <- gwis(data = covdata,
-                    bdinfo = bdinfo,
-                    snps = 4:5,
-                    skipfile = skipfile,
-                    blksize = 2)
-  loggwis3cskip <- read.table(skipfile, header = TRUE, sep = '\t')
-  expect_true(all(loggwis3cskip$reason == 1))
-  expect_true(all(abs(loggwis1c$betadg - loggwis2c$betadg) < 1e-6))
-  expect_true(all(abs(loggwis1c$betadg[4:5] - loggwis3c$betadg) < 1e-6))
+  # Logistic regression GWEIS - continuous covariate
+  loggweis1c <- gweis(data = covdata2,
+                      bdinfo = bdinfo)
+  loggweis2c <- gweis(data = covdata2,
+                      bdinfo = bdinfo,
+                      outfile = outfile,
+                      minmaf = 0.001,
+                      blksize = 2)
+  expect_equal(loggweis2c, 0)
+  loggweis2c <- read.table(outfile, header = TRUE, sep = '\t')
+  loggweis3c <- gweis(data = covdata,
+                      bdinfo = bdinfo,
+                      snps = 4:5,
+                      skipfile = skipfile,
+                      blksize = 2)
+  loggweis3cskip <- read.table(skipfile, header = TRUE, sep = '\t')
+  expect_true(all(loggweis3cskip$reason == 1))
+  expect_true(all(abs(loggweis1c$betadg - loggweis2c$betadg) < 1e-6))
+  expect_true(all(abs(loggweis1c$betadg[4:5] - loggweis3c$betadg) < 1e-6))
 })
