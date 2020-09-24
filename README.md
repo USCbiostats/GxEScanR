@@ -1,4 +1,4 @@
-GxEScanR: Performs GWAS/GWIS analyses using BinaryDosage files
+GxEScanR: Performs GWAS/GWEIS scans using BinaryDosage files
 ================
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
@@ -15,10 +15,11 @@ status](https://travis-ci.com/USCbiostats/GxEScanR.svg?branch=master)](https://t
 coverage](https://codecov.io/gh/USCbiostats/GxEScanR/branch/master/graph/badge.svg)](https://codecov.io/gh/USCbiostats/GxEScanR?branch=master)
 <!-- badges: end -->
 
-GxEScanR is designed to efficiently run GWAS/GWIS scans using imputed
-genotypes stored in the BinaryDosage format. The phenotype to be
-analyzed can either be a continuous or binary trait. The GWIS scan
-performs multiple tests that can be used in two-step methods.
+GxEScanR is designed to efficiently run genomewide association study
+(GWAS) and genomewide environmental interaction study (GWEIS) scans
+using imputed genotypes stored in the BinaryDosage format. The phenotype
+to be analyzed can either be a continuous or binary trait. The GWEIS
+scan performs multiple tests that can be used in two-step methods.
 
 ## Installation
 
