@@ -55,4 +55,21 @@ Words are correct. GWAS and GWIS are acronyms.
 BinaryDosage is an R package and getbdinfo is
 a routine in that package.
 
+## Comments from first submission
+
+Please do not start the description with "This package", package name,
+title or similar.
+
+Please always explain all acronyms in the description text.
+
+Please add () behind all function names in the description texts
+(DESCRIPTION file). e.g: --> getbdinfo()
+
+## Responses to comments
+
+Updated description.
+
+Updated all documentation to have meanings of acronyms used.
+
+Added () behind function name getbdinfo.
 

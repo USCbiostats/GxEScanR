@@ -15,8 +15,8 @@ status](https://travis-ci.com/USCbiostats/GxEScanR.svg?branch=master)](https://t
 coverage](https://codecov.io/gh/USCbiostats/GxEScanR/branch/master/graph/badge.svg)](https://codecov.io/gh/USCbiostats/GxEScanR?branch=master)
 <!-- badges: end -->
 
-GxEScanR is designed to efficiently run genomewide association study
-(GWAS) and genomewide environmental interaction study (GWEIS) scans
+GxEScanR is designed to efficiently run genome-wide association study
+(GWAS) and genome-wide by environmental interaction study (GWEIS) scans
 using imputed genotypes stored in the BinaryDosage format. The phenotype
 to be analyzed can either be a continuous or binary trait. The GWEIS
 scan performs multiple tests that can be used in two-step methods.

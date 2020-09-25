@@ -17,8 +17,8 @@ knitr::opts_chunk$set(
 ```
 
 This vignette shows some examples of using GxEScanR to perform
-genomewide association study (GWAS)
-and genomewide environment interaction study (GWEIS)
+genome-wide association study (GWAS)
+and genome-wide by environment interaction study (GWEIS)
 scans using all the options available to the user.
 
 ```{r setup}
