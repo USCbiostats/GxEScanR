@@ -19,41 +19,32 @@ unable to verify current time
 This appears to be a local system setup issue.
 
 ## rhub results
-2 Notes
+1 Note
 * checking CRAN incoming feasibility ... NOTE
-  Maintainer: 'John Morrison <jmorr@usc.edu>'
-  
-  
-  Possibly mis-spelled words in DESCRIPTION:
-    BinaryDosage (26:3)
-    GWAS (3:14, 23:31)
-    GWIS (3:19, 23:36)
-    getbdinfo (26:17)
-  New submission
+Maintainer: 'John Morrison <jmorr@usc.edu>'
+
+
+New submission
+  GWAS (3:12, 23:58)
+Possibly mis-spelled words in DESCRIPTION:
+  GWEIS (3:17, 24:49)
 
 Words are correct. GWAS and GWIS are acronyms.
-BinaryDosage is an R package and getbdinfo is
-a routine in that package.
-
-* checking for future file timestamps ... NOTE
-  unable to verify current time
+Meaning of acronym in description.
 
 ## check_win_xxx results
 1 Notes
 * checking CRAN incoming feasibility ... NOTE
-  Maintainer: 'John Morrison <jmorr@usc.edu>'
-  
-  
-  Possibly mis-spelled words in DESCRIPTION:
-    BinaryDosage (26:3)
-    GWAS (3:14, 23:31)
-    GWIS (3:19, 23:36)
-    getbdinfo (26:17)
-  New submission
+Maintainer: 'John Morrison <jmorr@usc.edu>'
+
+New submission
+
+Possibly mis-spelled words in DESCRIPTION:
+  GWAS (3:12, 23:58)
+  GWEIS (3:17, 24:49)
 
 Words are correct. GWAS and GWIS are acronyms.
-BinaryDosage is an R package and getbdinfo is
-a routine in that package.
+Meaning of acronym in description.
 
 ## Comments from first submission
 
