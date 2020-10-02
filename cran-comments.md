@@ -46,6 +46,17 @@ Possibly mis-spelled words in DESCRIPTION:
 Words are correct. GWAS and GWIS are acronyms.
 Meaning of acronym in description.
 
+## Comments from second submission
+
+The second submission was accepted. After acceptance I received an email indicating there was an installation error on an r-patched-solaris-x86 system and that the error needed to be fixed.
+
+## Response to comments
+
+There was a type-casting issue in the C++ code that only appears
+when using the solaris compiler. A type-cast has been added that will
+address the issue. No other code was modified. The NEWS.md file
+was modified to indicate the update.
+
 ## Comments from first submission
 
 Please do not start the description with "This package", package name,

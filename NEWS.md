@@ -4,5 +4,9 @@
 
 # GxEScanR 2.0.1
 
-* Updated documentation by adding meanings of acronyms .
+* Updated documentation by adding meanings of acronyms.
 * Added tests to completely check outputs.
+
+# GxEScanR 2.0.2
+
+* Fixed issue with compiling on solaris.

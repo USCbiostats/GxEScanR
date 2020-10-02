@@ -62,7 +62,7 @@ int lslinreg(const arma::vec &y,
     n = maxn;
   const arma::cube xrcube(xr.memptr(), xr.n_rows, q, n, false, true);
 
-  lhconst = -0.5 * y.n_elem*(LOG2PIP1 - log(y.n_elem));  
+  lhconst = -0.5 * y.n_elem*(LOG2PIP1 - log((double)y.n_elem));  
   for (i = 0; i < n; ++i) {
     if (skipped[skipoffset + i] == FALSE) {
       loglike.at(i) = NA_REAL;
