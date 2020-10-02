@@ -40,8 +40,8 @@ The second submission was accepted. After acceptance I received an email indicat
 
 There was a type-casting issue in the C++ code that only appears
 when using the solaris compiler. A type-cast has been added that will
-address the issue. No other code was modified. The NEWS.md file
-was modified to indicate the update.
+address the issue. No other code was modified. The release number
+was updated and the NEWS.md file was modified to indicate the update.
 
 ## Comments from first submission
 
