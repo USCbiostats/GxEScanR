@@ -8,10 +8,6 @@ CRAN comments
 * win-builder (oldrelease, devel, release)
 
 ## R CMD check results
-1 note on all systems
-* checking for future file timestamps ... NOTE
-unable to verify current time
-
 1 warning on local Windows 10
 * checking compiled code ... OK
    WARNING
@@ -23,28 +19,18 @@ This appears to be a local system setup issue.
 * checking CRAN incoming feasibility ... NOTE
 Maintainer: 'John Morrison <jmorr@usc.edu>'
 
+Days since last update: 3
 
-New submission
-  GWAS (3:12, 23:58)
-Possibly mis-spelled words in DESCRIPTION:
-  GWEIS (3:17, 24:49)
-
-Words are correct. GWAS and GWIS are acronyms.
-Meaning of acronym in description.
+This is a requested update to fix to an error identified in testing
 
 ## check_win_xxx results
 1 Notes
 * checking CRAN incoming feasibility ... NOTE
 Maintainer: 'John Morrison <jmorr@usc.edu>'
 
-New submission
+Days since last update: 3
 
-Possibly mis-spelled words in DESCRIPTION:
-  GWAS (3:12, 23:58)
-  GWEIS (3:17, 24:49)
-
-Words are correct. GWAS and GWIS are acronyms.
-Meaning of acronym in description.
+This is a requested update to fix to an error identified in testing
 
 ## Comments from second submission
 
