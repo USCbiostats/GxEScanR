@@ -12,7 +12,7 @@ status](https://ci.appveyor.com/api/projects/status/github/USCbiostats/GxEScanR?
 [![Travis build
 status](https://travis-ci.com/USCbiostats/GxEScanR.svg?branch=master)](https://travis-ci.com/USCbiostats/GxEScanR)
 [![Codecov test
-coverage](https://codecov.io/gh/USCbiostats/GxEScanR/branch/master/graph/badge.svg)](https://codecov.io/gh/USCbiostats/GxEScanR?branch=master)
+coverage](https://codecov.io/gh/USCbiostats/GxEScanR/branch/master/graph/badge.svg)](https://codecov.io/gh/USCbiostats/GxEScanR?branch=master) [![](https://raw.githubusercontent.com/USCbiostats/badges/master/tommy-image-badge.svg)](https://image.usc.edu)
 <!-- badges: end -->
 
 GxEScanR is designed to efficiently run genome-wide association study
