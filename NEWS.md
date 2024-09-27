@@ -10,3 +10,7 @@
 # GxEScanR 2.0.2
 
 * Fixed issue with compiling on solaris.
+
+# GxEScanR 2.999.0
+
+* Development version that improves convergence routines.

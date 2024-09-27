@@ -1,438 +1,260 @@
-#' @useDynLib GxEScanR, .registration = TRUE
-#' @importFrom Rcpp sourceCpp
-#' @importFrom prodlim row.match
-#' @importFrom stats complete.cases glm var
+#' @importFrom lsReg lsReg
+#' @importFrom lsReg runtest
+#' @importFrom BinaryDosage getsnp
 NULL
 
-subsetsnps <- function(snps, snplist) {
-  if (length(snps) == 0) {
-    stop("No SNPs selected")
-  }
-  if (is.character(snps) == TRUE) {
-    if (length(snps) == 1 & snps[1] == "all")
-      return(rep(TRUE, length(snplist)))
-    snps2 <- match(snps, snplist)
-    snps2 <- snps2[!is.na(snps2)]
-    if (length(snps2) == 0)
-      stop("No matching SNPs found")
-    if (length(snps) != length(snps2))
-      print(paste(length(snps) - length(snps2),
-                  " of ",
-                  length(snps),
-                  " SNPs were not found"))
-    snps <- snps2
-  }
-  if (is.numeric(snps) == FALSE)
-    stop("snps must be a character or integer array")
-  if (is.integer(snps) == FALSE) {
-    if (all(floor(snps) == snps) == FALSE)
-      stop("snps must be a character or integer array")
-  }
-  if (min(snps) < 1)
-    stop("snp indices must be positive")
-  if (max(snps) > length(snplist))
-    stop("at least one snp index is greater than the number of SNPs available")
-  snpstouse <- rep(FALSE, length(snplist))
-  snpstouse[snps] <- TRUE
-  
-  return (snpstouse)
-}
-# Subsets the covariate data to complete cases
-# Also gets subject indices in the genetic data
-subsetdata <- function(subdata, bdinfo, binary, mincov) {
-  # There must be at least two columns in the subject data
-  if(ncol(subdata) < 2)
-    stop("There must me at least two columns in the subject data")
-  
-  # Check if the first column is a character value
-  if (is.character(subdata[,1]) == FALSE)
-    stop("First column of subject data must be a character value")
-  
-  # Remove subjects without complete data
-  covdata <- subdata[complete.cases(subdata),]
-  if (nrow(covdata) == 0)
-    stop("No subjects have complete phenotype/covariate data")
-  
-  colnames(covdata) <- colnames(subdata)
-  # Determine if family IDs are used
-  # and get the indices of the subjects in the genetic data that are
-  # in the covariate data
-  if (bdinfo$usesfid == FALSE) {
-    covdata$genindex <- match(covdata[,1], bdinfo$samples$sid)
-    phenocol <- 2
-  } else {
-    # When family ID is used, there must be at least 3 columns
-    # in the subject data
-    if (ncol(covdata) < 3)
-      stop("When using family ID, subject data must have at least 3 columns")
-    # When family ID is used, the second columns must be a character value
-    if (is.character(covdata[,2]) == FALSE)
-      stop("When using family ID, the first two columns must be character values")
-    covdata$genindex <- row.match(covdata[,1:2], bdinfo$samples)
-    phenocol <- 3
-  }
-  if (ncol(subdata) < phenocol + mincov)
-    stop("Subject data has no covariates")
-  for (i in phenocol:ncol(subdata)) {
-    if (is.numeric(covdata[,i]) == FALSE)
-      stop("Phenotype and covariate values must be numeric")
-  }
-
-  # Drop subjects that don't have genetic values
-  covdata <- covdata[complete.cases(covdata),]
-  # Check if any subjects have complete data
-  if (nrow(covdata) == 0)
-    stop("No subjects have complete data")
-
-  # If the outcome is binary sort by outcome and
-  if (binary == TRUE) {
-    covdata <- covdata[order(covdata[, phenocol]),]
-    # Check there are two outcome values
-    if (length(unique(covdata[,phenocol])) != 2)
-      stop("When using a binary outcome there must only be two values")
-    # check if outcome values are 0, 1
-    if (all(unique(covdata[, phenocol]) == c(0,1)) == FALSE)
-      stop("When using a binary outcome must be coded 0,1")
-  }
-  
-  phenocov = as.matrix(covdata[,phenocol:(ncol(covdata)-1)])
-  dimnames(phenocov) <- list(covdata[,ncol(covdata)],
-                             colnames(covdata)[phenocol:(ncol(covdata)-1)])
-  return (phenocov)
-}
-
-# Create blocks used for faster reading of binary dosage files
-assignblocks <- function(nsub, nsnps, snploc, snpbytes, reqblksize) {
-  if (nsub < 10000) {
-    blksnps <- 5000
-  } else if (nsub < 25000) {
-    blksnps <- 2000
-  } else if (nsub < 50000) {
-    blksnps <- 1000
-  } else if (nsub < 100000) {
-    blksnps <- 500
-  } else if (nsub < 250000) {
-    blksnps <- 200
-  } else if (nsub < 500000) {
-    blksnps <- 100
-  } else {
-    blksnps <- 50
-  }
-  
-  if (reqblksize > 2 * blksnps & nsnps > 2 * blksnps)
-    stop("Requested block size greater than twice the recommended block size")
-  if (reqblksize != 0)
-    blksnps <- reqblksize
-  nblks <- ceiling(nsnps / blksnps)
-  if (nblks == 1) {
-    blksnps <- nsnps
-    blkloc <- snploc[1]
-    blkbytes <- snploc[nsnps] - snploc[1] + snpbytes[length(snpbytes)]
-  } else {
-    fsnp <- seq(1, (nblks - 1) * blksnps + 1, blksnps)
-    blkloc <- snploc[fsnp]
-    blkbytes <- numeric(nblks)
-    blkbytes[1:(nblks - 1)] <- snploc[fsnp[2:nblks]] - snploc[fsnp[1:(nblks - 1)]]
-    blkbytes[nblks] <- snploc[nsnps] - snploc[fsnp[nblks]] + snpbytes[length(snpbytes)]
-  }
-  return(list(snpsperblk = blksnps,
-              blkloc = blkloc,
-              blkbytes = blkbytes))
-}
-
-#####################################################
-###          Check for valid input values
-#####################################################
-validateinput <- function(data, bdinfo, outfile, skipfile,
-                          minmaf, blksize, binary) {
-  # Check if input values are of correct type
-  if (is.data.frame(data) == FALSE)
-    stop("data must be a data frame")
-  if (class(bdinfo) != "genetic-info")
-    stop("bdinfo not a genetic-info class")
-  if (class(bdinfo$additionalinfo) != "bdose-info")
-    stop("bdinfo does not have information about a binary dosage file")
-  if (is.character(outfile) == FALSE)
-    stop("outfile must be a character value")
-  if (length(outfile) != 1)
-    stop("outfile must be a character vector of length 1")
-  if (is.character(skipfile) == FALSE)
-    stop("skipfile must be a character value")
-  if (length(skipfile) != 1)
-    stop("skipfile must be a character vector of length 1")
-  if (is.numeric(minmaf) == FALSE)
-    stop("minmaf must be a numeric value")
-  if (length(minmaf) != 1)
-    stop("minmaf must be a numeric vector of length 1")
-  if (minmaf < 0 | minmaf > 0.25)
-    stop("minmaf must be a value from 0 to 0.25, inclusive")
-  if (is.numeric(blksize) == FALSE)
-    stop("blksize must be an integer")
-  if (length(blksize) != 1)
-    stop("blksize must be an integer vector of length 1")
-  if (blksize != floor(blksize))
-    stop("blksize must be an integer")
-  blksize <- as.integer(blksize)
-  if (blksize < 0)
-    stop("blksize must be greater than or equal to 0")
-  if (is.logical(binary) == FALSE)
-    stop("binary must be a logical value")
-  if (length(binary) != 1)
-    stop("binary must be a logical vector of length 1")
-}
-
-#' gwas
+#' Routine to allocate memory needed to perform a GWEIS.
 #'
-#' Run a gwas using genetic data from a binary dosage file
-#' @param data Data frame containing the subject ID, phenotype
-#' and covariates
-#' @param bdinfo Information about the binary dosage file returned
-#' from the BinaryDosage::getbdinfo routine
-#' @param snps The SNPs to be used in the scan. This may be an integer
-#' vector indicate which SNPs to use in the binary dosage file or a 
-#' character vector of the SNP IDs to use. The value may also be "all",
-#' indicating to use all SNPs. The default value is "all".
-#' @param outfile The file name for the results Can be blank.
-#' If the value is "", the results are returned as a data frame. Default
-#' value is ""
-#' @param skipfile The name of the file to write the SNPs that were not
-#' used and the reason they weren't used. If the value is blank, there is
-#' no output of the unused SNPs. Default value is "".
-#' @param minmaf Minimum minor allele frequency of SNPs to include
-#' in analysis. SNPS that have less than 20 minor alleles observed
-#' will be excluded from the analysis regardless of the value of
-#' minmaf. A value of 0 indicates to use all the SNPs that have 20
-#' minor alleles observed. Default value is 0.
-#' @param blksize Size of blocks of SNPs to read in at one time.
-#' Larger blocks can improve overall speed but require larger
-#' amounts of computer memory. A value of 0 indicates to use the
-#' recommended block size. Default value is 0.
-#' @param binary Logical value indicating if the phenotype
-#' is a binary value. Default value is false.
-#' @return
-#' 0
+#' @param gomdl The results from glm for the gene-only model. This model
+#' contains the outcome and all the covariates except the covariate that
+#' the gene interaction is being tested for. This can be NULL.
+#' @param gemdl The results from glm for the gene-environment model. This model
+#' contains the outcome and all covariates of interest with the last covariate
+#' listed in the model being the covaraiate that the gene interaction is being
+#' tested for.
+#' @param subids A character vector of subject IDs that line up with the
+#' data that was used in the models that are passed to this routine
+#' @param tests The list of tests to perform. These can be any combination of
+#' the following values "bg_go", "bg_ge", "bg_gxe", "bgxe", "joint", "bg_eg",
+#' "bg_case", "bg_ctrl"
+#'
+#' @return List containing allocated memory to perform the specified GWEIS.
+#' This value is passed to the rungweis routine.
 #' @export
-#'
-#' @examples
-#' bdinfo <- readRDS(system.file("extdata/pdata_4_1.bdinfo", package = "GxEScanR"))
-#' covdata <- readRDS(system.file("extdata/covdata.rds", package = "GxEScanR"))
-#'
-#' results <- gwas(data = covdata, bdinfo = bdinfo, binary = FALSE)
-gwas <- function(data, bdinfo, snps, outfile, skipfile,
-                 minmaf, blksize, binary) {
-  # Set missing values to default values
-  if (missing(snps) == TRUE)
-    snps = "all"
-  if (missing(outfile) == TRUE)
-    outfile <- ""
-  if (missing(skipfile) == TRUE)
-    skipfile <- ""
-  if (missing(minmaf) == TRUE)
-    minmaf <- 0.
-  if (missing(blksize))
-    blksize <- 0L
-  if (missing(binary) == TRUE)
-    binary = TRUE
-  validateinput(data, bdinfo, outfile, skipfile, minmaf, blksize, binary)
-  snps <- subsetsnps(snps = snps,
-                     snplist = bdinfo$snps$snpid)
+gweis.mem <- function(gomdl, gemdl, subids, tests) {
+  x <- match(tests, c("bg_go", "bg_ge", "bg_gxe", "bgxe", "joint", "bg_eg", "bg_case", "bg_ctrl"))
+  if (all(is.na(x) == FALSE) == FALSE)
+    return (1)
+  mdls <- logical(8)
+  mdls[x] <- TRUE
 
-  #####################################################
-  ###       Subset data to subjects with complete
-  ###       data and run baseline regression
-  #####################################################
-  data <- subsetdata(subdata = data,
-                     bdinfo = bdinfo,
-                     binary = binary,
-                     mincov = 0)
-  stddata <- matrix(data = 0,
-                    nrow = nrow(data),
-                    ncol = ncol(data))
-  means <- numeric(ncol(data))
-  stddevs <- numeric(ncol(data))
-  stdmat(data, stddata, means, stddevs)
-  print(paste(nrow(data), "subjects have complete data"))
-  if (binary == TRUE)
-    modfamily = "binomial"
+  if (mdls[1] == TRUE)
+    gomdlmem <- lsReg::lsReg(gomdl, 1, "lrt")
   else
-    modfamily = "gaussian"
-  modformula = paste(colnames(data)[1], '~', '.')
-  basemodel = glm(formula = modformula,
-                  family = modfamily,
-                  data = as.data.frame(data))
+    gomdlmem <- NULL
+  if (mdls[2] == TRUE || mdls[4] == TRUE)
+    gemdlmem <- lsReg::lsReg(gemdl, 1, "lrt")
+  else
+    gemdlmem <- NULL
+  if (mdls[3] == TRUE || mdls[4] == TRUE|| mdls[5] == TRUE)
+    gxemdlmem <- lsReg::lsReg(gemdl, 2, "lrt")
+  else
+    gxemdlmem <- NULL
+  if (mdls[3] == TRUE)
+    gxe0mdlmem <- lsReg::lsReg(gemdl, 1, "lrt")
+  else
+    gxe0mdlmem <- NULL
 
-  #####################################################
-  ###       Get information about the binary
-  ###       dosage file and create the blocks
-  ###       needed for reading the data
-  #####################################################
-  blkinfo <- assignblocks(nsub = nrow(bdinfo$samples),
-                          nsnps = length(bdinfo$snps$snpid),
-                          snploc = bdinfo$indices,
-                          snpbytes = bdinfo$datasize,
-                          reqblksize = blksize)
-  if (bdinfo$additionalinfo$format == 1) {
-    if (bdinfo$additionalinfo$subformat == 1)
-      base = 0L
+  f <- deparse(gemdl$formula)
+  f <- gsub("\"", "", f)
+  f <- unlist(strsplit(f, "~"))
+  f <- unlist(strsplit(f, "\\+"))
+  f2 <- paste(f[2:(length(f) -1)], collapse = "+")
+  formula <- paste(f[length(f)],
+                   f2,
+                   sep = "~")
+
+  evalues <- sort(unique(gemdl$model[,ncol(gemdl$model)]))
+  if (length(evalues) == 2) {
+    if (all(evalues == c(0, 1)) == TRUE)
+      family = binomial
     else
-      base = 1L
+      family = gaussian
   } else {
-    base <- 2L
+    family = gaussian
   }
-  subindex <- as.integer(rownames(data))
-  
-  if (binary == TRUE) {
-    ncov <- length(basemodel$coefficients)
-    beta0 <- numeric(ncov)
-    if(ncov == 1) {
-      beta0[1] = basemodel$coefficients[1]
+
+  if (mdls[6] == TRUE) {
+    emdl <- glm(formula = formula,
+                data = gemdl$data,
+                family = family)
+    egmdlmem <- lsReg::lsReg(emdl, 1, "lrt")
+  } else {
+    egmdlmem <- NULL
+  }
+
+  if (gemdl$family$family == "binomial") {
+    if (mdls[7] == TRUE) {
+      emdl <- glm(formula = formula,
+                  data = gemdl$data[gemdl$model[,1] == 1,],
+                  family = family)
+      casemdlmem <- lsReg::lsReg(emdl, 1, "lrt")
+      caseids <- subids[gemdl$model[,1] == 1]
     } else {
-      beta0[2:ncov] <- basemodel$coefficients[2:ncov] * stddevs[2:ncov]
-      beta0[1] <- basemodel$coefficients[1] +
-        sum(means[2:ncov] * basemodel$coefficients[2:ncov])
+      casemdlmem <- NULL
+      caseids <- NULL
     }
-    return (logreggwas(bdinfo = bdinfo,
-                       blkinfo = blkinfo,
-                       snps = snps,
-                       stddata = stddata,
-                       subindex = subindex,
-                       outfile = outfile,
-                       skipfile = skipfile,
-                       beta0 = beta0,
-                       minmaf = minmaf,
-                       base = base))
+    if (mdls[8] == TRUE) {
+      emdl <- glm(formula = formula,
+                  data = gemdl$data[gemdl$model[,1] == 0,],
+                  family = family)
+      ctrlmdlmem <- lsReg::lsReg(emdl, 1, "lrt")
+      ctrlids <- subids[gemdl$model[,1] == 0]
+    } else {
+      ctrlmdlmem <- NULL
+      ctrlids <- NULL
+    }
+  } else {
+    mdls[7] <- FALSE
+    mdls[8] <- FALSE
+    casemdlmem <- NULL
+    ctrlmdlmem <- NULL
+    caseids <- NULL
+    ctrlids <- NULL
   }
-  
-  return (linreggwas(bdinfo = bdinfo,
-                     blkinfo = blkinfo,
-                     snps = snps,
-                     stddata = stddata,
-                     subindex = subindex,
-                     outfile = outfile,
-                     skipfile = skipfile,
-                     minmaf = minmaf,
-                     base = base))
+  return (list(tests = mdls,
+               subids = subids,
+               gomdlmem = gomdlmem,
+               gemdlmem = gemdlmem,
+               gxemdlmem = gxemdlmem,
+               gxe0mdlmem = gxe0mdlmem,
+               egmdlmem = egmdlmem,
+               caseids = caseids,
+               casemdlmem = casemdlmem,
+               ctrlids = ctrlids,
+               ctrlmdlmem = ctrlmdlmem))
 }
 
-#####################################################
-###                      GWEIS
-#####################################################
-
-#' gweis
+#' Routine to run a GWEIS
 #'
-#' Run a gweis using genetic data from a binary dosage file
-#' @param data Data frame containing the subject ID, phenotype
-#' and covariates
-#' @param bdinfo Information about the binary dosage file returned
-#' from the BinaryDosage::getbdinfo routine
-#' @param snps The SNPs to be used in the scan. This may be an integer
-#' vector indicate which SNPs to use in the binary dosage file or a 
-#' character vector of the SNP IDs to use. The value may also be "all",
-#' indicating to use all SNPs. The default value is "all".
-#' @param outfile The file name for the results Can be blank.
-#' If the value is "", the results are returned as a data frame. Default
-#' value is ""
-#' @param skipfile The name of the file to write the SNPs that were not
-#' used and the reason they weren't used. If the value is blank, there is
-#' no output of the unused SNPs. Default value is "".
-#' @param minmaf Minimum minor allele frequency of SNPs to include
-#' in analysis. SNPS that have less than 20 minor alleles observed
-#' will be excluded from the analysis regardless of the value of
-#' minmaf. A value of 0 indicates to use all the SNPs that have 20
-#' minor alleles observed. Default value is 0.
-#' @param blksize Size of blocks of SNPs to read in at one time.
-#' Larger blocks can improve overall speed but require larger
-#' amounts of computer memory. A value of 0 indicates to use the
-#' recommended block size. Default value is 0.
-#' @param binary Logical value indicating if the phenotype
-#' is a binary value. Default value is false.
-#' @return
-#' 0
+#' @param gweismem Models and memory allocated by gweis-mem to run the GWEIS.
+#' @param bdinfo Information about a Binary Dosage file that contains the
+#' genetic data to run the GWEIS
+#' @param snps List of SNPs in the Binary Dosage file to perform the GWEIS on.
+#' @param outfilename Name of the file to contain the output
+#' @param maf Minimum minor allele frequency of SNPs needed to run test on.
+#'
+#' @return None
 #' @export
-#'
-#' @examples
-#' bdinfo <- readRDS(system.file("extdata/pdata_4_1.bdinfo", package = "GxEScanR"))
-#' covdata <- readRDS(system.file("extdata/covdata.rds", package = "GxEScanR"))
-#'
-#' results <- gweis(data = covdata, bdinfo = bdinfo)
-gweis <- function(data, bdinfo, snps, outfile, skipfile,
-                  minmaf, blksize, binary) {
-  # Set missing values to default values
-  if (missing(snps) == TRUE)
-    snps = "all"
-  if (missing(outfile) == TRUE)
-    outfile <- ""
-  if (missing(skipfile) == TRUE)
-    skipfile <- ""
-  if (missing(minmaf) == TRUE)
-    minmaf <- 0.
-  if (missing(blksize))
-    blksize <- 0L
-  if (missing(binary) == TRUE)
-    binary = TRUE
-  validateinput(data, bdinfo, outfile, skipfile, minmaf, blksize, binary)
-  snps <- subsetsnps(snps = snps,
-                     snplist = bdinfo$snps$snpid)
-  
-  #####################################################
-  ###       Subset data to subjects with complete
-  ###       data and run baseline regression
-  #####################################################
-  data <- subsetdata(subdata = data,
-                     bdinfo = bdinfo,
-                     binary = binary,
-                     mincov = 1)
-  nsub <- nrow(data)
-  ncov <- ncol(data)
-  stddata <- matrix(data = 0,
-                    nrow = nsub,
-                    ncol = ncov)
-  means <- numeric(ncov)
-  stddevs <- numeric(ncov)
-  stdmat(data, stddata, means, stddevs)
-  print(paste(nsub, "subjects have complete data"))
+rungweis <- function(gweismem, bdinfo, snps, outfilename, maf) {
+  if (missing(maf) == TRUE)
+    maf <- 0.01
+  minaaf <- maf
+  maxaaf <- 1. - maf
 
-  #####################################################
-  ###       Get information about the binary
-  ###       dosage file and create the blocks
-  ###       needed for reading the data
-  #####################################################
-  blkinfo <- assignblocks(nsub = nrow(bdinfo$samples),
-                          nsnps = length(bdinfo$snps$snpid),
-                          snploc = bdinfo$indices,
-                          snpbytes = bdinfo$datasize,
-                          reqblksize = blksize)
-  blkbuffer <- integer((max(blkinfo$blkbytes) + 3) %/% 4)
-  numblks <- length(blkinfo$blkloc)
-  if (bdinfo$additionalinfo$format == 1) {
-    if (bdinfo$additionalinfo$subformat == 1)
-      base = 0L
-    else
-      base = 1L
-  } else {
-    base <- 2L
+  xr <- matrix(0, length(gweismem$subids), 1)
+  xr2 <- matrix(0, nrow(xr), 2)
+  xrgxe <- matrix(0, nrow(xr), 1)
+
+  submatch <- match(gweismem$subids, bdinfo$samples$sid)
+  if (length(gweismem$caseids) > 0) {
+    casematch <- match(gweismem$caseids, bdinfo$samples$sid)
+    xrcase <- matrix(0, length(gweismem$caseids))
   }
-  
-  subindex <- as.integer(rownames(data))
-  if (binary == TRUE)
-    return (logreggweis(bdinfo = bdinfo,
-                        blkinfo = blkinfo,
-                        snps = snps,
-                        stddata = stddata,
-                        subindex = subindex,
-                        outfile = outfile,
-                        skipfile = skipfile,
-                        minmaf = minmaf,
-                        base = base,
-                        e = data[,ncol(data)]))
-  return (linreggweis(bdinfo = bdinfo,
-                      blkinfo = blkinfo,
-                      snps = snps,
-                      stddata = stddata,
-                      subindex = subindex,
-                      minmaf = minmaf,
-                      outfile = outfile,
-                      skipfile = skipfile,
-                      base = base,
-                      estddev = stddevs[length(stddevs)]))
+  if (length(gweismem$ctrlids) > 0) {
+    ctrlmatch <- match(gweismem$ctrlids, bdinfo$samples$sid)
+    xrctrl <- matrix(0, length(gweismem$ctrlids))
+  }
+
+  statnames <-  c("aaf", "aaf_e0", "aaf_e1",
+                  "bg_go", "bg_go_lrt",
+                  "bg_ge", "bg_ge_lrt",
+                  "bg_gxe", "bg_gxe_lrt",
+                  "bgxe", "bgxe_lrt",
+                  "joint_lrt",
+                  "bg_eg", "bg_eg_lrt",
+                  "bg_case", "bg_case_lrt",
+                  "bg_ctrl", "bg_ctrl_lrt")
+  statsout <- c(TRUE, FALSE, FALSE, gweismem$tests[c(1,1,2,2,3,3,4,4,5,6,6,7,7,8,8)])
+  if (gweismem$tests[5] == TRUE) {
+    statsout[8] <- TRUE
+    statsout[10] <- TRUE
+  }
+  snpinfo <- paste("snpid", "chr", "loc", "ref", "alt", sep = '\t')
+  if (gweismem$test[8] == TRUE)
+    statsout[2] <- TRUE
+  if (gweismem$test[7] == TRUE)
+    statsout[3] <- TRUE
+
+  outline <- paste(statnames[statsout], collapse = "\t")
+  outfile <- file(outfilename, "w")
+  writeLines(paste(snpinfo, outline, sep = "\t"), outfile)
+
+  numsnps <- length(snps)
+  #  if (numsnps > 10)
+  #    numsnps <- 10
+  outvalues <- numeric(18)
+  for (i in 1:numsnps) {
+    g <- BinaryDosage::getsnp(bdinfo = bdinfo,
+                snp = snps[i])$dosage
+    xr[,1] <- g[submatch]
+    outvalues[1] <- mean(xr) / 2
+    if (outvalues[1] < minaaf | outvalues[1] > maxaaf) {
+      next
+    }
+
+    if (length(gweismem$gomdlmem) > 0) {
+      lsReg::runtest(gweismem$gomdlmem, xr)
+    }
+    if (length(gweismem$gemdlmem) > 0) {
+      lsReg::runtest(gweismem$gemdlmem, xr)
+    }
+    if (length(gweismem$gxemdlmem) > 0) {
+      xr2[,1] <- xr
+      xr2[,2] <- xr * gweismem$gxemdlmem$fitdata$xl[,ncol(gweismem$gxemdlmem$fitdata$xl)]
+      lsReg::runtest(gweismem$gxemdlmem, xr2)
+    }
+    if (length(gweismem$gxe0mdlmem) > 0) {
+      xrgxe[,1] <- xr2[,2]
+      lsReg::runtest(gweismem$gxe0mdlmem, xrgxe)
+    }
+    if (length(gweismem$egmdlmem) > 0) {
+      lsReg::runtest(gweismem$egmdlmem, xr)
+    }
+    if (length(gweismem$casemdlmem) > 0) {
+      xrcase[,1] <- g[casematch]
+      outvalues[2] <- mean(xrcase) / 2
+      lsReg::runtest(gweismem$casemdlmem, xrcase)
+    }
+    if (length(gweismem$ctrlmdlmem) > 0) {
+      xrctrl[,1] <- g[ctrlmatch]
+      outvalues[3] <- mean(xrctrl) / 2
+      lsReg::runtest(gweismem$ctrlmdlmem, xrctrl)
+    }
+    if (gweismem$tests[1] == TRUE) {
+      outvalues[4] <- gweismem$gomdlmem$fitdata$betab[1]
+      outvalues[5] <- gweismem$gomdlmem$testvalue
+    }
+    if (gweismem$tests[2] == TRUE) {
+      outvalues[6] <- gweismem$gemdlmem$fitdata$betab[1]
+      outvalues[7] <- gweismem$gemdlmem$testvalue
+    }
+    if (gweismem$tests[3] == TRUE) {
+      outvalues[8] <- gweismem$gxemdlmem$fitdata$betab[1]
+      outvalues[9] <- 2*(gweismem$gxemdlmem$loglike[2] - gweismem$gxe0mdlmem$loglike[2])
+    }
+    if (gweismem$tests[4] == TRUE) {
+      outvalues[10] <- gweismem$gxemdlmem$fitdata$betab[2]
+      outvalues[11] <- 2*(gweismem$gxemdlmem$loglike[2] - gweismem$gemdlmem$loglike[2])
+    }
+    if (gweismem$tests[5] == TRUE) {
+      outvalues[8] <- gweismem$gxemdlmem$fitdata$betab[1]
+      outvalues[10] <- gweismem$gxemdlmem$fitdata$betab[2]
+      outvalues[12] <- gweismem$gxemdlmem$testvalue
+    }
+    if (gweismem$tests[6] == TRUE) {
+      if (gweismem$egmdlmem$fitdata$family == "gaussian")
+        outvalues[13] <- gweismem$egmdlmem$fitdata$bb[1]
+      else
+        outvalues[13] <- gweismem$egmdlmem$fitdata$betab[1]
+      outvalues[14] <- gweismem$egmdlmem$testvalue
+    }
+    if (gweismem$tests[7] == TRUE) {
+      if (gweismem$casemdlmem$fitdata$family == "gaussian")
+        outvalues[15] <- gweismem$casemdlmem$fitdata$bb[1]
+      else
+        outvalues[15] <- gweismem$casemdlmem$fitdata$betab[1]
+      outvalues[16] <- gweismem$casemdlmem$testvalue
+    }
+    if (gweismem$tests[8] == TRUE) {
+      if (gweismem$egmdlmem$fitdata$family == "gaussian")
+        outvalues[17] <- gweismem$ctrlmdlmem$fitdata$bb[1]
+      else
+        outvalues[17] <- gweismem$ctrlmdlmem$fitdata$betab[1]
+      outvalues[18] <- gweismem$ctrlmdlmem$testvalue
+    }
+    snpinfo <- paste(bdinfo$snps[snps[i], c(3,1,2,4,5)], collapse = "\t")
+    writeLines(paste(snpinfo, paste(outvalues[statsout],collapse = "\t"), sep = "\t"), outfile)
+  }
+  close(outfile)
 }
