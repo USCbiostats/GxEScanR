@@ -21,7 +21,7 @@ NULL
 #' @return List containing allocated memory to perform the specified GWEIS.
 #' This value is passed to the rungweis routine.
 #' @export
-gweis.mem <- function(gomdl, gemdl, subids, tests) {
+gweis.mem <- function(gomdl = NULL, gemdl, subids, tests) {
   x <- match(tests, c("bg_go", "bg_ge", "bg_gxe", "bgxe", "joint", "bg_eg", "bg_case", "bg_ctrl"))
   if (all(is.na(x) == FALSE) == FALSE)
     return (1)
@@ -146,7 +146,7 @@ rungweis <- function(gweismem, bdinfo, snps, outfilename, maf) {
     xrctrl <- matrix(0, length(gweismem$ctrlids))
   }
 
-  statnames <-  c("aaf", "aaf_e0", "aaf_e1",
+  statnames <-  c("aaf", "aaf_case", "aaf_ctrl",
                   "bg_go", "bg_go_lrt",
                   "bg_ge", "bg_ge_lrt",
                   "bg_gxe", "bg_gxe_lrt",
