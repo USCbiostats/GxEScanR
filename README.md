@@ -120,7 +120,7 @@ There are 5 steps to running a GWEIS using GxEScanR
 
 #### Genetic Data
 
-GxEScanR using data that is stored in the BinaryDosage format. The
+GxEScanR uses data that is stored in the BinaryDosage format. The
 BinaryDosage package converts files from the VCF format to the
 BinaryDosage format. It is recommended that the latest version of the
 BinaryDosage package be used. It is available on github
@@ -287,7 +287,7 @@ the name of the file to save the results.
 
 The list of SNPs to perform the GWEIS on can be either the SNP IDs or
 the indices in the BinaryDosage information. In this example all the
-SNPs in the genetic data will be tested and they will be identified my
+SNPs in the genetic data will be tested and they will be identified by
 index.
 
 ``` r
@@ -366,8 +366,8 @@ knitr::kable(lineardf[1:3, 7:8])
 For model 2 there are five possible values that can be output.
 
 bg_gxe and bg_gxe_lrt are the estimate of $\beta_G$ and the LRT 1 df
-test that the valueof the estimate is zero. These values are output when
-“bg_gxe” is included in the tests value passed to the gweis.mem()
+test that the value of the estimate is zero. These values are output
+when “bg_gxe” is included in the tests value passed to the gweis.mem()
 routine.
 
 bgxe and bgxe_lrt are the estimate of $\beta_{GxE}$ and the LRT 1 df
