@@ -1,63 +1,38 @@
-CRAN comments
-================
+## Resubmission
+
+This is a resubmission. The package was previously archived because of the
+following NOTE:
+
+> Specified C++11: please drop specification unless essential.
+
+All C++ source code has been moved to the `lsReg` package. GxEScanR now depends
+on `lsReg` and `BinaryDosage` and contains no compiled code of its own,
+eliminating the C++11 specification entirely.
+
+Additional changes since the archived version (2.0.2):
+
+* New API: `gweis.mem()` and `rungweis()` replace the former `gwas()` and
+  `gweis()` functions, supporting a wider set of GWEIS tests (gene-only,
+  GxE interaction, joint, E|G, case-only, control-only).
+* Test suite added (testthat).
+* Vignette added.
 
 ## Test environments
-* local OS X install, R 4.0.2
-* local Windows 10 install, R 4.0.2
-* ubuntu 16.04.6 (on travis-ci), R-release
-* win-builder (oldrelease, devel, release)
+
+* Windows 11, R 4.5.3 (local)
+* GitHub Actions, ubuntu-latest, R release
+* GitHub Actions, ubuntu-latest, R devel
+* GitHub Actions, macOS-latest, R release
+* GitHub Actions, windows-latest, R release
 
 ## R CMD check results
-1 warning on local Windows 10
-* checking compiled code ... OK
-   WARNING
-  'qpdf' is needed for checks on size reduction of PDFs
-This appears to be a local system setup issue.
 
-## rhub results
-1 Note
-* checking CRAN incoming feasibility ... NOTE
-Maintainer: 'John Morrison <jmorr@usc.edu>'
+0 ERRORs | 0 WARNINGs | 0 NOTEs
 
-Days since last update: 3
+(Local check produces 1 NOTE — "unable to verify current time" — due to no
+internet access on the local machine. This does not appear in any CI
+environment.)
 
-This is a requested update to fix to an error identified in testing
+## Reverse dependencies
 
-## check_win_xxx results
-1 Notes
-* checking CRAN incoming feasibility ... NOTE
-Maintainer: 'John Morrison <jmorr@usc.edu>'
-
-Days since last update: 3
-
-This is a requested update to fix to an error identified in testing
-
-## Comments from second submission
-
-The second submission was accepted. After acceptance I received an email indicating there was an installation error on an r-patched-solaris-x86 system and that the error needed to be fixed.
-
-## Response to comments
-
-There was a type-casting issue in the C++ code that only appears
-when using the solaris compiler. A type-cast has been added that will
-address the issue. No other code was modified. The release number
-was updated and the NEWS.md file was modified to indicate the update.
-
-## Comments from first submission
-
-Please do not start the description with "This package", package name,
-title or similar.
-
-Please always explain all acronyms in the description text.
-
-Please add () behind all function names in the description texts
-(DESCRIPTION file). e.g: --> getbdinfo()
-
-## Responses to comments
-
-Updated description.
-
-Updated all documentation to have meanings of acronyms used.
-
-Added () behind function name getbdinfo.
-
+There are no reverse dependencies on the archived version of this package.

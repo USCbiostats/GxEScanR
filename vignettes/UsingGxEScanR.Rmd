@@ -1,8 +1,6 @@
 ---
 title: "Using GxEScanR"
-output:
-  rmarkdown::html_vignette:
-    toc: true
+output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Using GxEScanR}
   %\VignetteEngine{knitr::rmarkdown}
@@ -16,250 +14,292 @@ knitr::opts_chunk$set(
 )
 ```
 
-This vignette shows some examples of using GxEScanR to perform
-genome-wide association study (GWAS)
-and genome-wide by environment interaction study (GWEIS)
-scans using all the options available to the user.
-
-```{r setup}
+```{r setup, include = FALSE}
 library(GxEScanR)
+library(BinaryDosage)
 ```
 
-# Introduction
+## Introduction
 
-With growing number of SNPs that can be imputed it is necessary to have
-software that can efficiently perform GWAS and GWEIS scans. GxEScanR can
-do this using files that were saved in the BinaryDosage format. The BinaryDosage
-package can convert VCF and GEN files into the BinaryDosage format. The
-BinaryDosage format was designed to keep the file with the genetic data
-small with fast read times. GxEScanR uses this and efficient large scale
-regression routines to perform GWAS and GWEIS scans quickly.
+GxEScanR is designed to efficiently run genome-wide association study (GWAS) and
+genome-wide by environment interaction study (GWEIS) scans using imputed genotypes
+stored in the BinaryDosage format. The phenotype to be analyzed can either be a
+continuous or binary trait. The GWEIS scan performs multiple tests that can be
+used in two-step methods.
 
-# Example Files
+## Notation and Models
 
-The examples below use three sample files. The first contains a data frame
-that has subject data. The second file is a genetic data file in the
-BinaryDosage format. The last file contains the information returned by
-the BinaryDosage::getbdinfo routine that returns information about the binary
-dosage file that makes reading it fast.
+There are five models that can be fit using GxEScanR when running a GWEIS, plus
+one that must be fit before running the GWEIS.
 
-``` {r, eval = T, echo = T, message = F, warning = F, tidy = T}
-covdatafile <- system.file("extdata", "covdata.rds", package = "GxEScanR")
-covdata <- readRDS(covdatafile)
+$Y$ represents the outcome or phenotype
+
+$X$ represents the confounding covariates
+
+$E$ represents the covariate that will have its genetic interaction tested
+
+$G$ represents the genetic data
+
+$\beta$ represents the effect estimate that will be fitted in the model
+
+### Model 0 - Environment-only Model
+
+This model contains the phenotype, confounding covariates, and the interaction
+covariate. It must be fit prior to running the GWEIS using the glm() routine.
+
+$$Y = \beta_X X + \beta_E E$$
+
+### Model 1 - Gene-only Model
+
+This model contains all the values from the environment-only model and adds the
+genetic data.
+
+$$Y = \beta_X X + \beta_E E + \beta_G G$$
+
+$\beta_G$ is the only term tested in this model and is represented by `bg_ge`
+in the output.
+
+### Model 2 - GxE Interaction Model
+
+This model contains all the values from the gene-only model and adds the
+gene-environment interaction term.
+
+$$Y = \beta_X X + \beta_E E + \beta_G G + \beta_{GxE} GE$$
+
+$\beta_G$ and $\beta_{GxE}$ are both tested for this model as well as a joint
+test for both terms. They are represented by `bg_gxe`, `bgxe`, and `joint`,
+respectively, in the output.
+
+### Model 3 - EG Model
+
+This model tests for a relationship between the environmental value of interest
+and the gene. If $E$ is coded 0,1, a logistic model is fitted; otherwise a
+linear model is fitted.
+
+$$E = \beta_X X + \beta_G G$$
+
+$\beta_G$ is tested in this model and is represented by `bg_eg` in the output.
+
+### Model 4 - Case-only Model
+
+This model is the same as model 3 except it is run on cases only.
+$\beta_G$ is tested and is represented by `bg_case` in the output.
+This model can only be run on a dichotomous phenotype.
+
+### Model 5 - Control-only Model
+
+This model is the same as model 3 except it is run on controls only.
+$\beta_G$ is tested and is represented by `bg_ctrl` in the output.
+This model can only be run on a dichotomous phenotype.
+
+## Steps to Run a GWEIS
+
+There are five steps to running a GWEIS using GxEScanR:
+
+1. Preparing the Data (Genetic Data + Subject Data)
+2. Fitting the Base Model
+3. Allocating Memory for the GWEIS
+4. Running the GWEIS
+5. Processing the Results
+
+## Step 1: Preparing the Data
+
+### Genetic Data
+
+GxEScanR uses data stored in the BinaryDosage format. The BinaryDosage package
+converts files from the VCF format to the BinaryDosage format using the
+`vcftobd()` routine. The `getbdinfo()` routine is then used to load the
+information about the BinaryDosage file needed to run the GWEIS.
+
+The following example shows how to convert a VCF file to BinaryDosage format.
+Note that `vcftobd()` requires the `vcfppR` package.
+
+```{r genetic-data-convert, eval = FALSE}
+vcffile <- system.file("extdata", "gendata.vcf.gz", package = "GxEScanR")
+
+exampledir <- tempdir()
+bdosefile <- file.path(exampledir, "gendata.bdose")
+
+BinaryDosage::vcftobd(vcffile = vcffile, bdose_file = bdosefile)
+bdinfo <- BinaryDosage::getbdinfo(bdosefile)
 ```
 
-``` {r, eval = T, echo = F, message = F, warning = F, tidy = T}
-knitr::kable(covdata[1:5,], caption = "First 5 Subjects")
-```
-To load the binary dosage information file, it is necessary to update the
-file name since the file has been moved from its original location during the
-installation process. The following loads the binary dosage information and
-updates the file name.
+This vignette uses a pre-converted BinaryDosage file included with the package.
 
-``` {r, eval = T, echo = T, message = F, warning = F, tidy = T}
-bdinfofile <- system.file("extdata", "pdata_4_1.bdinfo", package = "GxEScanR")
-bdinfo <- readRDS(bdinfofile)
-bdinfo$filename <- system.file("extdata", "pdata_4_1.bdose", package = "GxEScanR")
+```{r genetic-data}
+bdosefile <- system.file("extdata", "gendata.bdose", package = "GxEScanR")
+bdinfo <- BinaryDosage::getbdinfo(bdosefile)
+exampledir <- tempdir()
 ```
 
-``` {r, eval = T, echo = F, message = F, warning = F, tidy = T}
-modeldf <- readRDS(system.file("extdata", "models.rds", package = "GxEScanR"))
-knitr::kable(modeldf, caption = "Models Fit")
+### Subject Data
+
+The subject data consists of subject IDs used to link the genetic data, and the
+phenotype and covariates used in the GWEIS. The data included with GxEScanR has
+two phenotypes (one continuous, one dichotomous) and two covariates (x1 and x2).
+
+**Important:** All values for phenotypes and covariates must be numeric; factors
+are not allowed.
+
+**Important:** All subject IDs must be character values.
+
+**Important:** When using a dichotomous phenotype, it must be coded 0,1.
+
+```{r subject-data}
+subjectfile <- system.file("extdata", "subdata.rds", package = "GxEScanR")
+subjectdata <- readRDS(subjectfile)
+head(subjectdata)
 ```
 
-# Examples
+## Step 2: Fitting the Base Model
 
-## Linear Regression GWAS
+The base model is fit using glm() using data that contains only the subject IDs,
+phenotype, and covariates of interest — no genetic data.
 
-The simplest scan to do is a linear regression GWAS. The following model is
-first when doing a linear regression GWAS.
-``` {r, eval = T, echo = F, message = F, warning = F, tidy = T}
-knitr::kable(modeldf[1,], caption = "Model Fit")
+It is important to:
+
+- Remove subjects with missing data.
+- Keep only subjects who have genetic data (listed in `bdinfo$samples`).
+- Keep the subject IDs in the data frame, as they are used to match genetic data
+  to the correct phenotype and covariates.
+
+The formula passed to glm() must list the covariate whose interaction with the
+genetic data is being tested **last**. In this example we test the interaction
+with x1, so the formula is `y ~ x2 + x1`.
+
+### Continuous Phenotype
+
+```{r linear-model}
+# Remove y_logistic from the subject data
+lineardata <- subjectdata[, c(1, 2, 4, 5)]
+
+# Keep only subjects with complete data
+lineardata <- lineardata[complete.cases(lineardata), ]
+
+# Keep only subjects with genetic data
+lineardata <- lineardata[lineardata$subid %in% bdinfo$samples$sid, ]
+
+# Fit the linear model
+linearmodel <- glm(y_linear ~ x2 + x1, data = lineardata)
 ```
 
-In the example data set,
-the phenotype, y, is coded 0,1. When GxEScanR sees the phenotype codes this way
-it assumes the outcome is binary and uses logistic regression. To perform
-a linear regression GWAS the binary option needs to be set to FALSE. The
-following shows how to do a linear GWAS along with the results.
+### Dichotomous Phenotype
 
-The routine outputs the number of subjects used in the analysis and returns
-a data frame with the results.
+```{r logistic-model}
+# Remove y_linear from the subject data
+logisticdata <- subjectdata[, c(1, 3, 4, 5)]
 
-``` {r, eval = T, echo = T, message = F, warning = F, tidy = T}
-lingwas1 <- gwas(data = covdata,
-                 bdinfo = bdinfo,
-                 binary = FALSE)
+# Keep only subjects with complete data
+logisticdata <- logisticdata[complete.cases(logisticdata), ]
+
+# Keep only subjects with genetic data
+logisticdata <- logisticdata[logisticdata$subid %in% bdinfo$samples$sid, ]
+
+# Fit the logistic model
+logisticmodel <- glm(y_logistic ~ x2 + x1, family = binomial, data = logisticdata)
 ```
 
-``` {r, eval = T, echo = F, message = F, warning = F, tidy = T}
-knitr::kable(lingwas1, caption = "Linear Regression GWAS")
+## Step 3: Allocating Memory for the GWEIS
+
+Memory must be allocated before running the GWEIS using `gweis.mem()`. This
+pre-computation makes the scan substantially faster. Pass the fitted base model,
+the subject IDs from that model's data, and the list of tests to perform.
+
+Typical test sets:
+
+- **Continuous phenotype:** `"bg_ge"`, `"bg_gxe"`, `"bgxe"`, `"joint"`
+- **Dichotomous phenotype:** `"bg_ge"`, `"bg_gxe"`, `"bgxe"`, `"joint"`,
+  `"bg_eg"`, `"bg_case"`, `"bg_ctrl"`
+
+```{r allocate-memory}
+# Continuous outcome
+linearmem <- gweis.mem(gemdl = linearmodel,
+                       subids = lineardata$subid,
+                       tests = c("bg_ge", "bg_gxe", "bgxe", "joint"))
+
+# Dichotomous outcome
+logisticmem <- gweis.mem(gemdl = logisticmodel,
+                         subids = logisticdata$subid,
+                         tests = c("bg_ge", "bg_gxe", "bgxe", "joint",
+                                   "bg_eg", "bg_case", "bg_ctrl"))
 ```
 
-The output can be redirected to output file that produces a plain test
-version of the results in a tab delimited file that can be read into R
-using the read.table routine. In this case, the gwas routine returns a
-value of 0.
+## Step 4: Running the GWEIS
 
-``` {r, eval = T, echo = T, message = F, warning = F, tidy = T}
-outfile <- tempfile()
-lingwas2 <- gwas(data = covdata,
-                 bdinfo = bdinfo,
-                 outfile = outfile,
-                 binary = FALSE)
-lingwas2
-lingwas2 <- read.table(outfile, header = TRUE, sep ='\t')
+Pass the memory object from `gweis.mem()`, the `bdinfo` object, a vector of SNP
+indices or IDs to test, and an output file path to `rungweis()`. Results are
+written as a tab-delimited text file.
+
+```{r run-gweis}
+snpindex <- 1:nrow(bdinfo$snps)
+
+# Continuous outcome
+linearresults <- file.path(exampledir, "linear.txt")
+rungweis(gweismem = linearmem,
+         bdinfo = bdinfo,
+         snps = snpindex,
+         outfilename = linearresults)
+
+# Dichotomous outcome
+logisticresults <- file.path(exampledir, "logistic.txt")
+rungweis(gweismem = logisticmem,
+         bdinfo = bdinfo,
+         snps = snpindex,
+         outfilename = logisticresults)
 ```
 
-``` {r, eval = T, echo = F, message = F, warning = F, tidy = T}
-knitr::kable(lingwas2, caption = "Linear Regression GWAS")
+## Step 5: Processing the Results
+
+Read the output file with `read.table()`. The following describes the output
+columns, illustrated with the first three SNPs.
+
+```{r read-results}
+lineardf <- read.table(linearresults, header = TRUE, sep = "\t")
+logisticdf <- read.table(logisticresults, header = TRUE, sep = "\t")
 ```
 
-## Linear Regression GWEIS
+### SNP Information and Allele Frequency
 
-The gweis routine takes the same parameters as the gwas function but performs
-additional tests. The models fit for a linear regression GWAS are.
-``` {r, eval = T, echo = F, message = F, warning = F, tidy = T}
-knitr::kable(modeldf[1:2,], caption = "Models Fit")
+Every row contains SNP ID (`snpid`), chromosome (`chr`), position (`loc`),
+reference allele (`ref`), alternate allele (`alt`), and alternate allele
+frequency (`aaf`). For a dichotomous outcome, `aaf_case` and `aaf_ctrl` are
+also included.
+
+```{r snp-info-linear}
+knitr::kable(lineardf[1:3, 1:6], caption = "SNP information — continuous outcome")
 ```
 
-Note: When doing a GWEIS the interaction covariate is in the last column of the
-subject data frame.
-
-In this test the minmaf option was used. When minmaf is specified the minor
-allele for a SNP must exceed minmaf to be test. Notice that only 5 SNPs are
-in the output data frame. This is because one of the SNPs has a minor allele
-frequency below 0.2.
-
-``` {r, eval = T, echo = T, message = F, warning = F, tidy = T}
-lingweis1 <- gweis(data = covdata,
-                   bdinfo = bdinfo,
-                   minmaf = 0.2,
-                   binary = FALSE)
+```{r snp-info-logistic}
+knitr::kable(logisticdf[1:3, 1:8], caption = "SNP information — dichotomous outcome")
 ```
 
-``` {r, eval = T, echo = F, message = F, warning = F, tidy = T}
-knitr::kable(lingweis1, caption = "Linear Regression GWEIS")
+### Model 1 Output: `bg_ge`
+
+`bg_ge` is the $\beta_G$ estimate from model 1. `bg_ge_lrt` is the LRT 1 df
+chi-squared statistic for $\beta_G = 0$. Output when `"bg_ge"` is in `tests`.
+
+```{r model1-output}
+knitr::kable(lineardf[1:3, 7:8], caption = "Model 1 results")
 ```
 
-If the user is interested in see what happened to SNPs that weren't included
-in the data frame, the skipfile option can be used. The skipfile value is the
-name of a file to write the skipped SNPs to. The skipfile option can be used
-along with the outfile option. The skip file is in the same format as the
-output file. Below is an example using the skipfile option.
+### Model 2 Output: `bg_gxe`, `bgxe`, `joint`
 
-``` {r, eval = T, echo = T, message = F, warning = F, tidy = T}
-skipfile = tempfile()
-lingweis2 <- gweis(data = covdata,
-                   bdinfo = bdinfo,
-                   skipfile = skipfile,
-                   minmaf = 0.2,
-                   binary = FALSE)
+- `bg_gxe` / `bg_gxe_lrt`: $\beta_G$ estimate and LRT from model 2. Output
+  when `"bg_gxe"` is in `tests`.
+- `bgxe` / `bgxe_lrt`: $\beta_{GxE}$ estimate and LRT. Output when `"bgxe"`
+  is in `tests`.
+- `joint_lrt`: 2 df LRT for $\beta_G = 0$ and $\beta_{GxE} = 0$ jointly.
+  Output when `"joint"` is in `tests`.
+
+```{r model2-output}
+knitr::kable(lineardf[1:3, 9:13], caption = "Model 2 results")
 ```
 
-``` {r, eval = T, echo = F, message = F, warning = F, tidy = T}
-knitr::kable(lingweis2, caption = "Linear Regression GWEIS")
-skipsnps <- read.table(skipfile, header = TRUE, sep = '\t')
+### Models 3–5 Output: `bg_eg`, `bg_case`, `bg_ctrl`
+
+Each test produces a $\beta_G$ estimate and a 1 df LRT statistic. Output when
+`"bg_eg"`, `"bg_case"`, or `"bg_ctrl"` are in `tests`, respectively.
+
+```{r model3-5-output}
+knitr::kable(logisticdf[1:3, 16:21], caption = "Models 3-5 results")
 ```
-
-``` {r, eval = T, echo = T, message = F, warning = F, tidy = T}
-knitr::kable(skipsnps, caption = "Skipped SNPs")
-```
-
-The following table lists the reasons SNPs were skipped given the skipped value.
-``` {r, eval = T, echo = F, message = F, warning = F, tidy = T}
-reasondf <- readRDS(system.file("extdata", "skipreason.rds", package = "GxEScanR"))
-knitr::kable(reasondf, caption = "Skipped Reasons")
-```
-
-## Logistic Regression GWAS
-
-In this example, the phenotype is coded (0,1). The gwas and gweis routines check
-for this an will run logistic regressions if the outcome is coded (0,1) unless
-binary is set to FALSE. If the use wants to make sure the outcome is coded
-(0,1), the user may set binary to TRUE. In this case, if the outcome is not
-coded (0,1) an error is produced.
-
-The following model is fit when doing a logistic regression GWAS.
-``` {r, eval = T, echo = F, message = F, warning = F, tidy = T}
-knitr::kable(modeldf[1,], caption = "Model Fit")
-```
-
-``` {r, eval = T, echo = T, message = F, warning = F, tidy = T}
-loggwas1 <- gwas(data = covdata,
-                 bdinfo = bdinfo,
-                 blksize = 2,
-                 binary = TRUE)
-```
-
-``` {r, eval = T, echo = F, message = F, warning = F, tidy = T}
-knitr::kable(loggwas1, caption = "Logistic Regression GWAS", digits = 4)
-```
-
-In this example, the option blksize is used. When an analysis is run several
-SNPs are read in at one time. This saves disk time. The following are the
-default values for given the number of subjects. These values were chosen to
-keep the program running using less than 4GB of RAM. The user is allowed to
-specify a value up to twice the default value. Little performance gain is seen
-going with larger values. If the user enters 0 for blksize, the default value
-is used.
-
-``` {r, eval = T, echo = F, message = F, warning = F, tidy = T}
-defaultdf <- readRDS(system.file("extdata", "defaultblk.rds", package = "GxEScanR"))
-knitr::kable(defaultdf, caption = "Default blksize")
-```
-
-## Logistic Regression GWEIS
-
-A logistic regression GWEIS fits an additional 4 models that produce 7 more
-tests. 3 of these models use the the interaction covariate as the outcome.
-The following show all the models fit in a logistic regression GWEIS.
-
-The following model is fit when doing a logistic regression GWAS.
-``` {r, eval = T, echo = F, message = F, warning = F, tidy = T}
-knitr::kable(modeldf, caption = "Models Fit")
-```
-
-Note: When doing a GWEIS the interaction covariate is in the last column of
-the data frame.
-
-### Logistic Regression GWEIS with Binary Covariate
-
-In the example subject data, the covariate is coded (0,1). In this case, the
-gweis routine will use logistic regression to fit the last 3 models.
-
-``` {r, eval = T, echo = T, message = F, warning = F, tidy = T}
-loggweis1 <- gweis(data = covdata,
-                   bdinfo = bdinfo,
-                   snps = 1:2,
-                   binary = TRUE)
-```
-
-``` {r, eval = T, echo = F, message = F, warning = F, tidy = T}
-knitr::kable(loggweis1, caption = "Logistic Regression GWEIS", digits = 4)
-```
-
-In this example the snps options was used. The snps option can either be a
-vector of indices indicating what SNPs to include or a list of SNPs by SNP ID.
-A vector of indices was used in this example.
-
-### Logistic Regression GWEIS with a Continuous Covariate
-
-In the example subject data, the covariate is coded (0,1) which the gweis
-routine sees a binary covariate to make the routine do a linear regression
-1 can be added to the interaction covariate. This will change the coding to
-(1,2) which the routine sees as a continuous covariate.
-
-``` {r, eval = T, echo = T, message = F, warning = F, tidy = T}
-covdata2 <- covdata
-covdata2$e <- covdata2$e + 1
-loggweis2 <- gweis(data = covdata2,
-                   bdinfo = bdinfo,
-                   snps = c("1:10001", "1:10002"))
-```
-
-``` {r, eval = T, echo = F, message = F, warning = F, tidy = T}
-knitr::kable(loggweis2, caption = "Logistic Regression GWEIS", digits = 4)
-```
-
-In this example the snps options was used with the SNP IDs.
