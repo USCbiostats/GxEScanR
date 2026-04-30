@@ -9,3 +9,6 @@ src/*.dll
 GxEDataset.txt
 Test/*
 inst/doc
+*.Rcheck/
+README.html
+vignettes/*.html
