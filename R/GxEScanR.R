@@ -162,9 +162,7 @@ gweis.mem <- function(gemdl, subids, tests, gomdl = NULL) {
 #'          snps = 1:nrow(bdinfo$snps), outfilename = outfile)
 #' }
 #' @export
-rungweis <- function(gweismem, bdinfo, snps, outfilename, maf) {
-  if (missing(maf) == TRUE)
-    maf <- 0.01
+rungweis <- function(gweismem, bdinfo, snps, outfilename, maf = 0.01) {
   minaaf <- maf
   maxaaf <- 1. - maf
 

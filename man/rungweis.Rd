@@ -4,7 +4,7 @@
 \alias{rungweis}
 \title{Routine to run a GWEIS}
 \usage{
-rungweis(gweismem, bdinfo, snps, outfilename, maf)
+rungweis(gweismem, bdinfo, snps, outfilename, maf = 0.01)
 }
 \arguments{
 \item{gweismem}{Models and memory allocated by gweis-mem to run the GWEIS.}
