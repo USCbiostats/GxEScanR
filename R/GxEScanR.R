@@ -1,13 +1,11 @@
 #' @importFrom lsReg lsReg
-#' @importFrom lsReg runtest
+#' @importFrom lsReg addcovar
 #' @importFrom BinaryDosage getsnp
+#' @importFrom stats binomial gaussian glm
 NULL
 
 #' Routine to allocate memory needed to perform a GWEIS.
 #'
-#' @param gomdl The results from glm for the gene-only model. This model
-#' contains the outcome and all the covariates except the covariate that
-#' the gene interaction is being tested for. This can be NULL.
 #' @param gemdl The results from glm for the gene-environment model. This model
 #' contains the outcome and all covariates of interest with the last covariate
 #' listed in the model being the covaraiate that the gene interaction is being
@@ -17,16 +15,37 @@ NULL
 #' @param tests The list of tests to perform. These can be any combination of
 #' the following values "bg_go", "bg_ge", "bg_gxe", "bgxe", "joint", "bg_eg",
 #' "bg_case", "bg_ctrl"
+#' @param gomdl The results from glm for the gene-only model. This model
+#' contains the outcome and all the covariates except the covariate that
+#' the gene interaction is being tested for. Required (non-NULL) when
+#' \code{"bg_go"} is included in \code{tests}; ignored otherwise.
 #'
 #' @return List containing allocated memory to perform the specified GWEIS.
-#' This value is passed to the rungweis routine.
+#' This value is passed to the \code{rungweis} routine. Returns \code{1} if
+#' any value in \code{tests} is not a recognised test name.
+#' @examples
+#' \dontrun{
+#' bdinfo <- BinaryDosage::getbdinfo(system.file("extdata", "gendata.bdose",
+#'                                               package = "GxEScanR"))
+#' subdata <- readRDS(system.file("extdata", "subdata.rds", package = "GxEScanR"))
+#' subdata <- subdata[complete.cases(subdata), ]
+#' subdata <- subdata[subdata$subid %in% bdinfo$samples$sid, ]
+#'
+#' linearmodel <- glm(y_linear ~ x2 + x1, data = subdata)
+#' linearmem <- gweis.mem(gemdl = linearmodel,
+#'                        subids = subdata$subid,
+#'                        tests = c("bg_ge", "bg_gxe", "bgxe", "joint"))
+#' }
 #' @export
-gweis.mem <- function(gomdl = NULL, gemdl, subids, tests) {
+gweis.mem <- function(gemdl, subids, tests, gomdl = NULL) {
   x <- match(tests, c("bg_go", "bg_ge", "bg_gxe", "bgxe", "joint", "bg_eg", "bg_case", "bg_ctrl"))
   if (all(is.na(x) == FALSE) == FALSE)
     return (1)
   mdls <- logical(8)
   mdls[x] <- TRUE
+
+  if (mdls[1] == TRUE && is.null(gomdl))
+    stop("gomdl must be provided when \"bg_go\" is included in tests")
 
   if (mdls[1] == TRUE)
     gomdlmem <- lsReg::lsReg(gomdl, 1, "lrt")
@@ -124,7 +143,24 @@ gweis.mem <- function(gomdl = NULL, gemdl, subids, tests) {
 #' @param outfilename Name of the file to contain the output
 #' @param maf Minimum minor allele frequency of SNPs needed to run test on.
 #'
-#' @return None
+#' @return Called for its side effect of writing tab-delimited results to
+#' \code{outfilename}. Returns \code{NULL} invisibly.
+#' @examples
+#' \dontrun{
+#' bdinfo <- BinaryDosage::getbdinfo(system.file("extdata", "gendata.bdose",
+#'                                               package = "GxEScanR"))
+#' subdata <- readRDS(system.file("extdata", "subdata.rds", package = "GxEScanR"))
+#' subdata <- subdata[complete.cases(subdata), ]
+#' subdata <- subdata[subdata$subid %in% bdinfo$samples$sid, ]
+#'
+#' linearmodel <- glm(y_linear ~ x2 + x1, data = subdata)
+#' linearmem <- gweis.mem(gemdl = linearmodel,
+#'                        subids = subdata$subid,
+#'                        tests = c("bg_ge", "bgxe", "joint"))
+#' outfile <- tempfile(fileext = ".txt")
+#' rungweis(gweismem = linearmem, bdinfo = bdinfo,
+#'          snps = 1:nrow(bdinfo$snps), outfilename = outfile)
+#' }
 #' @export
 rungweis <- function(gweismem, bdinfo, snps, outfilename, maf) {
   if (missing(maf) == TRUE)
@@ -161,9 +197,9 @@ rungweis <- function(gweismem, bdinfo, snps, outfilename, maf) {
     statsout[10] <- TRUE
   }
   snpinfo <- paste("snpid", "chr", "loc", "ref", "alt", sep = '\t')
-  if (gweismem$test[8] == TRUE)
+  if (gweismem$tests[8] == TRUE)
     statsout[2] <- TRUE
-  if (gweismem$test[7] == TRUE)
+  if (gweismem$tests[7] == TRUE)
     statsout[3] <- TRUE
 
   outline <- paste(statnames[statsout], collapse = "\t")
@@ -184,32 +220,32 @@ rungweis <- function(gweismem, bdinfo, snps, outfilename, maf) {
     }
 
     if (length(gweismem$gomdlmem) > 0) {
-      lsReg::runtest(gweismem$gomdlmem, xr)
+      lsReg::addcovar(gweismem$gomdlmem, xr)
     }
     if (length(gweismem$gemdlmem) > 0) {
-      lsReg::runtest(gweismem$gemdlmem, xr)
+      lsReg::addcovar(gweismem$gemdlmem, xr)
     }
     if (length(gweismem$gxemdlmem) > 0) {
       xr2[,1] <- xr
       xr2[,2] <- xr * gweismem$gxemdlmem$fitdata$xl[,ncol(gweismem$gxemdlmem$fitdata$xl)]
-      lsReg::runtest(gweismem$gxemdlmem, xr2)
+      lsReg::addcovar(gweismem$gxemdlmem, xr2)
     }
     if (length(gweismem$gxe0mdlmem) > 0) {
       xrgxe[,1] <- xr2[,2]
-      lsReg::runtest(gweismem$gxe0mdlmem, xrgxe)
+      lsReg::addcovar(gweismem$gxe0mdlmem, xrgxe)
     }
     if (length(gweismem$egmdlmem) > 0) {
-      lsReg::runtest(gweismem$egmdlmem, xr)
+      lsReg::addcovar(gweismem$egmdlmem, xr)
     }
     if (length(gweismem$casemdlmem) > 0) {
       xrcase[,1] <- g[casematch]
       outvalues[2] <- mean(xrcase) / 2
-      lsReg::runtest(gweismem$casemdlmem, xrcase)
+      lsReg::addcovar(gweismem$casemdlmem, xrcase)
     }
     if (length(gweismem$ctrlmdlmem) > 0) {
       xrctrl[,1] <- g[ctrlmatch]
       outvalues[3] <- mean(xrctrl) / 2
-      lsReg::runtest(gweismem$ctrlmdlmem, xrctrl)
+      lsReg::addcovar(gweismem$ctrlmdlmem, xrctrl)
     }
     if (gweismem$tests[1] == TRUE) {
       outvalues[4] <- gweismem$gomdlmem$fitdata$betab[1]

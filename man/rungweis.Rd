@@ -19,8 +19,26 @@ genetic data to run the GWEIS}
 \item{maf}{Minimum minor allele frequency of SNPs needed to run test on.}
 }
 \value{
-None
+Called for its side effect of writing tab-delimited results to
+\code{outfilename}. Returns \code{NULL} invisibly.
 }
 \description{
 Routine to run a GWEIS
+}
+\examples{
+\dontrun{
+bdinfo <- BinaryDosage::getbdinfo(system.file("extdata", "gendata.bdose",
+                                              package = "GxEScanR"))
+subdata <- readRDS(system.file("extdata", "subdata.rds", package = "GxEScanR"))
+subdata <- subdata[complete.cases(subdata), ]
+subdata <- subdata[subdata$subid \%in\% bdinfo$samples$sid, ]
+
+linearmodel <- glm(y_linear ~ x2 + x1, data = subdata)
+linearmem <- gweis.mem(gemdl = linearmodel,
+                       subids = subdata$subid,
+                       tests = c("bg_ge", "bgxe", "joint"))
+outfile <- tempfile(fileext = ".txt")
+rungweis(gweismem = linearmem, bdinfo = bdinfo,
+         snps = 1:nrow(bdinfo$snps), outfilename = outfile)
+}
 }

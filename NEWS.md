@@ -11,6 +11,10 @@
 
 * Fixed issue with compiling on solaris.
 
-# GxEScanR 2.999.0
+# GxEScanR 2.0.0.9000
 
-* Development version that improves convergence routines.
+* Development version. Redesigned to depend on the lsReg and BinaryDosage
+  packages; C++ source code moved to lsReg.
+* Replaced gwas() and gweis() with gweis.mem() and rungweis() to support
+  a wider set of GWEIS tests including gene-only, GxE interaction, joint,
+  E|G, case-only, and control-only models.
