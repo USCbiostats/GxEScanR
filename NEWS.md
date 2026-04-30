@@ -11,7 +11,7 @@
 
 * Fixed issue with compiling on solaris.
 
-# GxEScanR 2.0.0
+# GxEScanR 3.0.0
 
 * Redesigned to depend on the lsReg and BinaryDosage packages; C++ source
   code moved to lsReg. Eliminates the C++11 specification that caused the
