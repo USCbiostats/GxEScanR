@@ -11,10 +11,12 @@
 
 * Fixed issue with compiling on solaris.
 
-# GxEScanR 2.0.0.9000
+# GxEScanR 3.0.0
 
-* Development version. Redesigned to depend on the lsReg and BinaryDosage
-  packages; C++ source code moved to lsReg.
+* Redesigned to depend on the lsReg and BinaryDosage packages; C++ source
+  code moved to lsReg. Eliminates the C++11 specification that caused the
+  package to be archived from CRAN.
 * Replaced gwas() and gweis() with gweis.mem() and rungweis() to support
   a wider set of GWEIS tests including gene-only, GxE interaction, joint,
   E|G, case-only, and control-only models.
+* Added testthat test suite and vignette.

@@ -35,4 +35,7 @@ environment.)
 
 ## Reverse dependencies
 
+Version bumped to 3.0.0 as the previously archived version was 2.0.2, making
+2.0.0 an invalid submission.
+
 There are no reverse dependencies on the archived version of this package.
