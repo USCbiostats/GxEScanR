@@ -136,7 +136,7 @@ into a BinaryDosage formatted file using the vcftobd() routine from the
 BinaryDosage package. The getbdinfo() routine is then used to load the
 information about the BinaryDosage file.
 
-```{r, eval = TRUE, echo = TRUE, message = FALSE, warning = FALSE}
+```{r, eval = FALSE, echo = TRUE}
 vcffile <- system.file("extdata", "gendata.vcf.gz", package = "GxEScanR")
 
 exampledir <- tempdir()
@@ -144,6 +144,12 @@ bdosefile <- file.path(exampledir, "gendata.bdose")
 
 BinaryDosage::vcftobd(vcffile = vcffile, bdose_file = bdosefile)
 bdinfo <- BinaryDosage::getbdinfo(bdosefile)
+```
+
+```{r, eval = TRUE, echo = FALSE, message = FALSE, warning = FALSE}
+bdosefile <- system.file("extdata", "gendata.bdose", package = "GxEScanR")
+bdinfo <- BinaryDosage::getbdinfo(bdosefile)
+exampledir <- tempdir()
 ```
 
 #### Subject Data

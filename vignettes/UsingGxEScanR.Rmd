@@ -111,9 +111,10 @@ converts files from the VCF format to the BinaryDosage format using the
 `vcftobd()` routine. The `getbdinfo()` routine is then used to load the
 information about the BinaryDosage file needed to run the GWEIS.
 
-This example uses a VCF file included with the GxEScanR package.
+The following example shows how to convert a VCF file to BinaryDosage format.
+Note that `vcftobd()` requires the `vcfppR` package.
 
-```{r genetic-data}
+```{r genetic-data-convert, eval = FALSE}
 vcffile <- system.file("extdata", "gendata.vcf.gz", package = "GxEScanR")
 
 exampledir <- tempdir()
@@ -121,6 +122,14 @@ bdosefile <- file.path(exampledir, "gendata.bdose")
 
 BinaryDosage::vcftobd(vcffile = vcffile, bdose_file = bdosefile)
 bdinfo <- BinaryDosage::getbdinfo(bdosefile)
+```
+
+This vignette uses a pre-converted BinaryDosage file included with the package.
+
+```{r genetic-data}
+bdosefile <- system.file("extdata", "gendata.bdose", package = "GxEScanR")
+bdinfo <- BinaryDosage::getbdinfo(bdosefile)
+exampledir <- tempdir()
 ```
 
 ### Subject Data
